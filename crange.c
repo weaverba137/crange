@@ -10,7 +10,7 @@
  * Copyright (C) 2001-2003 Benjamin Weaver
  *
  *
- * This program is free software which I release under the GNU Lesser 
+ * This program is free software which I release under the GNU Lesser
  * General Public License. You may redistribute and/or modify this program
  * under the terms of that license as published by the Free Software
  * Foundation; either version 2.1 of the License, or (at your option) any
@@ -73,10 +73,10 @@ int main( int argc, char **argv )
 double dedx( double e1, double rel0, double z0, double a1, int tno )
 /*
  * This is the core of the whole package, the dE/dx calculator.  I have
- * based this largely on the work of M. H. Salamon, L.B.L. Report #10446 
+ * based this largely on the work of M. H. Salamon, L.B.L. Report #10446
  * (1980).  Values of certain physical constants have been updated,
  * as well as some of the corrections to the basic stopping power formula.
- * Output is dE/dx in units of A MeV g^-1 cm^2.  
+ * Output is dE/dx in units of A MeV g^-1 cm^2.
  *
  * e1:   kinetic energy in A MeV
  * rel0: restricted energy loss parameter in eV
@@ -109,17 +109,17 @@ double dedx( double e1, double rel0, double z0, double a1, int tno )
     a2=t[tno].a2;
     /*
      * This is the modification of projectile charge due to electron
-     * capture.  F. Hubert, R. Bimbot, and H. Gauvin, At. Data Nuc. Data 
-     * Tab. 46 (1990) 1, give an empirically determined function which 
+     * capture.  F. Hubert, R. Bimbot, and H. Gauvin, At. Data Nuc. Data
+     * Tab. 46 (1990) 1, give an empirically determined function which
      * depends on the target material.  Two older versions, from
      * J. M. Anthony and W. A. Landford, Phys. Rev. A 25 (1982) 1868,
-     * and T. E. Pierce and M. Blann, Phys. Rev. 173 (1968) 390 are also 
+     * and T. E. Pierce and M. Blann, Phys. Rev. 173 (1968) 390 are also
      * available.
      */
     z23 = exp((2.0/3.0)*log(z0));
     if( sswitch & FE ) {
         if (z2 == 4.0) {
-            z1=z0*(1.0 - 
+            z1=z0*(1.0 -
                 ((2.045)+ 2.000*exp(-0.04369*z0))*
                 exp(
                     -(7.000)*
@@ -128,7 +128,7 @@ double dedx( double e1, double rel0, double z0, double a1, int tno )
                     )
                 );
         } else if (z2 == 6.0) {
-            z1=z0*(1.0 - 
+            z1=z0*(1.0 -
                 ((2.584)+ 1.910*exp(-0.03958*z0))*
                 exp(
                     -(6.933)*
@@ -137,7 +137,7 @@ double dedx( double e1, double rel0, double z0, double a1, int tno )
                     )
                 );
         } else {
-            z1=z0*(1.0 - 
+            z1=z0*(1.0 -
                 ((1.164 + 0.2319*exp(-0.004302*z2))+ 1.658*exp(-0.05170*z0))*
                 exp(
                     -(8.144+0.9876*log(z2))*
@@ -155,7 +155,7 @@ double dedx( double e1, double rel0, double z0, double a1, int tno )
          *
          * The Pierce and Blann formula can be activated by replacing the
          * variables capA and capB with the commented out values above.
-         */ 
+         */
         z1=z0*(1.0-capA*exp(-capB*b/z23));
     }
     f1=0.3070722*z1*z1*z2/(b2*a1*a2);
@@ -166,7 +166,7 @@ double dedx( double e1, double rel0, double z0, double a1, int tno )
          * the projectile velocity is comparable to the velocity of inner shell
          * electrons in the target medium.  This is discussed by U. Fano, Ann. Rev
          * Nucl. Sci. 13 (1963) 1. The shell correction can be included explicitly
-         * using this formula from W. H. Barkas and M. J. Berger, Studies of 
+         * using this formula from W. H. Barkas and M. J. Berger, Studies of
          * Penetration of Charged Particles in Matter, Natl. Acad. Sci. Pub. 1133
          * (1964).  Alternatively, the shell correction can be "hidden" in
          * the logarithmic mean ionization potential.  Much more work is required
@@ -190,8 +190,8 @@ double dedx( double e1, double rel0, double z0, double a1, int tno )
     }
     f6=2.0*log(g)-b2;
     /*
-     * The Lindhard-Sorensen effect is now on by default.  The 
-     * Bloch-Mott-Ahlen effects are included for historical interest and 
+     * The Lindhard-Sorensen effect is now on by default.  The
+     * Bloch-Mott-Ahlen effects are included for historical interest and
      * can be turned on by uncommenting the line after the next.
      */
     f3=lindhard(z1,a1,b); /* comment out this line if uncommenting the next */
@@ -202,7 +202,7 @@ double dedx( double e1, double rel0, double z0, double a1, int tno )
     if( sswitch & FKIN ){
         /*
          * This an estimate of the ultrarelativistic kinematic correction from
-         * S. P. Ahlen, Rev. Mod. Phys. 52 (1980) 121. It corrects to the 
+         * S. P. Ahlen, Rev. Mod. Phys. 52 (1980) 121. It corrects to the
          * finite mass (as opposed to size) of the nucleus in relativistic
          * electron-nucleus collisions.
          */
@@ -210,35 +210,35 @@ double dedx( double e1, double rel0, double z0, double a1, int tno )
     }
     if( sswitch & FRAD ){
         /*
-         * This is the radiative correction discussed in S. P. Ahlen, 
-         * Rev. Mod. Phys. 52 (1980) 121.  It arises from bremsstrahlung 
+         * This is the radiative correction discussed in S. P. Ahlen,
+         * Rev. Mod. Phys. 52 (1980) 121.  It arises from bremsstrahlung
          * of scattered electrons in ultrarelativistic collisions.  The
-         * form here is that of V. Z. Jankus, Phys. Rev. 90 (1953) 4.  
+         * form here is that of V. Z. Jankus, Phys. Rev. 90 (1953) 4.
          * The parameter Q from that paper is here set equal to the geometric
          * mean between the the electron rest energy and 2 m_e c^2 gamma.
          */
-        f9=(ALPHA/M_PI)*b2*(6.0822 
+        f9=(ALPHA/M_PI)*b2*(6.0822
             + log(2.0*g)*(
                 log(2.0*g)*(
-                    2.4167 
+                    2.4167
                     + 0.3333*log(2.0*g))-8.0314));
     }
     if( sswitch & FPA ){
         /*
-         * Slowing due to pair production.  This value and the value for 
+         * Slowing due to pair production.  This value and the value for
          * the bremsstrahlung correction below are based on the work of
          * A. H. Sorensen, "Stopping of relativistic heavy ions; the pair
          * production and bremsstrahlung channels", J. L. Duggan & I. L. Morgan
          * (Eds.), 17th Intl. Conf. on Application of Accelerators in Research
          * and Industry, Denton TX, Nov. 2002, AIP Conf. Proceedings No. 680,
-         * pp 102-105.  
+         * pp 102-105.
          */
         dpa=1.0/sqrt(g);
         ldpa=log(dpa);
         l0=log(2.0*g);
         Lpa0=(19.0/9.0)*(log(g/4.0) - 11.0/6.0);
         Lpa0s=(19.0/9.0)*log(183.0*exp(-1.0/3.0*log(z2))/(1.0 + 4.0*6.25470095193633*183.0*exp(-1.0/3.0*log(z2))/g));
-        Lpa1=dpa*(4178.0/(81*M_PI*M_PI) - 21.0/27.0 - 248.0*l0/(27.0*M_PI*M_PI) 
+        Lpa1=dpa*(4178.0/(81*M_PI*M_PI) - 21.0/27.0 - 248.0*l0/(27.0*M_PI*M_PI)
             +(28.0*l0/9.0 - 446.0/27.0)*2.0*ldpa/(M_PI*M_PI) + 14.0*4.0*ldpa*ldpa/(9.0*M_PI*M_PI));
         Lpa=Lpa0s+Lpa1;
         Spa=4.08803936906434e-06*(z1*z1/a1)*(z2*z2/a2)*(1.0 + 1.0/z2)*g*Lpa;
@@ -257,16 +257,16 @@ double dedx( double e1, double rel0, double z0, double a1, int tno )
          * by a factor of two to bring it into agreement with J. Lindhard,
          * Nucl. Inst. Meth. 132 (1976) 1.  It is not, however, equal to the
          * results of Lindhard, and more work is needed to decide which, if any,
-         * form is correct.  The recommended value seems to be the Jackson 
-         * & McCarthy result multiplied by two.  Jackson and McCarthy do not 
+         * form is correct.  The recommended value seems to be the Jackson
+         * & McCarthy result multiplied by two.  Jackson and McCarthy do not
          * have reliable values of F(V) for V < 0.8.  For the purposes of the
-         * computation, the cut-off is placed at v=1.0.  I have followed the 
-         * convention of Salamon in having the Barkas correction multiply just 
+         * computation, the cut-off is placed at v=1.0.  I have followed the
+         * convention of Salamon in having the Barkas correction multiply just
          * the "Bethe" portion of the stopping logarithm rather than the whole
          * stopping logarithm.  As there is considerable disagreement in the
-         * literature about the application of correction, and as changing 
+         * literature about the application of correction, and as changing
          * the convention makes makes a difference of less than 1 A MeV even
-         * in calculating the energy of stopping uranium, I have chosen to 
+         * in calculating the energy of stopping uranium, I have chosen to
          * leave it where it is.  Furthermore, I have found that a simple
          * power law v^-2 is adequate to model Jackson and McCarthy's function
          * for v > 1.0, so I have used this instead of the numbers found by
@@ -310,9 +310,9 @@ double delta( double g, int tno )
 /*
  * This function implements the density effect correction as formulated
  * in R. M. Sternheimer and R. F. Peierls, Phys. Rev. B 3 (1971) 3681 and as
- * extended in R. M. Sternheimer, M. J. Berger, S. M. Seltzer, Atom. Data 
- * and Nucl. Data Tables 30 (1984) 261.  This version can distinguish 
- * between solids and gasses, and between metals and insulators.  For 
+ * extended in R. M. Sternheimer, M. J. Berger, S. M. Seltzer, Atom. Data
+ * and Nucl. Data Tables 30 (1984) 261.  This version can distinguish
+ * between solids and gasses, and between metals and insulators.  For
  * conducting materials, there is a low-energy density effect.
  */
 {
@@ -341,7 +341,7 @@ double delta( double g, int tno )
 double olddelta( double g, int tno )
 /*
  * This function implements the density effect correction as originally
- * formulated in R. M. Sternheimer and R. F. Peierls, Phys. Rev. B 3 (1971) 
+ * formulated in R. M. Sternheimer and R. F. Peierls, Phys. Rev. B 3 (1971)
  * 3681.  Although it is now obsolete, I have included it here for
  * compatibility with earlier codes.
  */
@@ -400,16 +400,16 @@ double bma( double z1, double b )
 
     /*
      * This section includes the Mott correction of S. P. Ahlen, Phys. Rev.
-     * A 17 (1978) 1236, the Bloch correction of F. Bloch, Ann. Phys. 
-     * (Leipzig) 16 (1933) 285, and the Ahlen correction of S. P. Ahlen, 
-     * Phys. Rev. A 25 (1982) 1856.  All three of these corrections are 
-     * rendered obsolete by the Lindhard-Sorensen correction, and are 
-     * included here for historical interest and comparison with older 
-     * calculations.  Note also that the Mott correction has a severely 
+     * A 17 (1978) 1236, the Bloch correction of F. Bloch, Ann. Phys.
+     * (Leipzig) 16 (1933) 285, and the Ahlen correction of S. P. Ahlen,
+     * Phys. Rev. A 25 (1982) 1856.  All three of these corrections are
+     * rendered obsolete by the Lindhard-Sorensen correction, and are
+     * included here for historical interest and comparison with older
+     * calculations.  Note also that the Mott correction has a severely
      * limited range of validity, especially for high charges.  It's so
      * bad it can render the calculation not just inaccurate, but
      * unphysical (dE/dx < 0) below about 10 A MeV for uranium.  Ahlen
-     * recommends turning the Mott correction off for Z/beta > 100. 
+     * recommends turning the Mott correction off for Z/beta > 100.
      * Here for Z/beta > 100 the Mott correction is given the value at
      * Z/beta = 100. This prescription is given by C. J. Waddington,
      * P. S. Freier, and D. J. Fixsen, Phys. Rev. A 28 (1983) 464.
@@ -423,12 +423,12 @@ double bma( double z1, double b )
         fn2=fn*fn;
         sumr+=(1.0/(fn2+y2) - 1.0/fn2)/fn;
     }
-    /* 
+    /*
      * Bloch and Ahlen corrections. The variables lambda and theta0 are
      * free parameters in the Ahlen correction.  Theta0 also appears in
      * the Mott correction.  Here I have used Ahlen's recommended values.
-     * An alternative formula, theta0=sqrt(ALPHA/(b*g*lambda)), is 
-     * suggested by C. J. Waddington, P. S. Freier, and D. J. Fixsen, 
+     * An alternative formula, theta0=sqrt(ALPHA/(b*g*lambda)), is
+     * suggested by C. J. Waddington, P. S. Freier, and D. J. Fixsen,
      * Phys. Rev. A 28 (1983) 464.
      */
     lambda=1.0;
@@ -450,13 +450,13 @@ double bma( double z1, double b )
         -1.170/b2/b)))));
     */
     /*
-    if( (exp(9.0*log(y))/6.0) > fabs(f5/(f2*f4+f3+f5+f6-delt/2.0)) ) 
+    if( (exp(9.0*log(y))/6.0) > fabs(f5/(f2*f4+f3+f5+f6-delt/2.0)) )
     */
     if( y > 100.0*ALPHA ) y = 100.0*ALPHA;
     f5=0.5*b2*y*((1.725+(0.52-2.0*st)*M_PI*cosx)
         +y*((3.246-0.451*b2)
             +y*((0.987+1.522*b2)
-                +y*((-2.696+b2*(4.569-0.494*b2)) 
+                +y*((-2.696+b2*(4.569-0.494*b2))
                     +y*(-1.170+b2*(0.222+1.254*b2))
                     )
                 )
@@ -498,23 +498,23 @@ double relbloch( double z12, double b1, double lambda, double theta0 )
     Cl1=Cmul(Cf1,Csub(RCmul(2.0,Cf2),Cmul(Cf3,Cf4)));
     Cl2=Cmul(Cf1,Cadd(RCmul(2.0,Cmul(Cf2,Cf6)),Cmul(Cf3,Cmul(Cf4,Cf7))));
     es=(M_PI*nu)*exp(M_PI*nu)/sinh(M_PI*nu);
-    bloch2=(M_PI/2.0)*b1*b1*nu*es*(4.0*nu*log(2.0)*CRe(Cl1) 
-        + (nu*M_PI-1.0)*CIm(Cl1) 
-        + 2.0*nu*CRe(Cl2)); 
+    bloch2=(M_PI/2.0)*b1*b1*nu*es*(4.0*nu*log(2.0)*CRe(Cl1)
+        + (nu*M_PI-1.0)*CIm(Cl1)
+        + 2.0*nu*CRe(Cl2));
     return(bloch2);
 }
 
 double lindhard( double zz, double aa, double bb )
-/* 
+/*
  * This is the Lindhard-Sorensen correction including finite nuclear
  * size effects as described in J. Lindhard and A. H. Sorensen,
  * Phys. Rev. A 53 (1996) 2443.  The defined variable FNS will turn off the
  * nuclear size effect if it is set to zero.  For values of the Lorentz
  * factor above 10/R, where R is the nuclear size divided by the electron
- * Compton wavelength, the correction is set to its asymptotic value 
- * which is described by A. H. Sorensen,in Photonic, Electronic and Atomic 
- * Collisions; Invited Papers XX Int. Conf. on the Physics of Electronic 
- * and Atomic Collisions, eds. F. Aumayr and H. Winter (World Scientific, 
+ * Compton wavelength, the correction is set to its asymptotic value
+ * which is described by A. H. Sorensen,in Photonic, Electronic and Atomic
+ * Collisions; Invited Papers XX Int. Conf. on the Physics of Electronic
+ * and Atomic Collisions, eds. F. Aumayr and H. Winter (World Scientific,
  * Singapore, 1998) 475.  This also avoids some difficulties with the
  * evaluation of the confluent hypergeometric function (A. H. Sorensen,
  * private communication).
@@ -569,7 +569,7 @@ double lindhard( double zz, double aa, double bb )
                         -CIm(Clngamma(Cske))+(M_PI/2.0)*(l-sk))));
                 if( sswitch & FNS ){
                     Cmske=Complex(-sk+1.0,eta);
-                    Cexis=Csqrt(Cdiv(Complex(k,-eta/gg),Complex(-sk,-eta))); 
+                    Cexis=Csqrt(Cdiv(Complex(k,-eta/gg),Complex(-sk,-eta)));
                     Ceds=Cmul(Cexis,
                         Cexp(Complex(0.0,
                             -CIm(Clngamma(Cmske)) + (M_PI/2.0)*(l+sk))));
@@ -584,7 +584,7 @@ double lindhard( double zz, double aa, double bb )
                         Chyperg(Caas,Cbbs,Czzr));
                     grgs=CIm(Clamr)/CIm(Clams);
                     Cgrgs=Clngamma(Cbbs);
-                    grgs*=exp( CRe(Clngamma(Cske)) - CRe(Clngamma(Cmske)) 
+                    grgs*=exp( CRe(Clngamma(Cske)) - CRe(Clngamma(Cmske))
                         -CRe(Clngamma(Cbbr)) + CRe(Cgrgs)
                         +2.0*sk*log(2.0*prh));
                     if(cos(CIm(Cgrgs))<1.0)grgs*= -1.0;
@@ -612,7 +612,7 @@ double lindhard( double zz, double aa, double bb )
                             an=anp1;
                             bnm1=bn;
                         } while(fabs(anm1/asum) > 1e-6 && fabs(bnm1/bsum) > 1e-6 );
-                        figi= (k>0) ? asum/bsum : bsum/asum; 
+                        figi= (k>0) ? asum/bsum : bsum/asum;
                         H=((frgr-figi)/(figi-fsgs))*grgs;
                     } else {
                         H=0.0;
@@ -623,7 +623,7 @@ double lindhard( double zz, double aa, double bb )
                 }
                 r=1.0 + H*H + 2.0*H*(Cedr.r*Ceds.r + Cedr.i*Cedr.i);
                 dk[i]=Carg(Cadd(Cedr,RCmul(H,Ceds)));
-            }      
+            }
             if(n>1)dk[2]=dmk;
             sdm2=sin(dk[2]-dk[1]);
             term1 = k0*(k0+1.0)*sdm2*sdm2/(eta*eta*(2.0*k0 + 1.0));
@@ -638,7 +638,7 @@ double lindhard( double zz, double aa, double bb )
             n += 1;
             dkm1=dk[0];
             dmk=dk[1];
-            pct = (term2 + term3)/sumterm; 
+            pct = (term2 + term3)/sumterm;
         }
     } else {
         sumterm = -log(prh) - 0.2; /* Asymptotic value of the LS correction */
@@ -675,16 +675,16 @@ double range( double e, double z1, double a1, int tno )
 /*
  * This function computes total range given initial energy.  The technique
  * is quite clever, in that if from one call to the next, the projectile
- * and target material parameters do not change, the calculation of 
+ * and target material parameters do not change, the calculation of
  * range is performed by table interpolation rather than direct integration.
- * The savings in calculation time can be enormous.  However, the 
+ * The savings in calculation time can be enormous.  However, the
  * range of valid energies is limited by the size of the table.  The
- * function dE/dx is evaluated at most of the energies contained in the 
- * array tenerg[].  Results are stored in the two dimensional array 
+ * function dE/dx is evaluated at most of the energies contained in the
+ * array tenerg[].  Results are stored in the two dimensional array
  * trange[][].  The second index of trange[][] can have an arbitrary range
  * and should be set to whatever is most useful.  Certainly it should
  * be no smaller than the number of target materials being used.
- * Output is range in units of g cm^-2.  The arguments are the same as 
+ * Output is range in units of g cm^-2.  The arguments are the same as
  * those described for the dedx() function.
  */
 {
@@ -699,7 +699,7 @@ double range( double e, double z1, double a1, int tno )
     } else {
         z1p=z1;
         a1p=a1;
-    }    
+    }
     if(table){
         i=0;
         while(tenerg[i] < 8.0) {
@@ -780,12 +780,12 @@ double qrange( double e, double z1, double a1, int tno )
 double benton( double e, double z1, double a1, int tno )
 /*
  * This function is the result of  empirical fits to very low energy
- * 1 A MeV < E < 8 A MeV ion ranges.  It follows the methods of  
- * W. H. Barkas and M. J. Berger, Studies of Penetration of Charged 
- * Particles in Matter, Natl. Acad. Sci. Pub. 1133 (1964).  A simplified 
- * discussion, with a more complicated formula is given in 
- * E. V. Benton and R. P. Henke, Nucl. Inst. Meth. 67 (1969) 87. 
- * As yet I know of no nicer way to deal with these low energies. 
+ * 1 A MeV < E < 8 A MeV ion ranges.  It follows the methods of
+ * W. H. Barkas and M. J. Berger, Studies of Penetration of Charged
+ * Particles in Matter, Natl. Acad. Sci. Pub. 1133 (1964).  A simplified
+ * discussion, with a more complicated formula is given in
+ * E. V. Benton and R. P. Henke, Nucl. Inst. Meth. 67 (1969) 87.
+ * As yet I know of no nicer way to deal with these low energies.
  */
 {
     extern tdata t[MAXAB];
@@ -834,10 +834,10 @@ double benton( double e, double z1, double a1, int tno )
     }
     /*
      * join[l] demarcates the three energy regions represented by the
-     * three sets of coefficients in amn.  The demarcation is variable 
-     * in order to minimize discontinuities at the boundary.  The 
+     * three sets of coefficients in amn.  The demarcation is variable
+     * in order to minimize discontinuities at the boundary.  The
      * coefficients in cjoin are inhereted from legacy code; I have not found
-     * them in the non-obscure literature.  Approximately, the three 
+     * them in the non-obscure literature.  Approximately, the three
      * regions are E < 1 A MeV, 1 < E < 7 A MeV, and E > 7 A MeV.
      */
     for (l = 0; l < 3; l++) {
@@ -882,11 +882,11 @@ double benton( double e, double z1, double a1, int tno )
 }
 
 double renergy( double e, double r0, double z1, double a1, int tno )
-/* 
- * This function finds extracts energies from the range tables by 
+/*
+ * This function finds extracts energies from the range tables by
  * table interpolation.  Inputs are range measured in g cm^-2 , and other
  * inputs described above. The first call to range() is to initialize
- * the range-energy tables or find the correct table if it has 
+ * the range-energy tables or find the correct table if it has
  * already been computed.
  */
 {
@@ -914,14 +914,14 @@ double renergy( double e, double r0, double z1, double a1, int tno )
 
 void run_range( FILE *finput, FILE *foutput )
 /*
- * The following is a utility function which steps through the 
+ * The following is a utility function which steps through the
  * range, energy and dE/dx tasks specified in the input data file.
  * The tasks are denoted by a single letter:  r to compute ranges,
  * e to compute energies, and d to compute dE/dx.  The task letter should
- * be followed by the energy (or range) at which to compute range (or 
- * energy), the charge and mass of the particle, and the name of the 
- * target material.  Names of target materials can be found in the 
- * target.dat file.  Target material names may be up to eight (8) 
+ * be followed by the energy (or range) at which to compute range (or
+ * energy), the charge and mass of the particle, and the name of the
+ * target material.  Names of target materials can be found in the
+ * target.dat file.  Target material names may be up to eight (8)
  * characters in length and should contain no whitespace.
  */
 {
@@ -932,14 +932,14 @@ void run_range( FILE *finput, FILE *foutput )
     double out=0.0;
     int icols=6;
     int k=0;
-  
+
     for(;;){
         icols=fscanf(finput,"%s %lf %lf %lf %lf %s\n",
             task,&red1,&red2,&z1,&a1,abs);
         if(icols < 6) break;
         if( strcmp( abs, previous ) != 0 ) {
             k=0;
-            while( (strcmp( t[k].tname, abs ) != 0) 
+            while( (strcmp( t[k].tname, abs ) != 0)
                 && (strcmp( t[k].tname, "Unknown" ) != 0)) k++;
         }
         strcpy( previous, abs );
@@ -953,7 +953,7 @@ void run_range( FILE *finput, FILE *foutput )
                 out=dedx(red1,red2,z1,a1,k);
             }
         }
-        fprintf(foutput,"%f\n",out);    
+        fprintf(foutput,"%f\n",out);
     }
     return;
 }
@@ -961,11 +961,11 @@ void run_range( FILE *finput, FILE *foutput )
 void init_tables( int *initstat )
 /*
  * This utility creates and sets to zero all entries in the external
- * absorber and range tables.  It also sets up the energy table by 
+ * absorber and range tables.  It also sets up the energy table by
  * creating a logarithmically uniform distribution of energies between
  * some minimum energy and some maximum energy, with a number of entries
  * given by MAXE.  Finally, it opens the absorber data file for read-only
- * access. The variable pointed to by initstat will be set to zero on 
+ * access. The variable pointed to by initstat will be set to zero on
  * successful completion of the initialization.
  */
 {
@@ -979,23 +979,29 @@ void init_tables( int *initstat )
     char root2[50] = DEDX ;
     char *targetfile, *switchfile;
     FILE *fabsorber;
+#ifdef HAVE_INIPARSER_H
     dictionary *d;
+#endif
 
     targetfile = strcat( root1, "/target.dat" );
     switchfile = strcat( root2, "/switch.ini" );
+#ifdef HAVE_INIPARSER_H
     sswitch = 0;
     d = iniparser_load( switchfile );
     if (iniparser_getboolean(d,"crange:barkas",0)) sswitch |= FBA;
     if (iniparser_getboolean(d,"crange:shell",0))  sswitch |= FSH;
     if (iniparser_getboolean(d,"crange:leung",0))  sswitch |= FLE;
     if (iniparser_getboolean(d,"crange:new delta",1))  sswitch |= FD; /* True by default! */
-    if (iniparser_getboolean(d,"crange:new electron capture",0))  sswitch |= FE; 
+    if (iniparser_getboolean(d,"crange:new electron capture",0))  sswitch |= FE;
     if (iniparser_getboolean(d,"crange:finite nuclear size",1))  sswitch |= FNS; /* True by default! */
-    if (iniparser_getboolean(d,"crange:kinematic",0))  sswitch |= FKIN; 
-    if (iniparser_getboolean(d,"crange:radiative",0))  sswitch |= FRAD; 
-    if (iniparser_getboolean(d,"crange:pair",0))  sswitch |= FPA; 
-    if (iniparser_getboolean(d,"crange:bremsstrahlung",0))  sswitch |= FBR; 
+    if (iniparser_getboolean(d,"crange:kinematic",0))  sswitch |= FKIN;
+    if (iniparser_getboolean(d,"crange:radiative",0))  sswitch |= FRAD;
+    if (iniparser_getboolean(d,"crange:pair",0))  sswitch |= FPA;
+    if (iniparser_getboolean(d,"crange:bremsstrahlung",0))  sswitch |= FBR;
     iniparser_freedict(d);
+#else
+    sswitch = FD | FNS;
+#endif
     ln10=log(10.0);
     l10Emin=0.0; /* minimum energy 1 A MeV */
     l10Emax=6.0; /* maximum energy 1 A TeV */

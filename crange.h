@@ -42,8 +42,9 @@
 /*
  * Include header for parsing ini files.
  */
+#ifdef HAVE_INIPARSER_H
 #include <iniparser.h>
-
+#endif
 /*
  * Define working directory.  This is the directory in which the
  * binary lives as well as the data files.

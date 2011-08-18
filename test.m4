@@ -1,7 +1,7 @@
 dnl this is a test
 divert(-1)
-define(`REVISION',`$Revision: 1234 $')
-define(`HEADURL', `$HeadURL: http://svn.example.com/svn/crange/tags/1.2.3/m4/svn.m4 $')
+define(`REVISION',`$Revision$')
+define(`HEADURL', `$HeadURL$')
 define(`AFTER_COLON',`substr($1,eval(index($1,`:')+2))')
 define(`BEFORE_SPACE',`substr($1,0,index($1,` '))')
 define(`BEFORE_SLASH',`substr($1,0,index($1,`/'))')

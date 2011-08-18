@@ -15,31 +15,16 @@ it should run on any system with a C compiler.
 
 Version:
 
-This is version 1.5.3 of the Berkeley Range-Energy Calculator.
+This is version 1.6 of the Berkeley Range-Energy Calculator.
 
+1.6:   Make crange compatible with GNU autotools.
 1.5.3: Simplified calculation switching and added a crange.h file
 1.5.2: Increased value of MAXAB to acommodate a larger target data file
 1.5.1: Fixed typo in one of the parameters of the electron capture corection
 
 Installation:
 
-The directions for installation can be found in the Makefile.  Don't forget
-to change the preprocessor definition DEDX (in the file crange.h) to the
-correct path to the working directory for your installation.
-
-Files:
-
-dedx.tar.gz all files below as a GZIPed TAR archive
-README      this file
-Makefile    makefile for installation and compilation of code
-target.dat  target data file
-complex.c   file containing functions to implement complex number mathematics
-complex.h   header file for complex number mathematics
-crange.c    main range-energy code
-crange.h    header file containing various defines for crange.c
-switch.ini  example file containing switches for different effects
-COPYRIGHT   contains copyright information
-LGPL        contains GNU Public License information
+See the INSTALL file.
 
 Running:
 
