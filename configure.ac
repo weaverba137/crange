@@ -1,0 +1,27 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ([2.63])
+AC_INIT([Berkeley Range-Energy Calculator], [1.5.3], [benjamin.weaver@nyu.edu], [dedx], [http://sdss.physics.nyu.edu/~bw55/dedx/])
+AC_REVISION([$Revision$])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AC_CONFIG_SRCDIR([complex.c])
+AC_CONFIG_HEADERS([config.h])
+
+# Checks for programs.
+AC_PROG_CC
+
+# Checks for libraries.
+AC_CHECK_LIB([m], [exp])
+AC_CHECK_LIB([iniparser], [iniparser_getboolean])
+
+# Checks for header files.
+AC_CHECK_HEADERS([stdlib.h string.h iniparser.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+
+# Checks for library functions.
+AC_CHECK_FUNCS([sqrt])
+
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
