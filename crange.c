@@ -1074,7 +1074,7 @@ int init_tables( char* foo )
             t[k].tname,&(t[k].z2),&(t[k].a2),&(t[k].iadj),&(t[k].rho),
             &(t[k].pla),&(t[k].X0),&(t[k].X1),&(t[k].a),&(t[k].m),
             &(t[k].d0),&(t[k].etad),&(t[k].bind));
-        if(tcol < 13) printf("Error at target %s :  %d items converted.\n",t[k].tname,tcol);
+        if(tcol < 13) fprintf(stderr,"Error at target %s :  %d items converted.\n",t[k].tname,tcol);
         k++;
     }while( strcmp( t[k-1].tname, "Unknown" ) != 0 );
     initstat=fclose(fabsorber);
