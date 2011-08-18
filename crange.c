@@ -42,7 +42,7 @@ int main( int argc, char **argv )
     /*
      * External variables used by getopt()
      */
-    extern char *optarg
+    extern char *optarg;
     extern int optind, optopt;
 
     while((c=getopt(argc,argv,":hs:t:")) != -1) {
