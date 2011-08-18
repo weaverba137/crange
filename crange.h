@@ -10,7 +10,7 @@
  * Copyright (C) 2001-2003 Benjamin Weaver
  *
  *
- * This program is free software which I release under the GNU Lesser 
+ * This program is free software which I release under the GNU Lesser
  * General Public License. You may redistribute and/or modify this program
  * under the terms of that license as published by the Free Software
  * Foundation; either version 2.1 of the License, or (at your option) any
@@ -38,10 +38,14 @@
 /*
  * Include headers for various complex arithmetic functions.
  */
-#include "complex.h"
+#include <fcomplex.h>
+/*
+ * Include header for parsing ini files.
+ */
+#include <iniparser.h>
 
 /*
- * Define working directory.  This is the directory in which the 
+ * Define working directory.  This is the directory in which the
  * binary lives as well as the data files.
  * IMPORTANT:  Change this to your own working directory!
  */
@@ -49,15 +53,15 @@
 #undef DEDX
 #endif
 #ifndef DEDX
-#define DEDX "/home/weaver/dedx"
+#define DEDX "."
 #endif
 
-/* 
+/*
  * MAXE sets the number of energies in the range-energy tables.
  */
 #define MAXE 200
 
-/* 
+/*
  * MAXAB sets the number of different target media which can be stored
  * in the range-energy tables.  It is suggested that MAXAB > number of
  * target media in the target.dat file.
@@ -66,14 +70,8 @@
 
 /*
  * Miscellaneous defines. The ifdefs should insure that we get the
- * values listed here.
+ * values listed here. ALPHA is the fine structure constant.
  */
-#ifdef PI
-#undef PI
-#endif
-#ifndef PI
-#define PI 3.14159265359
-#endif
 #ifdef ALPHA
 #undef ALPHA
 #endif
@@ -118,8 +116,8 @@ double tenerg[MAXE];
  * tname:   names of target materials
  */
 typedef struct TDATA {
-  double z2,a2,iadj,rho,pla,X0,X1,a,m,d0,etad,bind;
-  char tname[9];
+    double z2,a2,iadj,rho,pla,X0,X1,a,m,d0,etad,bind;
+    char tname[9];
 } tdata;
 
 /*
