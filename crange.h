@@ -34,11 +34,14 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-
 /*
  * Include headers for various complex arithmetic functions.
  */
 #include <fcomplex.h>
+/*
+ * Include config.h
+ */
+#include <config.h>
 /*
  * Include header for parsing ini files.
  */
@@ -56,19 +59,16 @@
 #ifndef DEDX
 #define DEDX "."
 #endif
-
 /*
  * MAXE sets the number of energies in the range-energy tables.
  */
 #define MAXE 200
-
 /*
  * MAXAB sets the number of different target media which can be stored
  * in the range-energy tables.  It is suggested that MAXAB > number of
  * target media in the target.dat file.
  */
 #define MAXAB 50
-
 /*
  * Miscellaneous defines. The ifdefs should insure that we get the
  * values listed here. ALPHA is the fine structure constant.
@@ -90,18 +90,15 @@
 #define FRAD 0x080 /* Radiative correction effect */
 #define FPA  0x100 /* Pair Production energy loss */
 #define FBR  0x200 /* Projectile Bremsstrahlung */
-
 /*
  * External variable for holding calculation switches.
  */
 short sswitch;
-
 /*
  * These external variables contain the range-energy tables.
  */
 double trange[MAXE][MAXAB];
 double tenerg[MAXE];
-
 /*
  * This structure holds the data on the targest read from the target.dat
  * file.
@@ -120,12 +117,10 @@ typedef struct TDATA {
     double z2,a2,iadj,rho,pla,X0,X1,a,m,d0,etad,bind;
     char tname[9];
 } tdata;
-
 /*
  * Declare an external array of structures
  */
 tdata t[MAXAB];
-
 /*
  * Delcare all the functions in crange.c
  */
@@ -142,4 +137,3 @@ double benton( double e, double z1, double a1, int tno );
 double renergy( double e, double r0, double z1, double a1, int tno );
 void run_range( FILE *finput, FILE *foutput );
 void init_tables( int *initstat );
-
