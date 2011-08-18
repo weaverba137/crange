@@ -37,28 +37,68 @@ int main( int argc, char **argv )
     FILE *finput,*foutput;
     int ini;
     char inputname[50],outputname[50];
+    char *switchfile, *targetfile;
+    int c, errflag=0;
+    /*
+     * External variables used by getopt()
+     */
+    extern char *optarg
+    extern int optind, optopt;
 
-    init_tables(&ini);
-    if(ini){
-        printf("Error initializing crange!\n");
+    while((c=getopt(argc,argv,":hs:t:")) != -1) {
+        switch (c) {
+        case 'h':
+            /*
+             * Print help and exit.
+             */
+            errflag++;
+            break;
+        case 's':
+            /*
+             * Use filename as a switch file.
+             */
+            switchfile = optarg;
+            break;
+        case 't':
+            /*
+             * Use filename as a target file.
+             */
+            targetfile = optarg;
+            break;
+        case ':':
+            fprintf(stderr,"Option -%c requires an operand\n", optopt);
+            errflag++;
+            break;
+        case '?':
+            fprintf(stderr,"Unrecognised option: -%c\n", optopt);
+            errflag++;
+        }
+    }
+    if (errflag) {
+        fprintf(stderr,"usage:...");
         return(1);
     }
-    if(argc > 1) {
-        sscanf(*++argv,"%s",inputname);
+    init_tables(&ini);
+    if(ini){
+        fprintf(stderr,"Error initializing crange!\n");
+        return(1);
+    }
+    if(argc-optind >= 1) {
+        sscanf(argv[optind],"%s",inputname);
         finput=fopen(inputname, "r");
         if (finput==NULL) {
-            printf("Error opening task file!\n");
+            fprintf(stderr,"Error opening task file!\n");
             return(2);
         }
     } else {
-        printf("No task file specified!\n");
+        fprintf(stderr,"No task file specified!\n");
         return(2);
     }
-    if(argc > 2) {
-        sscanf(*++argv,"%s",outputname);
+    if(argc-optind == 2) {
+        sscanf(argv[optind+1],"%s",outputname);
         foutput=fopen(outputname, "w");
         if (foutput==NULL) {
-            printf("Error opening output file!\n");
+            fprintf(stderr,"Error opening output file!\n");
             return(4);
         }
     } else {

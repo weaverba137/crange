@@ -18,7 +18,7 @@ AC_CHECK_LIB([m], [exp])
 AC_CHECK_LIB([iniparser], [iniparser_getboolean])
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdlib.h string.h iniparser.h])
+AC_CHECK_HEADERS([stdlib.h string.h unistd.h iniparser.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 

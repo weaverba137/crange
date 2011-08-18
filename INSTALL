@@ -1,4 +1,9 @@
-0. autoreconf --warnings=all --install
+If you are exporting from svn to create a distribution:
+1. autoreconf --warnings=all --install
+2. ./configure
+3. make dist
+
+If you are installing from a distribution:
 1. ./configure
 2. make
 3. make install

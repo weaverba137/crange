@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <unistd.h> /* to get getopt() */
 /*
  * Include headers for various complex arithmetic functions.
  */
