@@ -92,10 +92,6 @@
 #define FPA  0x100 /* Pair Production energy loss */
 #define FBR  0x200 /* Projectile Bremsstrahlung */
 /*
- * External variable for holding calculation switches.
- */
-short sswitch;
-/*
  * These external variables contain the range-energy tables.
  */
 double trange[MAXE][MAXAB];
@@ -125,16 +121,17 @@ tdata t[MAXAB];
 /*
  * Delcare all the functions in crange.c
  */
-double dedx( double e1, double rel0, double z0, double a1, int tno );
+double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tno );
 double delta( double g, int tno );
 double olddelta( double g, int tno );
 double bma( double z1, double b );
 double relbloch( double z12, double b1, double lambda, double theta0 );
-double lindhard( double zz, double aa, double bb );
+double lindhard( double zz, double aa, double bb, short sswitch );
 double Fbrems( double x );
-double range( double e, double z1, double a1, int tno );
-double qrange( double e, double z1, double a1, int tno );
+double range( double e, double z1, double a1, short sswitch, int tno );
+double qrange( double e, double z1, double a1, short sswitch, int tno );
 double benton( double e, double z1, double a1, int tno );
-double renergy( double e, double r0, double z1, double a1, int tno );
-void run_range( FILE *finput, FILE *foutput );
-void init_tables( int *initstat );
+double renergy( double e, double r0, double z1, double a1, short sswitch, int tno );
+void run_range( FILE *finput, FILE *foutput, short sswitch );
+short init_switch( char *switchfile);
+int init_tables( char *targetfile );

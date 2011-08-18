@@ -35,7 +35,8 @@
 int main( int argc, char **argv )
 {
     FILE *finput,*foutput;
-    int ini;
+    short sswitch;
+    int ini=0, have_switch=0, have_target=0;
     char inputname[50],outputname[50];
     char *switchfile, *targetfile;
     int c, errflag=0;
@@ -58,12 +59,14 @@ int main( int argc, char **argv )
              * Use filename as a switch file.
              */
             switchfile = optarg;
+            have_switch++;
             break;
         case 't':
             /*
              * Use filename as a target file.
              */
             targetfile = optarg;
+            have_target++;
             break;
         case ':':
             fprintf(stderr,"Option -%c requires an operand\n", optopt);
@@ -75,10 +78,11 @@ int main( int argc, char **argv )
         }
     }
     if (errflag) {
-        fprintf(stderr,"usage:...");
+        fprintf(stderr,"usage: crange [-h] [-s switch.ini] [-t target.dat] input [output]\n");
         return(1);
     }
-    init_tables(&ini);
+    sswitch = (have_switch) ? init_switch(switchfile) : FD | FNS;
+    ini = init_tables(targetfile);
     if(ini){
         fprintf(stderr,"Error initializing crange!\n");
         return(1);
@@ -104,13 +108,13 @@ int main( int argc, char **argv )
     } else {
         foutput=stdout;
     }
-    run_range( finput, foutput );
+    run_range( finput, foutput, sswitch );
     fclose(finput);
     fclose(foutput);
     return(0);
 }
 
-double dedx( double e1, double rel0, double z0, double a1, int tno )
+double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tno )
 /*
  * This is the core of the whole package, the dE/dx calculator.  I have
  * based this largely on the work of M. H. Salamon, L.B.L. Report #10446
@@ -125,7 +129,6 @@ double dedx( double e1, double rel0, double z0, double a1, int tno )
  * tno:  number of the current target (for looking up in the tdata struct)
  */
 {
-    extern short sswitch;
     extern tdata t[MAXAB];
     static double fva[10]={0.33,0.078,0.03,0.014,0.0084,
         0.0053,0.0035,0.0025,0.0019,0.0014};
@@ -234,7 +237,7 @@ double dedx( double e1, double rel0, double z0, double a1, int tno )
      * Bloch-Mott-Ahlen effects are included for historical interest and
      * can be turned on by uncommenting the line after the next.
      */
-    f3=lindhard(z1,a1,b); /* comment out this line if uncommenting the next */
+    f3=lindhard(z1,a1,b,sswitch); /* comment out this line if uncommenting the next */
     /* f3=bma(z1,b); */
     f4=1.0;
     f8=0.0;
@@ -544,7 +547,7 @@ double relbloch( double z12, double b1, double lambda, double theta0 )
     return(bloch2);
 }
 
-double lindhard( double zz, double aa, double bb )
+double lindhard( double zz, double aa, double bb, short sswitch )
 /*
  * This is the Lindhard-Sorensen correction including finite nuclear
  * size effects as described in J. Lindhard and A. H. Sorensen,
@@ -560,7 +563,6 @@ double lindhard( double zz, double aa, double bb )
  * private communication).
  */
 {
-    extern short sswitch;
     fcomplex Cexir, Cexis, Cedr, Ceds, Cske, Cmske, Cgrgs;
     fcomplex Clamr,Clams;
     fcomplex Caar, Cbbr, Caas, Cbbs, Czzr;
@@ -711,7 +713,7 @@ double Fbrems( double x )
     }
 }
 
-double range( double e, double z1, double a1, int tno )
+double range( double e, double z1, double a1, short sswitch, int tno )
 /*
  * This function computes total range given initial energy.  The technique
  * is quite clever, in that if from one call to the next, the projectile
@@ -750,13 +752,13 @@ double range( double e, double z1, double a1, int tno )
         while(i<MAXE){
             de2=(tenerg[i]-tenerg[i-1])/2.0;
             e1=tenerg[i-1]+1.33998104*de2;
-            dedx1=dedx(e1,rel,z1,a1,tno);
+            dedx1=dedx(e1,rel,z1,a1,sswitch,tno);
             e2=tenerg[i-1]+1.86113631*de2;
-            dedx2=dedx(e2,rel,z1,a1,tno);
+            dedx2=dedx(e2,rel,z1,a1,sswitch,tno);
             e3=tenerg[i-1]+0.13886369*de2;
-            dedx3=dedx(e3,rel,z1,a1,tno);
+            dedx3=dedx(e3,rel,z1,a1,sswitch,tno);
             e4=tenerg[i-1]+0.66001869*de2;
-            dedx4=dedx(e4,rel,z1,a1,tno);
+            dedx4=dedx(e4,rel,z1,a1,sswitch,tno);
             dr=de2*(0.65214515/dedx1 + 0.34785485/dedx2 + 0.34785485/dedx3
                 + 0.65214515/dedx4);
             trange[i][tno] = trange[i-1][tno] + dr;
@@ -773,7 +775,7 @@ double range( double e, double z1, double a1, int tno )
     }
 }
 
-double qrange( double e, double z1, double a1, int tno )
+double qrange( double e, double z1, double a1, short sswitch, int tno )
 /*
  * This function computes total range given initial energy.  This
  * is a direct integration of dE/dx from 1 A MeV up to the initial energy.
@@ -797,13 +799,13 @@ double qrange( double e, double z1, double a1, int tno )
             en=exp(ln10*(lei + ((double)i)*lef/entries));
             de2=(en-pen)/2.0;
             e1=pen+1.33998104*de2;
-            dedx1=dedx(e1,rel,z1,a1,tno);
+            dedx1=dedx(e1,rel,z1,a1,sswitch,tno);
             e2=pen+1.86113631*de2;
-            dedx2=dedx(e2,rel,z1,a1,tno);
+            dedx2=dedx(e2,rel,z1,a1,sswitch,tno);
             e3=pen+0.13886369*de2;
-            dedx3=dedx(e3,rel,z1,a1,tno);
+            dedx3=dedx(e3,rel,z1,a1,sswitch,tno);
             e4=pen+0.66001869*de2;
-            dedx4=dedx(e4,rel,z1,a1,tno);
+            dedx4=dedx(e4,rel,z1,a1,sswitch,tno);
             dr=de2*(0.65214515/dedx1 + 0.34785485/dedx2 + 0.34785485/dedx3
                 + 0.65214515/dedx4);
             ra[i] = ra[i-1] + dr;
@@ -921,7 +923,7 @@ double benton( double e, double z1, double a1, int tno )
     return(( (a1/cr)/(z1*z1) )*(prnglo[l] + bzz*cz[n]));
 }
 
-double renergy( double e, double r0, double z1, double a1, int tno )
+double renergy( double e, double r0, double z1, double a1, short sswitch, int tno )
 /*
  * This function finds extracts energies from the range tables by
  * table interpolation.  Inputs are range measured in g cm^-2 , and other
@@ -935,11 +937,11 @@ double renergy( double e, double r0, double z1, double a1, int tno )
     int i;
 
     if( e > 0.0 ){
-        rr = range(e,z1,a1,tno);
+        rr = range(e,z1,a1,sswitch,tno);
         r = rr - r0;
         if( r < 0.0 ) return(0.0);
     } else {
-        rr = range(tenerg[0],z1,a1,tno);
+        rr = range(tenerg[0],z1,a1,sswitch,tno);
         r = r0;
     }
     if(r > trange[0][tno]){
@@ -952,7 +954,7 @@ double renergy( double e, double r0, double z1, double a1, int tno )
     }
 }
 
-void run_range( FILE *finput, FILE *foutput )
+void run_range( FILE *finput, FILE *foutput, short sswitch )
 /*
  * The following is a utility function which steps through the
  * range, energy and dE/dx tasks specified in the input data file.
@@ -986,11 +988,11 @@ void run_range( FILE *finput, FILE *foutput )
         out=0.0;
         if(icols==6 && strcmp( t[k].tname, "Unknown" ) != 0){
             if(strcmp( task, "r" )==0){
-                out=range(red1,z1,a1,k);
+                out=range(red1,z1,a1,sswitch,k);
             } else if(strcmp( task, "e" )==0){
-                out=renergy(red1,red2,z1,a1,k);
+                out=renergy(red1,red2,z1,a1,sswitch,k);
             } else if(strcmp( task, "d" )==0){
-                out=dedx(red1,red2,z1,a1,k);
+                out=dedx(red1,red2,z1,a1,sswitch,k);
             }
         }
         fprintf(foutput,"%f\n",out);
@@ -998,7 +1000,39 @@ void run_range( FILE *finput, FILE *foutput )
     return;
 }
 
-void init_tables( int *initstat )
+short init_switch( char *switchfile )
+/*
+ * Initializes the value of sswitch.
+ */
+{
+    short sswitch;
+#ifdef HAVE_INIPARSER_H
+    dictionary *d;
+#endif
+    sswitch = FD | FNS;
+#ifdef HAVE_INIPARSER_H
+    if (access(switchfile,R_OK)) {
+        sswitch = 0;
+        d = iniparser_load( switchfile );
+        if (iniparser_getboolean(d,"crange:barkas",0)) sswitch |= FBA;
+        if (iniparser_getboolean(d,"crange:shell",0))  sswitch |= FSH;
+        if (iniparser_getboolean(d,"crange:leung",0))  sswitch |= FLE;
+        if (iniparser_getboolean(d,"crange:new delta",1))  sswitch |= FD; /* True by default! */
+        if (iniparser_getboolean(d,"crange:new electron capture",0))  sswitch |= FE;
+        if (iniparser_getboolean(d,"crange:finite nuclear size",1))  sswitch |= FNS; /* True by default! */
+        if (iniparser_getboolean(d,"crange:kinematic",0))  sswitch |= FKIN;
+        if (iniparser_getboolean(d,"crange:radiative",0))  sswitch |= FRAD;
+        if (iniparser_getboolean(d,"crange:pair",0))  sswitch |= FPA;
+        if (iniparser_getboolean(d,"crange:bremsstrahlung",0))  sswitch |= FBR;
+        iniparser_freedict(d);
+    } else {
+        fprintf(stderr,"Could not read switch file: %s. Using default crange switches.\n",switchfile);
+    }
+#endif
+    return sswitch;
+}
+
+int init_tables( char* foo )
 /*
  * This utility creates and sets to zero all entries in the external
  * absorber and range tables.  It also sets up the energy table by
@@ -1009,39 +1043,16 @@ void init_tables( int *initstat )
  * successful completion of the initialization.
  */
 {
-    extern short sswitch;
     extern tdata t[MAXAB];
     extern double trange[MAXE][MAXAB], tenerg[MAXE];
-    int i,j,k,tcol;
+    int i,j,k,tcol,initstat;
     double ln10,l10Emin,l10Emax,decades,entries;
     char rswitch[20];
     char root1[50] = DEDX ;
-    char root2[50] = DEDX ;
-    char *targetfile, *switchfile;
+    char *targetfile;
     FILE *fabsorber;
-#ifdef HAVE_INIPARSER_H
-    dictionary *d;
-#endif
 
     targetfile = strcat( root1, "/target.dat" );
-    switchfile = strcat( root2, "/switch.ini" );
-#ifdef HAVE_INIPARSER_H
-    sswitch = 0;
-    d = iniparser_load( switchfile );
-    if (iniparser_getboolean(d,"crange:barkas",0)) sswitch |= FBA;
-    if (iniparser_getboolean(d,"crange:shell",0))  sswitch |= FSH;
-    if (iniparser_getboolean(d,"crange:leung",0))  sswitch |= FLE;
-    if (iniparser_getboolean(d,"crange:new delta",1))  sswitch |= FD; /* True by default! */
-    if (iniparser_getboolean(d,"crange:new electron capture",0))  sswitch |= FE;
-    if (iniparser_getboolean(d,"crange:finite nuclear size",1))  sswitch |= FNS; /* True by default! */
-    if (iniparser_getboolean(d,"crange:kinematic",0))  sswitch |= FKIN;
-    if (iniparser_getboolean(d,"crange:radiative",0))  sswitch |= FRAD;
-    if (iniparser_getboolean(d,"crange:pair",0))  sswitch |= FPA;
-    if (iniparser_getboolean(d,"crange:bremsstrahlung",0))  sswitch |= FBR;
-    iniparser_freedict(d);
-#else
-    sswitch = FD | FNS;
-#endif
     ln10=log(10.0);
     l10Emin=0.0; /* minimum energy 1 A MeV */
     l10Emax=6.0; /* maximum energy 1 A TeV */
@@ -1066,7 +1077,7 @@ void init_tables( int *initstat )
         if(tcol < 13) printf("Error at target %s :  %d items converted.\n",t[k].tname,tcol);
         k++;
     }while( strcmp( t[k-1].tname, "Unknown" ) != 0 );
-    *initstat=fclose(fabsorber);
-    return;
+    initstat=fclose(fabsorber);
+    return initstat;
 }
 
