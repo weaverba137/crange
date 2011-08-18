@@ -75,8 +75,8 @@ into the program by default.  Users may supply their own switch.ini file
 on the command line or by setting the DEDX_SWITCH environment variable.
 In order to do this, crange must be compiled against the iniparser
 library, version 3.0 or later, see http://ndevilla.free.fr/iniparser/.
-If you don't wish to install this library, add the --no-switch
-option to configure.
+If you don't wish to install this library, the code will still compile, but
+you will not be able to change the default settings.
 
 More detailed explanations of each of these effects may be found in the
 code itself, including references to the original literature.
