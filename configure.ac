@@ -2,7 +2,11 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([Berkeley Range-Energy Calculator], m4_esyscmd([./crange_version]), [benjamin.weaver@nyu.edu], [crange], [http://sdss.physics.nyu.edu/~bw55/dedx/])
+AC_INIT([Berkeley Range-Energy Calculator],
+        m4_esyscmd([./crange_version]),
+        [benjamin.weaver@nyu.edu],
+        [crange],
+        [http://cosmo.nyu.edu/~bw55/dedx/])
 AC_REVISION([$Revision$])
 # AC_REVISION(AC_SVN_REVISION)
 # AC_REVISION(AC_SVN_GET_VERSION(AC_SVN_HEADURL))

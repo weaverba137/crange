@@ -26,15 +26,13 @@
  * MA  02111-1307  USA
  *
  */
-#include <math.h>
 
 /*
  * Header file for complex arithmetic.
  */
 typedef struct FCOMPLEX {double r, i;} fcomplex;
-
 /*
- * Declare functions from complex.c
+ * Declare functions from fcomplex.c
  */
 fcomplex Cadd( fcomplex a, fcomplex b );  /* Add two complex numbers */
 fcomplex Csub( fcomplex a, fcomplex b );  /* Subtract two complex numbers */
@@ -57,4 +55,3 @@ double CRe( fcomplex z );                 /* Real part */
 double CIm( fcomplex z );                 /* Imaginary part */
 fcomplex Chyperg( fcomplex a, fcomplex b, fcomplex z ); /* Complex confluent hypergeometric function */
 fcomplex Clngamma( fcomplex z );          /* Complex logarithm of Complex Gamma function */
-

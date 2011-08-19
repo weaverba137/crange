@@ -51,7 +51,7 @@
  * (Cambridge University  Press, Cambridge, 1992).  In addition a number
  * of useful analytic complex functions such as the exponential, logarithm,
  * trigonometric, and hyperbolic functions, are defined here.  Some further
- * description can be found in the header file "complex.h".  The branch
+ * description can be found in the header file "fcomplex.h".  The branch
  * cut for the logarithm function is on the negative real axis.
  */
 
