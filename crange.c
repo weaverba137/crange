@@ -81,7 +81,7 @@ int main( int argc, char **argv )
         fprintf(stderr,"usage: crange [-h] [-s switch.ini] [-t target.dat] input [output]\n");
         return(1);
     }
-    sswitch = (have_switch) ? init_switch(switchfile) : FD | FNS;
+    sswitch = (have_switch) ? init_switch(switchfile) : SSWITCH_DEFAULT;
     ini = init_tables(targetfile);
     if(ini){
         fprintf(stderr,"Error initializing crange!\n");
@@ -145,7 +145,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tn
     double capA, capB;
 
     g=1.0+e1/931.4943;
-    delt = ( sswitch & FD ) ? delta(g,tno) : olddelta(g,tno);
+    delt = ( sswitch & SSWITCH_ND ) ? delta(g,tno) : olddelta(g,tno);
     b2=1.0-1.0/(g*g);
     b=sqrt(b2);
     z2=t[tno].z2;
@@ -160,7 +160,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tn
      * available.
      */
     z23 = exp((2.0/3.0)*log(z0));
-    if( sswitch & FE ) {
+    if( sswitch & SSWITCH_EC ) {
         if (z2 == 4.0) {
             z1=z0*(1.0 -
                 ((2.045)+ 2.000*exp(-0.04369*z0))*
@@ -203,7 +203,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tn
     }
     f1=0.3070722*z1*z1*z2/(b2*a1*a2);
     f2=log(2.0*emass*b2/t[tno].iadj);
-    if( sswitch & FSH ){
+    if( sswitch & SSWITCH_SH ){
         /*
          * The inner shell correction is somewhat problematic.  It arises when
          * the projectile velocity is comparable to the velocity of inner shell
@@ -221,7 +221,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tn
             +1.0e-9*(t[tno].iadj)*(t[tno].iadj)*(t[tno].iadj)*etam2*(3.858019
             +etam2*(-0.1667989 + etam2*0.00157955));
         f2-=cadj/(z2);
-        if( sswitch & FLE ){
+        if( sswitch & SSWITCH_LE ){
             /*
              * The Leung, or relativistic shell correction is a small effect which
              * is due to relativistic inner shell electrons in very heavy targets.
@@ -242,7 +242,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tn
     f4=1.0;
     f8=0.0;
     f9=0.0;
-    if( sswitch & FKIN ){
+    if( sswitch & SSWITCH_KI ){
         /*
          * This an estimate of the ultrarelativistic kinematic correction from
          * S. P. Ahlen, Rev. Mod. Phys. 52 (1980) 121. It corrects to the
@@ -251,7 +251,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tn
          */
         f8=0.5*(-log(1.0+2.0*((5.4858e-04)*g/a1)) - ((5.4858e-04)*g/a1)*b2/(g*g));
     }
-    if( sswitch & FRAD ){
+    if( sswitch & SSWITCH_RA ){
         /*
          * This is the radiative correction discussed in S. P. Ahlen,
          * Rev. Mod. Phys. 52 (1980) 121.  It arises from bremsstrahlung
@@ -266,7 +266,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tn
                     2.4167
                     + 0.3333*log(2.0*g))-8.0314));
     }
-    if( sswitch & FPA ){
+    if( sswitch & SSWITCH_PA ){
         /*
          * Slowing due to pair production.  This value and the value for
          * the bremsstrahlung correction below are based on the work of
@@ -286,14 +286,14 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tn
         Lpa=Lpa0s+Lpa1;
         Spa=4.08803936906434e-06*(z1*z1/a1)*(z2*z2/a2)*(1.0 + 1.0/z2)*g*Lpa;
     }
-    if( sswitch & FBR ){
+    if( sswitch & SSWITCH_BR ){
         /*
          * Slowing due to projectile bremsstrahlung.
          */
         Bbr=log(1.0 + 2.0*g*0.179524783764566/(exp((1.0/3.0)*log(a1)) + exp((1.0/3.0)*log(a2)))/a1);
         Sbr=5.21721169334564e-07*(z1*z1/a1)*(z1*z1/a1)*(z2*z2/a2)*g*Bbr;
     }
-    if( sswitch & FBA ){
+    if( sswitch & SSWTICH_BA ){
         /*
          * This is the Barkas correction as calculated in J. D. Jackson and
          * R. L. McCarthy, Phys. Rev. B 6 (1972) 4131.  It is multiplied
@@ -551,7 +551,7 @@ double lindhard( double zz, double aa, double bb, short sswitch )
 /*
  * This is the Lindhard-Sorensen correction including finite nuclear
  * size effects as described in J. Lindhard and A. H. Sorensen,
- * Phys. Rev. A 53 (1996) 2443.  The defined variable FNS will turn off the
+ * Phys. Rev. A 53 (1996) 2443.  The defined variable SSWITCH_NS will turn off the
  * nuclear size effect if it is set to zero.  For values of the Lorentz
  * factor above 10/R, where R is the nuclear size divided by the electron
  * Compton wavelength, the correction is set to its asymptotic value
@@ -592,7 +592,7 @@ double lindhard( double zz, double aa, double bb, short sswitch )
     term3 = 1.0;
     term2 = 0.0;
     pct = 1.0;
-    if ((gg < 10.0/rho) || !(sswitch & FNS)) {
+    if ((gg < 10.0/rho) || !(sswitch & SSWITCH_NS)) {
 /*      while(fabs(pct) > 0.01) {  */
         while ( n < 100 ) {
             k0 = (double)n;
@@ -609,7 +609,7 @@ double lindhard( double zz, double aa, double bb, short sswitch )
                 Cedr=Cmul(Cexir,
                     Cexp(Complex(0.0,
                         -CIm(Clngamma(Cske))+(M_PI/2.0)*(l-sk))));
-                if( sswitch & FNS ){
+                if( sswitch & SSWITCH_NS ){
                     Cmske=Complex(-sk+1.0,eta);
                     Cexis=Csqrt(Cdiv(Complex(k,-eta/gg),Complex(-sk,-eta)));
                     Ceds=Cmul(Cexis,
@@ -1009,21 +1009,21 @@ short init_switch( char *switchfile )
 #ifdef HAVE_INIPARSER_H
     dictionary *d;
 #endif
-    sswitch = FD | FNS;
+    sswitch = SSWITCH_DEFAULT;
 #ifdef HAVE_INIPARSER_H
     if (access(switchfile,R_OK)) {
         sswitch = 0;
         d = iniparser_load( switchfile );
-        if (iniparser_getboolean(d,"crange:barkas",0)) sswitch |= FBA;
-        if (iniparser_getboolean(d,"crange:shell",0))  sswitch |= FSH;
-        if (iniparser_getboolean(d,"crange:leung",0))  sswitch |= FLE;
-        if (iniparser_getboolean(d,"crange:new delta",1))  sswitch |= FD; /* True by default! */
-        if (iniparser_getboolean(d,"crange:new electron capture",0))  sswitch |= FE;
-        if (iniparser_getboolean(d,"crange:finite nuclear size",1))  sswitch |= FNS; /* True by default! */
-        if (iniparser_getboolean(d,"crange:kinematic",0))  sswitch |= FKIN;
-        if (iniparser_getboolean(d,"crange:radiative",0))  sswitch |= FRAD;
-        if (iniparser_getboolean(d,"crange:pair",0))  sswitch |= FPA;
-        if (iniparser_getboolean(d,"crange:bremsstrahlung",0))  sswitch |= FBR;
+        if (iniparser_getboolean(d,"crange:barkas",0)) sswitch |= SSWTICH_BA;
+        if (iniparser_getboolean(d,"crange:shell",0))  sswitch |= SSWITCH_SH;
+        if (iniparser_getboolean(d,"crange:leung",0))  sswitch |= SSWITCH_LE;
+        if (iniparser_getboolean(d,"crange:new delta",1))  sswitch |= SSWITCH_ND; /* True by default! */
+        if (iniparser_getboolean(d,"crange:new electron capture",0))  sswitch |= SSWITCH_EC;
+        if (iniparser_getboolean(d,"crange:finite nuclear size",1))  sswitch |= SSWITCH_NS; /* True by default! */
+        if (iniparser_getboolean(d,"crange:kinematic",0))  sswitch |= SSWITCH_KI;
+        if (iniparser_getboolean(d,"crange:radiative",0))  sswitch |= SSWITCH_RA;
+        if (iniparser_getboolean(d,"crange:pair",0))  sswitch |= SSWITCH_PA;
+        if (iniparser_getboolean(d,"crange:bremsstrahlung",0))  sswitch |= SSWITCH_BR;
         iniparser_freedict(d);
     } else {
         fprintf(stderr,"Could not read switch file: %s. Using default crange switches.\n",switchfile);

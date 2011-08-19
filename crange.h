@@ -81,16 +81,17 @@
 #define ALPHA 7.29735301383e-3
 #endif
 
-#define FBA  0x001 /* Barkas effect */
-#define FSH  0x002 /* Shell effect */
-#define FLE  0x004 /* Leung effect */
-#define FD   0x008 /* Density effect switcher */
-#define FE   0x010 /* Electron capture switcher */
-#define FNS  0x020 /* Finite Nuclear Size effect */
-#define FKIN 0x040 /* Kinetic effect */
-#define FRAD 0x080 /* Radiative correction effect */
-#define FPA  0x100 /* Pair Production energy loss */
-#define FBR  0x200 /* Projectile Bremsstrahlung */
+#define SSWITCH_BA  0x001 /* Barkas effect */
+#define SSWITCH_SH  0x002 /* Shell effect */
+#define SSWITCH_LE  0x004 /* Leung effect */
+#define SSWITCH_ND  0x008 /* Density effect switcher */
+#define SSWITCH_EC  0x010 /* Electron capture switcher */
+#define SSWITCH_NS  0x020 /* Finite Nuclear Size effect */
+#define SSWITCH_KI  0x040 /* Kinetic effect */
+#define SSWITCH_RA  0x080 /* Radiative correction effect */
+#define SSWITCH_PA  0x100 /* Pair Production energy loss */
+#define SSWITCH_BR  0x200 /* Projectile Bremsstrahlung */
+#define SSWITCH_DEFAULT (SSWITCH_ND | SSWITCH_NS)
 /*
  * These external variables contain the range-energy tables.
  */
