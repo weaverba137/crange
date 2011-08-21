@@ -1,0 +1,25 @@
+Energy vector might not be strictly necessary since one could in
+principle compute i given energy.
+
+The range table could be dynamically allocated for each target, that is,
+the target structure would contain a pointer to a range table. Each
+range table is only valid for a particular combination of target &
+projectile.
+
+tenerg[j] = exp(ln10*(l10Emin + j*(l10Emax-l10Emin)/(N-1)))
+
+tenerg[N-1] = exp(ln10*(l10Emin + (N-1)*(l10Emax-l10Emin)/(N-1)))
+
+log(tenerg[j]) = ln10*(l10Emin + j*(l10Emax-l10Emin)/(N-1))
+
+log(tenerg[j])/ln10 -l10Emin = j*(l10Emax-l10Emin)/(N-1)
+
+j = (log(tenerg[j])/ln10 - l10Emin)*(N-1)/(l10Emax-l10Emin)
+
+Allow additional sections of the ini file to specify additional
+parameters such as the size of the range table and the minimum
+and maximum energy.  Sections of the ini file that do not define
+switches or other configuration may be interpreted as additional
+entries for the absorber table.
+
+M_LN10 should be defined in math.h
