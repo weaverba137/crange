@@ -38,7 +38,8 @@
 /*
  * Include headers for various complex arithmetic functions.
  */
-#include <fcomplex.h>
+#include <gsl/gsl_complex.h>
+#include <gsl/gsl_complex_math.h>
 /*
  * Include config.h
  */
@@ -71,16 +72,24 @@
  */
 #define MAXAB 50
 /*
- * Miscellaneous defines. The ifdefs should insure that we get the
- * values listed here. ALPHA is the fine structure constant.
+ * Miscellaneous defines. ALPHA is the fine structure constant, and we want
+ * exactly that value.  Otherwise, M_PI and M_PI_2 should be defined in math.h.
  */
+#ifndef M_PI
+#define M_PI 3.14159265358979323846264338327950288
+#endif
+#ifndef M_PI_2
+#define M_PI_2 1.57079632679489661923132169163975144
+#endif
 #ifdef ALPHA
 #undef ALPHA
 #endif
 #ifndef ALPHA
 #define ALPHA 7.29735301383e-3
 #endif
-
+/*
+ * Define switch bits.
+ */
 #define SSWITCH_BA  0x001 /* Barkas effect */
 #define SSWITCH_SH  0x002 /* Shell effect */
 #define SSWITCH_LE  0x004 /* Leung effect */
@@ -122,6 +131,8 @@ tdata t[MAXAB];
 /*
  * Delcare all the functions in crange.c
  */
+gsl_complex complex_hyperg( gsl_complex a, gsl_complex b, gsl_complex z );
+gsl_complex complex_lngamma( gsl_complex z );
 double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tno );
 double delta( double g, int tno );
 double olddelta( double g, int tno );

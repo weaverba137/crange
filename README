@@ -17,7 +17,7 @@ Version:
 
 This is version 1.6 of the Berkeley Range-Energy Calculator.
 
-1.6:   Make crange compatible with GNU autotools.
+1.6:   Make crange compatible with GNU autotools & GNU Scientific Library.
 1.5.3: Simplified calculation switching and added a crange.h file
 1.5.2: Increased value of MAXAB to acommodate a larger target data file
 1.5.1: Fixed typo in one of the parameters of the electron capture corection
@@ -28,7 +28,7 @@ See the INSTALL file.
 
 Running:
 
-Some details can be found in the comments to crange.c and complex.c.
+Some details can be found in the comments to crange.c.
 The program is run by typing "crange [data.in] [data.out]".  The first
 arguement is the name of a file containing a list of tasks for the
 calculator to perform.  The second, optional arguement is the name of a

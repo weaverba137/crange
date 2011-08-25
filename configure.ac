@@ -18,11 +18,13 @@ AC_CONFIG_HEADERS([config.h])
 AC_PROG_CC
 
 # Checks for libraries.
-AC_CHECK_LIB([m], [exp])
+AC_CHECK_LIB([m],[cos])
+AC_CHECK_LIB([gslcblas],[cblas_dgemm])
+AC_CHECK_LIB([gsl],[gsl_blas_dgemm])
 AC_CHECK_LIB([iniparser], [iniparser_getboolean])
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdlib.h string.h unistd.h iniparser.h])
+AC_CHECK_HEADERS([stdlib.h string.h unistd.h iniparser.h gsl/gsl_complex.h gsl/gsl_complex_math.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 

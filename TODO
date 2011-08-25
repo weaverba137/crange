@@ -22,4 +22,3 @@ and maximum energy.  Sections of the ini file that do not define
 switches or other configuration may be interpreted as additional
 entries for the absorber table.
 
-M_LN10 should be defined in math.h

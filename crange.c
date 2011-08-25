@@ -114,6 +114,83 @@ int main( int argc, char **argv )
     return(0);
 }
 
+gsl_complex complex_hyperg( gsl_complex a, gsl_complex b, gsl_complex z )
+/*
+ * Confluent hypergeometric function.  WARNING, may not be stable for
+ * large values of |z|.
+ */
+{
+    gsl_complex Cm, previousterm, term, sumterm;
+    double dm = 0.0;
+
+    term=GSL_COMPLEX_ONE;
+    sumterm=GSL_COMPLEX_ONE;
+    do {
+        previousterm=term;
+        dm+=1.0;
+        Cm=gsl_complex_rect(dm-1.0,0.0);
+        term=gsl_complex_mul(previousterm,
+            gsl_complex_mul(
+                gsl_complex_div(gsl_complex_add(a,Cm),
+                    gsl_complex_add(b,Cm)),gsl_complex_div_real(z,dm)));
+        sumterm=gsl_complex_add(sumterm,term);
+    } while( gsl_complex_abs(term) > 1.0e-6 && gsl_complex_abs(previousterm) > 1.0e-6 );
+    return(sumterm);
+}
+
+gsl_complex complex_lngamma( gsl_complex z )
+/*
+ * Fully complex logarithm of fully complex Gamma function.  Functional
+ * in all portions of the complex plane, including the negative real axis.
+ * Note however, that the Gamma function has poles at all integers <= 0.
+ */
+{
+    gsl_complex result;
+    double x, y, r, fj, cterm;
+    double aterm1,aterm2,aterm3;
+    double lterm1,lterm2,lterm3;
+    int j;
+    double num,denom;
+    static double coeff[6]={76.18009172947146,
+        -86.50532032941677,
+        24.01409824083091,
+        -1.231739572450155,
+        0.1208650973866179e-2,
+        -0.5395239384953e-5};
+
+    if(GSL_REAL(z)>0) {
+        x=GSL_REAL(z)-1.0;
+        y=GSL_IMAG(z);
+    } else {
+        x=-GSL_REAL(z);
+        y=-GSL_IMAG(z);
+    }
+    r=sqrt((x+5.5)*(x+5.5)+y*y);
+    aterm1=y*log(r);
+    aterm2=(x+0.5)*atan2(y,(x+5.5))-y;
+    lterm1=(x+0.5)*log(r);
+    lterm2=-y*atan2(y,(x+5.5)) - (x+5.5) + 0.5*log(2.0*M_PI);
+    num=0.0;
+    denom=1.000000000190015;
+    for(j=1;j<7;j++){
+        fj=(double)j;
+        cterm=coeff[j-1]/((x+fj)*(x+fj)+y*y);
+        num+=cterm;
+        denom+=(x+fj)*cterm;
+    }
+    num*=-y;
+    aterm3=atan2(num,denom);
+    lterm3 = 0.5*log(num*num + denom*denom);
+    GSL_SET_COMPLEX(&result,lterm1+lterm2+lterm3,aterm1+aterm2+aterm3);
+    if(GSL_REAL(z)<0){
+        result=gsl_complex_sub(gsl_complex_rect(log(M_PI),0.0),
+            gsl_complex_add(result,
+                gsl_complex_log(gsl_complex_sin(
+                    gsl_complex_mul_real(z,M_PI)))));
+    }
+    return(result);
+}
+
 double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tno )
 /*
  * This is the core of the whole package, the dE/dx calculator.  I have
@@ -293,7 +370,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tn
         Bbr=log(1.0 + 2.0*g*0.179524783764566/(exp((1.0/3.0)*log(a1)) + exp((1.0/3.0)*log(a2)))/a1);
         Sbr=5.21721169334564e-07*(z1*z1/a1)*(z1*z1/a1)*(z2*z2/a2)*g*Bbr;
     }
-    if( sswitch & SSWTICH_BA ){
+    if( sswitch & SSWITCH_BA ){
         /*
          * This is the Barkas correction as calculated in J. D. Jackson and
          * R. L. McCarthy, Phys. Rev. B 6 (1972) 4131.  It is multiplied
@@ -439,7 +516,7 @@ double bma( double z1, double b )
     int n,msum;
     double b2,y,y2,sumr,fn,fn2,f3,f5;
     double lambda, theta0, cosx, st;
-    fcomplex Cz1,Cz2;
+    gsl_complex Cz1,Cz2;
 
     /*
      * This section includes the Mott correction of S. P. Ahlen, Phys. Rev.
@@ -477,9 +554,9 @@ double bma( double z1, double b )
     lambda=1.0;
     theta0=0.1;
     f3=-y2*(1.202+sumr) + relbloch(z1,b,lambda,theta0);
-    Cz1=Complex(0.5,-y);
-    Cz2=Complex(1.0,y);
-    cosx=cos(2.0*(CIm(Clngamma(Cz1))+CIm(Clngamma(Cz2))));
+    Cz1=gsl_complex_rect(0.5,-y);
+    Cz2=gsl_complex_rect(1.0,y);
+    cosx=cos(2.0*(GSL_IMAG(complex_lngamma(Cz1))+GSL_IMAG(complex_lngamma(Cz2))));
     st=sin(theta0/2.0);
     b2=b*b;
     /*
@@ -515,9 +592,9 @@ double relbloch( double z12, double b1, double lambda, double theta0 )
  * been enormously simplified by the use of fully complex arithmetic.
  */
 {
-    fcomplex Cl1, Cl2;
-    fcomplex Cf1,Cf2,Cf3,Cf4,Cf5,Cf6,Cf7;
-    fcomplex Ci,Cnu,Cth,Cabgl;
+    gsl_complex Cl1, Cl2;
+    gsl_complex Cf1,Cf2,Cf3,Cf4,Cf5,Cf6,Cf7;
+    gsl_complex Ci,Cnu,Cth,Cabgl;
     double ge = 0.5772157;
     double abgl;
     double g,nu;
@@ -526,24 +603,29 @@ double relbloch( double z12, double b1, double lambda, double theta0 )
     nu=z12*ALPHA/b1;
     g=1.0/sqrt(1.0-b1*b1);
     abgl=ALPHA/(b1*g*lambda);
-    sigma=CIm(Clngamma(Complex(1.0,nu)));
-    Ci=Complex(0.0,1.0);
-    Cnu=Complex(1.0, 2.0*nu);
-    Cth=Complex(theta0/2.0,0.0);
-    Cabgl=Complex(abgl,0.0);
-    Cf1=Cdiv(Complex(0.0,-1.0),Cnu);
-    Cf2=Cpow(Cth,Cnu);
-    Cf3=Cpow(Cabgl,Cnu);
-    Cf4=Cexp(Complex(0.0,2.0*sigma));
-    Cf5=Cdiv(Complex(1.0,0.0),Cnu);
-    Cf6=Csub(Complex(log(theta0/2.0),0.0),Cf5);
-    Cf7=Cadd(Complex(log(4.0/abgl)+ge-1.0,0.0),Cf5);
-    Cl1=Cmul(Cf1,Csub(RCmul(2.0,Cf2),Cmul(Cf3,Cf4)));
-    Cl2=Cmul(Cf1,Cadd(RCmul(2.0,Cmul(Cf2,Cf6)),Cmul(Cf3,Cmul(Cf4,Cf7))));
+    sigma=GSL_IMAG(complex_lngamma(gsl_complex_rect(1.0,nu)));
+    Ci=gsl_complex_rect(0.0,1.0);
+    Cnu=gsl_complex_rect(1.0, 2.0*nu);
+    Cth=gsl_complex_rect(theta0/2.0,0.0);
+    Cabgl=gsl_complex_rect(abgl,0.0);
+    Cf1=gsl_complex_div(gsl_complex_rect(0.0,-1.0),Cnu);
+    Cf2=gsl_complex_pow(Cth,Cnu);
+    Cf3=gsl_complex_pow(Cabgl,Cnu);
+    Cf4=gsl_complex_exp(gsl_complex_rect(0.0,2.0*sigma));
+    Cf5=gsl_complex_div(gsl_complex_rect(1.0,0.0),Cnu);
+    Cf6=gsl_complex_sub(gsl_complex_rect(log(theta0/2.0),0.0),Cf5);
+    Cf7=gsl_complex_add(gsl_complex_rect(log(4.0/abgl)+ge-1.0,0.0),Cf5);
+    Cl1=gsl_complex_mul(Cf1,
+        gsl_complex_sub(gsl_complex_mul_real(Cf2,2.0),gsl_complex_mul(Cf3,Cf4)));
+    Cl2=gsl_complex_mul(Cf1,
+        gsl_complex_add(
+            gsl_complex_mul_real(
+                gsl_complex_mul(Cf2,Cf6),2.0),gsl_complex_mul(Cf3,
+            gsl_complex_mul(Cf4,Cf7))));
     es=(M_PI*nu)*exp(M_PI*nu)/sinh(M_PI*nu);
-    bloch2=(M_PI/2.0)*b1*b1*nu*es*(4.0*nu*log(2.0)*CRe(Cl1)
-        + (nu*M_PI-1.0)*CIm(Cl1)
-        + 2.0*nu*CRe(Cl2));
+    bloch2=(M_PI/2.0)*b1*b1*nu*es*(4.0*nu*log(2.0)*GSL_REAL(Cl1)
+        + (nu*M_PI-1.0)*GSL_IMAG(Cl1)
+        + 2.0*nu*GSL_REAL(Cl2));
     return(bloch2);
 }
 
@@ -563,10 +645,10 @@ double lindhard( double zz, double aa, double bb, short sswitch )
  * private communication).
  */
 {
-    fcomplex Cexir, Cexis, Cedr, Ceds, Cske, Cmske, Cgrgs;
-    fcomplex Clamr,Clams;
-    fcomplex Caar, Cbbr, Caas, Cbbs, Czzr;
-    fcomplex Cpi,Cone;
+    gsl_complex Cexir, Cexis, Cedr, Ceds, Cske, Cmske, Cgrgs;
+    gsl_complex Clamr,Clams;
+    gsl_complex Caar, Cbbr, Caas, Cbbs, Czzr;
+    gsl_complex Cpi,Cone;
     int n,i,max;
     double compton=3.05573356675e-3; /* 1.18 fm / Compton wavelength */
     double a3,eta,gg,rho,prh;
@@ -579,8 +661,8 @@ double lindhard( double zz, double aa, double bb, short sswitch )
     double pct;
     double lls;
 
-    Cpi=Complex(M_PI,0.0);
-    Cone=Complex(1.0,0.0);
+    Cpi=gsl_complex_rect(M_PI,0.0);
+    Cone=GSL_COMPLEX_ONE;
     a3=exp(log(aa)/3.0);
     eta=zz*ALPHA/bb;
     gg=1.0/sqrt(1.0 - bb*bb);
@@ -604,35 +686,36 @@ double lindhard( double zz, double aa, double bb, short sswitch )
                 signk = k/fabs(k);
                 sk = sqrt(k*k - ALPHA*ALPHA*zz*zz);
                 l= (k>0) ? k : -k-1.0;
-                Cske=Complex(sk+1.0,eta);
-                Cexir=Csqrt(Cdiv(Complex(k,-eta/gg),Complex(sk,-eta)));
-                Cedr=Cmul(Cexir,
-                    Cexp(Complex(0.0,
-                        -CIm(Clngamma(Cske))+(M_PI/2.0)*(l-sk))));
+                Cske=gsl_complex_rect(sk+1.0,eta);
+                Cexir=gsl_complex_sqrt(gsl_complex_div(
+                    gsl_complex_rect(k,-eta/gg),gsl_complex_rect(sk,-eta)));
+                Cedr=gsl_complex_mul(Cexir,
+                    gsl_complex_exp(gsl_complex_rect(0.0,
+                        -GSL_IMAG(complex_lngamma(Cske))+(M_PI/2.0)*(l-sk))));
                 if( sswitch & SSWITCH_NS ){
-                    Cmske=Complex(-sk+1.0,eta);
-                    Cexis=Csqrt(Cdiv(Complex(k,-eta/gg),Complex(-sk,-eta)));
-                    Ceds=Cmul(Cexis,
-                        Cexp(Complex(0.0,
-                            -CIm(Clngamma(Cmske)) + (M_PI/2.0)*(l+sk))));
+                    Cmske=gsl_complex_rect(-sk+1.0,eta);
+                    Cexis=gsl_complex_sqrt(gsl_complex_div(gsl_complex_rect(k,-eta/gg),gsl_complex_rect(-sk,-eta)));
+                    Ceds=gsl_complex_mul(Cexis,
+                        gsl_complex_exp(gsl_complex_rect(0.0,
+                            -GSL_IMAG(complex_lngamma(Cmske)) + (M_PI/2.0)*(l+sk))));
                     Caar=Cske;
                     Caas=Cmske;
-                    Cbbr=Complex(2.0*sk + 1.0,0.0);
-                    Cbbs=Complex(-2.0*sk + 1.0,0.0);
-                    Czzr=Complex(0.0,2.0*prh);
-                    Clamr=Cmul(Cmul(Cexir,Cexp(Complex(0.0,-prh))),
-                        Chyperg(Caar,Cbbr,Czzr));
-                    Clams=Cmul(Cmul(Cexis,Cexp(Complex(0.0,-prh))),
-                        Chyperg(Caas,Cbbs,Czzr));
-                    grgs=CIm(Clamr)/CIm(Clams);
-                    Cgrgs=Clngamma(Cbbs);
-                    grgs*=exp( CRe(Clngamma(Cske)) - CRe(Clngamma(Cmske))
-                        -CRe(Clngamma(Cbbr)) + CRe(Cgrgs)
+                    Cbbr=gsl_complex_rect(2.0*sk + 1.0,0.0);
+                    Cbbs=gsl_complex_rect(-2.0*sk + 1.0,0.0);
+                    Czzr=gsl_complex_rect(0.0,2.0*prh);
+                    Clamr=gsl_complex_mul(gsl_complex_mul(Cexir,gsl_complex_exp(gsl_complex_rect(0.0,-prh))),
+                        complex_hyperg(Caar,Cbbr,Czzr));
+                    Clams=gsl_complex_mul(gsl_complex_mul(Cexis,gsl_complex_exp(gsl_complex_rect(0.0,-prh))),
+                        complex_hyperg(Caas,Cbbs,Czzr));
+                    grgs=GSL_IMAG(Clamr)/GSL_IMAG(Clams);
+                    Cgrgs=complex_lngamma(Cbbs);
+                    grgs*=exp( GSL_REAL(complex_lngamma(Cske)) - GSL_REAL(complex_lngamma(Cmske))
+                        -GSL_REAL(complex_lngamma(Cbbr)) + GSL_REAL(Cgrgs)
                         +2.0*sk*log(2.0*prh));
-                    if(cos(CIm(Cgrgs))<1.0)grgs*= -1.0;
+                    if(cos(GSL_IMAG(Cgrgs))<1.0)grgs*= -1.0;
                     if(fabs(grgs) > 1.0e-9) {
-                        frgr=sqrt((gg-1.0)/(gg+1.0))*CRe(Clamr)/CIm(Clamr);
-                        fsgs=sqrt((gg-1.0)/(gg+1.0))*CRe(Clams)/CIm(Clams);
+                        frgr=sqrt((gg-1.0)/(gg+1.0))*GSL_REAL(Clamr)/GSL_IMAG(Clamr);
+                        fsgs=sqrt((gg-1.0)/(gg+1.0))*GSL_REAL(Clams)/GSL_IMAG(Clams);
                         gz=-1.0*signk*(rho*gg+1.5*ALPHA*zz);
                         z1=-1.0*signk*zz;
                         b0=1.0;
@@ -661,10 +744,10 @@ double lindhard( double zz, double aa, double bb, short sswitch )
                     }
                 } else {
                     H=0.0;
-                    Ceds=Complex(0.0,0.0);
+                    Ceds=GSL_COMPLEX_ZERO;
                 }
-                r=1.0 + H*H + 2.0*H*(Cedr.r*Ceds.r + Cedr.i*Cedr.i);
-                dk[i]=Carg(Cadd(Cedr,RCmul(H,Ceds)));
+                r=1.0 + H*H + 2.0*H*(GSL_REAL(Cedr)*GSL_REAL(Ceds) + GSL_IMAG(Cedr)*GSL_IMAG(Cedr));
+                dk[i]=gsl_complex_arg(gsl_complex_add(Cedr,gsl_complex_mul_real(Ceds,H)));
             }
             if(n>1)dk[2]=dmk;
             sdm2=sin(dk[2]-dk[1]);
@@ -790,7 +873,11 @@ double qrange( double e, double z1, double a1, short sswitch, int tno )
     if(e > ei){
         ra[0]=benton(ei,z1,a1,tno);
         i=1;
+#ifdef M_LN10
+        ln10=M_LN10;
+#else
         ln10=log(10.0);
+#endif
         lei=log10(ei);
         lef=log10(e);
         entries = (double) (MAXE - 1);
@@ -1014,7 +1101,7 @@ short init_switch( char *switchfile )
     if (access(switchfile,R_OK)) {
         sswitch = 0;
         d = iniparser_load( switchfile );
-        if (iniparser_getboolean(d,"crange:barkas",0)) sswitch |= SSWTICH_BA;
+        if (iniparser_getboolean(d,"crange:barkas",0)) sswitch |= SSWITCH_BA;
         if (iniparser_getboolean(d,"crange:shell",0))  sswitch |= SSWITCH_SH;
         if (iniparser_getboolean(d,"crange:leung",0))  sswitch |= SSWITCH_LE;
         if (iniparser_getboolean(d,"crange:new delta",1))  sswitch |= SSWITCH_ND; /* True by default! */
@@ -1053,7 +1140,11 @@ int init_tables( char* foo )
     FILE *fabsorber;
 
     targetfile = strcat( root1, "/target.dat" );
+#ifdef M_LN10
+    ln10=M_LN10;
+#else
     ln10=log(10.0);
+#endif
     l10Emin=0.0; /* minimum energy 1 A MeV */
     l10Emax=6.0; /* maximum energy 1 A TeV */
     decades=l10Emax-l10Emin;
