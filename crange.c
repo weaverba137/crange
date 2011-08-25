@@ -191,6 +191,82 @@ gsl_complex complex_lngamma( gsl_complex z )
     return(result);
 }
 
+double j( double *pe1, double *pz0, double *I0, double *f0, double *K)
+{
+  extern double z2a,a2a;
+  double emass=0.511003e+6; /* eV/c^2 */
+  double e1,z0,z2,a2;
+  double g,b2,b,z1,z23;
+  double delt;
+  double J,f1,f2;
+  double capA, capB;
+
+  e1=*pe1;
+  g=1.0+e1/931.4943;
+  delt=delta(&g);
+  b2=1.0-1.0/(g*g);
+  b=sqrt(b2);
+  z0= *pz0;
+  z2=z2a;
+  a2=a2a;
+  /*
+   * This is the modification of projectile charge due to electron
+   * capture.  F. Hubert, R. Bimbot, and H. Gauvin, At. Data Nuc. Data 
+   * Tab. 46 (1990) 1, give an empirically determined function which 
+   * depends on the target material.  Two older versions, from
+   * J. M. Anthony and W. A. Landford, Phys. Rev. A 25 (1982) 1868,
+   * and T. E. Pierce and M. Blann, Phys. Rev. 173 (1968) 390 are also 
+   * available.
+   */
+  z23 = exp((2.0/3.0)*log(z0));
+  if( FE ) {
+    if (z2 == 4.0) {
+      z1=z0*(1.0 - 
+             ((2.045)+ 2.000*exp(-0.04369*z0))*
+             exp(
+                 -(7.000)*
+                 exp((0.2643)*log(e1))*
+                 exp(-(0.4171)*log(z0))
+                 )
+             );
+    } else if (z2 == 6.0) {
+      z1=z0*(1.0 - 
+             ((2.584)+ 1.910*exp(-0.03958*z0))*
+             exp(
+                 -(6.933)*
+                 exp((0.2433)*log(e1))*
+                 exp(-(0.3969)*log(z0))
+                 )
+             );
+    } else {
+      z1=z0*(1.0 - 
+             ((1.164 + 0.2319*exp(-0.004302*z2))+ 1.658*exp(-0.05170*z0))*
+             exp(
+                 -(8.114+0.9876*log(z2))*
+                 exp((0.3140+0.01072*log(z2))*log(e1))*
+                 exp(-(0.5218+0.02521*log(z2))*log(z0))
+                 )
+             );
+    }
+  } else {
+    capA=1.16-z2*(1.91e-03 - 1.26e-05*z2);
+    capB=(1.18-z2*(7.5e-03 - 4.53e-05*z2))/ALPHA;
+    /*
+     * capA=1.0;
+     * capB=130.0;
+     *
+     * The Pierce and Blann formula can be activated by replacing the
+     * variables capA and capB with the commented out values above.
+     */ 
+    z1=z0*(1.0-capA*exp(-capB*b/z23));
+  }
+  f1=0.3070722*z1*z1*z2/(b2*a2);
+  f2=log(2.0*emass*b2*g*g/(*I0));
+  J=0.5*f1*(f2-b2-delt+(*K))*(*f0);
+/*   REL=f1*(f2+f6-delt+f3); */
+  return(J);
+}
+
 double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tno )
 /*
  * This is the core of the whole package, the dE/dx calculator.  I have
@@ -1092,12 +1168,10 @@ short init_switch( char *switchfile )
  * Initializes the value of sswitch.
  */
 {
-    short sswitch;
+    short sswitch = SSWITCH_DEFAULT;
 #ifdef HAVE_INIPARSER_H
     dictionary *d;
-#endif
-    sswitch = SSWITCH_DEFAULT;
-#ifdef HAVE_INIPARSER_H
+
     if (access(switchfile,R_OK)) {
         sswitch = 0;
         d = iniparser_load( switchfile );
