@@ -45,6 +45,7 @@ e 0 9.2 79 197 CR-39
 e 10600 9.2 79 197 CR-39
 d 10600 0 79 197 Air
 d 10600 300 79 197 Air
+j 10600 0 79 197 Air
 
 The first line tells the calculator to compute the range (in g cm^-2) of
 uranium (Z=92,A=238) at a kinetic energy of 1200 MeV per nucleon, in an
@@ -55,7 +56,8 @@ for the final kinetic energy after passing through 9.2 g cm^-2 of CR-39, given
 an initial energy of 10.6 A GeV. The fourth line tells the calculator to
 compute dE/dx (in A MeV g^-1 cm^2) for gold with kinetic energy 10.6 A GeV in
 air.  The fifth line computes REL instead of dE/dx with the REL cutoff set to
-300 eV. Arguments which are zero (0) are dummies which are necessary for
+300 eV. The sixth line computes primary ionization.
+Arguments which are zero (0) are dummies which are necessary for
 place-holding.
 
 The list of tasks may be of any length in any combination of ranges,

@@ -7,7 +7,7 @@
  * Berkeley, CA 94720-7450
  * http://ultraman.ssl.berkeley.edu/~weaver/dedx/
  *
- * Copyright (C) 2001-2003 Benjamin Weaver
+ * Copyright (C) 2001-2011 Benjamin Weaver
  *
  *
  * This program is free software which I release under the GNU Lesser
@@ -191,127 +191,23 @@ gsl_complex complex_lngamma( gsl_complex z )
     return(result);
 }
 
-double j( double *pe1, double *pz0, double *I0, double *f0, double *K)
-{
-  extern double z2a,a2a;
-  double emass=0.511003e+6; /* eV/c^2 */
-  double e1,z0,z2,a2;
-  double g,b2,b,z1,z23;
-  double delt;
-  double J,f1,f2;
-  double capA, capB;
-
-  e1=*pe1;
-  g=1.0+e1/931.4943;
-  delt=delta(&g);
-  b2=1.0-1.0/(g*g);
-  b=sqrt(b2);
-  z0= *pz0;
-  z2=z2a;
-  a2=a2a;
-  /*
-   * This is the modification of projectile charge due to electron
-   * capture.  F. Hubert, R. Bimbot, and H. Gauvin, At. Data Nuc. Data 
-   * Tab. 46 (1990) 1, give an empirically determined function which 
-   * depends on the target material.  Two older versions, from
-   * J. M. Anthony and W. A. Landford, Phys. Rev. A 25 (1982) 1868,
-   * and T. E. Pierce and M. Blann, Phys. Rev. 173 (1968) 390 are also 
-   * available.
-   */
-  z23 = exp((2.0/3.0)*log(z0));
-  if( FE ) {
-    if (z2 == 4.0) {
-      z1=z0*(1.0 - 
-             ((2.045)+ 2.000*exp(-0.04369*z0))*
-             exp(
-                 -(7.000)*
-                 exp((0.2643)*log(e1))*
-                 exp(-(0.4171)*log(z0))
-                 )
-             );
-    } else if (z2 == 6.0) {
-      z1=z0*(1.0 - 
-             ((2.584)+ 1.910*exp(-0.03958*z0))*
-             exp(
-                 -(6.933)*
-                 exp((0.2433)*log(e1))*
-                 exp(-(0.3969)*log(z0))
-                 )
-             );
-    } else {
-      z1=z0*(1.0 - 
-             ((1.164 + 0.2319*exp(-0.004302*z2))+ 1.658*exp(-0.05170*z0))*
-             exp(
-                 -(8.114+0.9876*log(z2))*
-                 exp((0.3140+0.01072*log(z2))*log(e1))*
-                 exp(-(0.5218+0.02521*log(z2))*log(z0))
-                 )
-             );
-    }
-  } else {
-    capA=1.16-z2*(1.91e-03 - 1.26e-05*z2);
-    capB=(1.18-z2*(7.5e-03 - 4.53e-05*z2))/ALPHA;
-    /*
-     * capA=1.0;
-     * capB=130.0;
-     *
-     * The Pierce and Blann formula can be activated by replacing the
-     * variables capA and capB with the commented out values above.
-     */ 
-    z1=z0*(1.0-capA*exp(-capB*b/z23));
-  }
-  f1=0.3070722*z1*z1*z2/(b2*a2);
-  f2=log(2.0*emass*b2*g*g/(*I0));
-  J=0.5*f1*(f2-b2-delt+(*K))*(*f0);
-/*   REL=f1*(f2+f6-delt+f3); */
-  return(J);
-}
-
-double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tno )
+double effective_charge( double z0, double e1, double z2, short sswitch )
 /*
- * This is the core of the whole package, the dE/dx calculator.  I have
- * based this largely on the work of M. H. Salamon, L.B.L. Report #10446
- * (1980).  Values of certain physical constants have been updated,
- * as well as some of the corrections to the basic stopping power formula.
- * Output is dE/dx in units of A MeV g^-1 cm^2.
- *
- * e1:   kinetic energy in A MeV
- * rel0: restricted energy loss parameter in eV
- * z0:   bare projectile charge
- * a1:   projectile atomic number
- * tno:  number of the current target (for looking up in the tdata struct)
+ * This is the modification of projectile charge due to electron
+ * capture.  F. Hubert, R. Bimbot, and H. Gauvin, At. Data Nuc. Data
+ * Tab. 46 (1990) 1, give an empirically determined function which
+ * depends on the target material.  Two older versions, from
+ * J. M. Anthony and W. A. Landford, Phys. Rev. A 25 (1982) 1868,
+ * and T. E. Pierce and M. Blann, Phys. Rev. 173 (1968) 390 are also
+ * available.
  */
 {
-    extern tdata t[MAXAB];
-    static double fva[10]={0.33,0.078,0.03,0.014,0.0084,
-        0.0053,0.0035,0.0025,0.0019,0.0014};
-    int i;
-    double emass=0.511003e+6; /* eV/c^2 */
-    double z2,a2;
-    double g,b2,b,z1,z23;
-    double delt;
-    double etam2,cadj;
-    double v,fv;
-    double S,REL,f1,f2,f3,f4,f6,f7,f8,f9;
-    double Sbr=0.0,Bbr;
-    double Spa=0.0,dpa,ldpa,l0,Lpa0,Lpa0s,Lpa1,Lpa;
+    double z23, z1, g, b2, b;
     double capA, capB;
 
     g=1.0+e1/931.4943;
-    delt = ( sswitch & SSWITCH_ND ) ? delta(g,tno) : olddelta(g,tno);
     b2=1.0-1.0/(g*g);
     b=sqrt(b2);
-    z2=t[tno].z2;
-    a2=t[tno].a2;
-    /*
-     * This is the modification of projectile charge due to electron
-     * capture.  F. Hubert, R. Bimbot, and H. Gauvin, At. Data Nuc. Data
-     * Tab. 46 (1990) 1, give an empirically determined function which
-     * depends on the target material.  Two older versions, from
-     * J. M. Anthony and W. A. Landford, Phys. Rev. A 25 (1982) 1868,
-     * and T. E. Pierce and M. Blann, Phys. Rev. 173 (1968) 390 are also
-     * available.
-     */
     z23 = exp((2.0/3.0)*log(z0));
     if( sswitch & SSWITCH_EC ) {
         if (z2 == 4.0) {
@@ -354,6 +250,80 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tn
          */
         z1=z0*(1.0-capA*exp(-capB*b/z23));
     }
+    return(z1);
+}
+
+double djdx( double e1, double z0, double I0, double f0, double K, short sswitch, int tno)
+/*
+ * This computes the primary ionization, the number of delta-rays produced
+ * per unit length.  The formula is based on H. Bethe. Ann. Phys.
+ * 5 (1930), p. 325 as well as R.L. Fleischer,
+ * P.B. Price, R.M. Walker and E.L. Hubbard. Phys. Rev. 156 (1967), p. 353.
+ * Output is number of delta-rays per unit length in units of g^-1 cm^2.
+ *
+ * e1: kinetic energy in A MeV
+ * z0: bare projectile charge
+ * I0: binding energy of outermost electron in eV
+ * f0: fraction of electrons in the outermost state
+ * K:  a constant that depends on the target.
+ */
+{
+    extern tdata t[MAXAB];
+    double emass=0.511003e+6; /* eV/c^2 */
+    double z2,a2;
+    double g,b2,b,z1;
+    double delt;
+    double J,f1,f2;
+
+    g=1.0+e1/931.4943;
+    delt = ( sswitch & SSWITCH_ND ) ? delta(g,tno) : olddelta(g,tno);
+    b2=1.0-1.0/(g*g);
+    b=sqrt(b2);
+    z2=t[tno].z2;
+    a2=t[tno].a2;
+    z1 = effective_charge(z0, e1, z2, sswitch);
+    f1=0.3070722*z1*z1*z2/(b2*a2);
+    f2=log(2.0*emass*b2*g*g/I0);
+    J=0.5*f1*(f2-b2-delt+K)*(f0/I0);
+    return(J);
+}
+
+double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tno )
+/*
+ * This is the core of the whole package, the dE/dx calculator.  I have
+ * based this largely on the work of M. H. Salamon, L.B.L. Report #10446
+ * (1980).  Values of certain physical constants have been updated,
+ * as well as some of the corrections to the basic stopping power formula.
+ * Output is dE/dx in units of A MeV g^-1 cm^2.
+ *
+ * e1:   kinetic energy in A MeV
+ * rel0: restricted energy loss parameter in eV
+ * z0:   bare projectile charge
+ * a1:   projectile atomic number
+ * tno:  number of the current target (for looking up in the tdata struct)
+ */
+{
+    extern tdata t[MAXAB];
+    static double fva[10]={0.33,0.078,0.03,0.014,0.0084,
+        0.0053,0.0035,0.0025,0.0019,0.0014};
+    int i;
+    double emass=0.511003e+6; /* eV/c^2 */
+    double z2,a2;
+    double g,b2,b,z1;
+    double delt;
+    double etam2,cadj;
+    double v,fv;
+    double S,REL,f1,f2,f3,f4,f6,f7,f8,f9;
+    double Sbr=0.0,Bbr;
+    double Spa=0.0,dpa,ldpa,l0,Lpa0,Lpa0s,Lpa1,Lpa;
+
+    g=1.0+e1/931.4943;
+    delt = ( sswitch & SSWITCH_ND ) ? delta(g,tno) : olddelta(g,tno);
+    b2=1.0-1.0/(g*g);
+    b=sqrt(b2);
+    z2=t[tno].z2;
+    a2=t[tno].a2;
+    z1 = effective_charge(z0, e1, z2, sswitch);
     f1=0.3070722*z1*z1*z2/(b2*a1*a2);
     f2=log(2.0*emass*b2/t[tno].iadj);
     if( sswitch & SSWITCH_SH ){
@@ -1156,6 +1126,8 @@ void run_range( FILE *finput, FILE *foutput, short sswitch )
                 out=renergy(red1,red2,z1,a1,sswitch,k);
             } else if(strcmp( task, "d" )==0){
                 out=dedx(red1,red2,z1,a1,sswitch,k);
+            } else if(strcmp( task, "j" )==0){
+                out=djdx(red1,z1,2.0,0.05,3.04,sswitch,k);
             }
         }
         fprintf(foutput,"%f\n",out);

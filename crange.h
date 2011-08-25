@@ -7,7 +7,7 @@
  * Berkeley, CA 94720-7450
  * http://ultraman.ssl.berkeley.edu/~weaver/dedx/
  *
- * Copyright (C) 2001-2003 Benjamin Weaver
+ * Copyright (C) 2001-2011 Benjamin Weaver
  *
  *
  * This program is free software which I release under the GNU Lesser
@@ -133,6 +133,8 @@ tdata t[MAXAB];
  */
 gsl_complex complex_hyperg( gsl_complex a, gsl_complex b, gsl_complex z );
 gsl_complex complex_lngamma( gsl_complex z );
+double effective_charge( double z0, double e1, double z2, short sswitch );
+double djdx( double e1, double z0, double I0, double f0, double K, short sswitch, int tno);
 double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tno );
 double delta( double g, int tno );
 double olddelta( double g, int tno );
