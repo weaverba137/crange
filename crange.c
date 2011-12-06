@@ -36,24 +36,40 @@ int main( int argc, char **argv )
 {
     FILE *finput,*foutput;
     short sswitch;
-    int ini=0, have_switch=0, have_target=0;
-    char inputname[50],outputname[50];
-    char *switchfile, *targetfile;
-    int c, errflag=0;
+    int ini=0, have_switch=0, have_target=0, have_command=0, have_output=0;
+    char inputname[50];
+    char *switchfile, *targetfile, *command, *outputname;
+    int c, errflag=0, fd=-1;
+    char tempfilename[15] = "";
+    extern int errno;
     /*
      * External variables used by getopt()
      */
     extern char *optarg;
     extern int optind, optopt;
 
-    while((c=getopt(argc,argv,":hs:t:")) != -1) {
+    while((c=getopt(argc,argv,":c:ho:s:t:")) != -1) {
         switch (c) {
+        case 'c':
+            /*
+             * Interpret the value of optarg as a command to the crange engine.
+             */
+             command = optarg;
+             have_command++;
+             break;
         case 'h':
             /*
              * Print help and exit.
              */
             errflag++;
             break;
+        case 'o':
+            /*
+             * Print output to a file
+             */
+             outputname = optarg;
+             have_output++;
+             break;
         case 's':
             /*
              * Use filename as a switch file.
@@ -78,7 +94,13 @@ int main( int argc, char **argv )
         }
     }
     if (errflag) {
-        fprintf(stderr,"usage: crange [-h] [-s switch.ini] [-t target.dat] input [output]\n");
+        fprintf(stderr,"usage: crange [-c COMMAND] [-h] [-o FILE] [-s switch.ini] [-t target.dat] <task file> [output]\n");
+        fprintf(stderr,"       -c COMMAND    = Execute this one-line command instead of reading it from a file.\n");
+        fprintf(stderr,"       -h            = Print this help message and exit.\n");
+        fprintf(stderr,"       -o FILE       = Write to this file instead of standard output.\n");
+        fprintf(stderr,"       -s switch.ini = Override the default switch values by reading this file.\n");
+        fprintf(stderr,"       -t target.dat = Override the default target values by reading this file.\n");
+        fprintf(stderr,"       <task file>   = A file containing a list of tasks for crange.  Required unless a command is specified with -c.\n");
         return(1);
     }
     sswitch = (have_switch) ? init_switch(switchfile) : SSWITCH_DEFAULT;
@@ -94,12 +116,29 @@ int main( int argc, char **argv )
             fprintf(stderr,"Error opening task file!\n");
             return(2);
         }
+    } else if (have_command) {
+        /*
+         * Create a temporary file to hold the command.
+         */
+        strcpy(tempfilename, "/tmp/cr.XXXXXX");
+        if ((fd = mkstemp(tempfilename)) == -1 || (finput = fdopen(fd, "w+")) == NULL) {
+            if (fd != -1) {
+                close(fd);
+                unlink(tempfilename);
+            }
+            fprintf(stderr, "%s: %s\n", tempfilename, strerror(errno));
+            return(2);
+        }
+        /*
+         * Write the command to the temporary file.
+         */
+        fprintf(finput,"%s\n",command);
+        rewind(finput);
     } else {
         fprintf(stderr,"No task file specified!\n");
         return(2);
     }
-    if(argc-optind == 2) {
-        sscanf(argv[optind+1],"%s",outputname);
+    if(have_output) {
         foutput=fopen(outputname, "w");
         if (foutput==NULL) {
             fprintf(stderr,"Error opening output file!\n");
@@ -111,6 +150,7 @@ int main( int argc, char **argv )
     run_range( finput, foutput, sswitch );
     fclose(finput);
     fclose(foutput);
+    if (have_command) unlink(tempfilename);
     return(0);
 }
 

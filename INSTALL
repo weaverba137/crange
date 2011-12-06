@@ -1,5 +1,5 @@
 If you are exporting from svn to create a distribution:
-1. autoreconf --warnings=all --install
+1. ./autogen.sh
 2. ./configure
 3. make dist
 

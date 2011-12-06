@@ -29,11 +29,10 @@ See the INSTALL file.
 Running:
 
 Some details can be found in the comments to crange.c.
-The program is run by typing "crange [data.in] [data.out]".  The first
-arguement is the name of a file containing a list of tasks for the
-calculator to perform.  The second, optional arguement is the name of a
-file to which the program will write its results.  If the second arguement
-is not given, output will be written the standard output (stdout).
+The program is run by typing "crange [options] [data.in]".  The first
+argument is the name of a file containing a list of tasks for the
+calculator to perform.  There are a number of command-line options that
+control the behaviour of crange.  These can be seen by typing crange -h
 
 Tasks:
 
@@ -74,9 +73,8 @@ energy in keV.
 The switch.ini file included with this distribution provides an example
 for the user.  The values in the example file are those that are compiled
 into the program by default.  Users may supply their own switch.ini file
-on the command line or by setting the DEDX_SWITCH environment variable.
-In order to do this, crange must be compiled against the iniparser
-library, version 3.0 or later, see http://ndevilla.free.fr/iniparser/.
+on the command line. In order to do this, crange must be compiled against
+the iniparser library, version 3.0 or later, see http://ndevilla.free.fr/iniparser/.
 If you don't wish to install this library, the code will still compile, but
 you will not be able to change the default settings.
 
