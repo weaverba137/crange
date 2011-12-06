@@ -32,7 +32,7 @@ AC_CHECK_HEADERS([stdlib.h string.h unistd.h errno.h iniparser.h gsl/gsl_complex
 AC_CHECK_FUNCS([sqrt])
 
 # Add doxygen configuration
-DX_INIT_DOXYGEN(crange, doxygen.cfg)
+DX_INIT_DOXYGEN(crange, doxygen.cfg, doc)
 DX_DOXYGEN_FEATURE(ON)
 DX_DOT_FEATURE(OFF)
 DX_HTML_FEATURE(ON)

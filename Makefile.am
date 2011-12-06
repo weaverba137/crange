@@ -18,5 +18,6 @@ $(dist_man1_MANS): doxygen-doc
 
 endif
 
+EXTRA_DIST = autogen.sh $(DX_CONFIG) doc/html
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
