@@ -1,3 +1,8 @@
+/**
+ * @file crange.c
+ * Main program.
+ */
+
 /*
  * This is version 1.5.3 of the Berkeley Range-Energy Calculator
  *
@@ -32,6 +37,16 @@
  */
 #include <crange.h>
 
+/**
+ * @brief Main crange program.
+ *
+ * Standard C main() program.
+ *
+ * @param argc Number of command line options.
+ * @param argv The command line options.
+ *
+ * @return The exit status.
+ */
 int main( int argc, char **argv )
 {
     FILE *finput,*foutput;
