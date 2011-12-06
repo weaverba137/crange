@@ -94,7 +94,7 @@ int main( int argc, char **argv )
         }
     }
     if (errflag) {
-        fprintf(stderr,"usage: crange [-c COMMAND] [-h] [-o FILE] [-s switch.ini] [-t target.dat] <task file> [output]\n");
+        fprintf(stderr,"usage: crange [-c COMMAND] [-h] [-o FILE] [-s switch.ini] [-t target.dat] <task file>\n");
         fprintf(stderr,"       -c COMMAND    = Execute this one-line command instead of reading it from a file.\n");
         fprintf(stderr,"       -h            = Print this help message and exit.\n");
         fprintf(stderr,"       -o FILE       = Write to this file instead of standard output.\n");
