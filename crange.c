@@ -34,9 +34,9 @@ int main( int argc, char **argv )
     char *switchfile, *targetfile, *command, *outputname;
     int c, errflag=0, fd=-1;
     char tempfilename[15] = "";
-    extern int errno; /**< From errno.h */
-    extern char *optarg; /**< External variable used by getopt(). */
-    extern int optind, optopt; /**< External variable used by getopt(). */
+    extern int errno; /* From errno.h */
+    extern char *optarg; /* External variable used by getopt(). */
+    extern int optind, optopt; /* External variable used by getopt(). */
 
     while((c=getopt(argc,argv,":c:ho:s:t:")) != -1) {
         switch (c) {
@@ -156,6 +156,7 @@ int main( int argc, char **argv )
  *
  * @param a First parameter of the hypergeometric function.
  * @param b Second parameter of the hypergeometric function.
+ * @param z A complex number.
  * @return The value @f$M(a,b,z)@f$, a complex number.
  * @warning May not be stable for large values of @f$|z|@f$.
  */
@@ -1252,8 +1253,8 @@ int init_tables( char* targetfile )
 #else
     ln10=log(10.0);
 #endif
-    l10Emin=0.0; /**< minimum energy 1 A MeV */
-    l10Emax=6.0; /**< maximum energy 1 A TeV */
+    l10Emin=0.0; /* minimum energy 1 A MeV */
+    l10Emax=6.0; /* maximum energy 1 A TeV */
     decades=l10Emax-l10Emin;
     entries=MAXE - 1.0;
     for(i=0;i < MAXAB;i++){

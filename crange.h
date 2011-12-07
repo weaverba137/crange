@@ -107,23 +107,41 @@
  */
 double trange[MAXE][MAXAB];
 double tenerg[MAXE];
-/*
- * This structure holds the data on the targest read from the target.dat
- * file.
- * z2:     target material mean nuclear charge
- * a2:     target material mean atomic number
- * iadj:   target material logarithmic mean ionization potential (eV)
- * rho:    target material density in g cm^-3
- * pla:    target material plasma frequency in eV
- * etad:   target material ratio of density to density at STP (for gasses)
- *           target materials which are not gasses should have etad = 0
- * bind:   target material total electronic binding energy in eV
- * X0,X1,a,m,d0:  parameters for the density effect calculation
- * tname:   names of target materials
+/**
+ * @struct TDATA crange.h
+ * @brief Structure containing target data.
+ *
+ * Structure containing target data.
  */
 typedef struct TDATA {
-    double z2,a2,iadj,rho,pla,X0,X1,a,m,d0,etad,bind;
-    char tname[9];
+    /**
+     * @name General parameters.
+     */
+    /* @{ */
+    double z2;   /**< The mean nuclear charge. */
+    double a2;   /**< The mean atomic mass number. */
+    double iadj; /**< The logarithmic mean ionization potential [eV]. */
+    double rho;  /**< The density [g cm^-3]. */
+    double pla;  /**< The plasma frequency [eV]. */
+    double etad; /**< The ratio of density to density at STP for gaseous targets. Should be set to zero for non-gaseous materials. */
+    double bind; /**< The total electronic binding energy [eV]. */
+    /* @} */
+    /**
+     * @name Density effect parameters.
+     */
+    /* @{ */
+    double X0; /**< Value of @f$\log_{10} \beta\gamma@f$ at which the density effect turns on. */
+    double X1; /**< Value of @f$\log_{10} \beta\gamma@f$ above which the high-energy form of the density effect may be used. */
+    double a;  /**< Parameter used to interpolate the density effect between the values of X0 and X1. */
+    double m;  /**< Parameter used to interpolate the density effect between the values of X0 and X1. */
+    double d0; /**< Low-energy density effect parameter, only non-zero for conducting materials. */
+    /* @} */
+    /**
+     * @name Material name
+     */
+    /* @{ */
+    char tname[9]; /**< The name of the material. */
+    /* @} */
 } tdata;
 /*
  * Declare an external array of structures
