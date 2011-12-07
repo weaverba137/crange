@@ -155,5 +155,6 @@ double benton( double e, double z1, double a1, tdata *target );
 double renergy( double e, double r0, double z1, double a1, short sswitch, tdata *target );
 void run_range( FILE *finput, FILE *foutput, short sswitch );
 short init_switch( char *switchfile);
-int init_tables( char *targetfile );
+tdata *init_target( char *targetfile );
+void init_tables( void );
 tdata *find_target( char *target );

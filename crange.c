@@ -97,11 +97,8 @@ int main( int argc, char **argv )
         return(1);
     }
     sswitch = (have_switch) ? init_switch(switchfile) : SSWITCH_DEFAULT;
-    ini = init_tables(targetfile);
-    if(ini){
-        fprintf(stderr,"Error initializing crange!\n");
-        return(1);
-    }
+    target = (have_target) ? init_target(targetfile) : NULL;
+    init_tables();
     if(argc-optind >= 1) {
         sscanf(argv[optind],"%s",inputname);
         finput=fopen(inputname, "r");
@@ -140,10 +137,11 @@ int main( int argc, char **argv )
     } else {
         foutput=stdout;
     }
-    run_range( finput, foutput, sswitch );
+    run_range( finput, foutput, sswitch, target );
     fclose(finput);
     fclose(foutput);
     if (have_command) unlink(tempfilename);
+    if (have_target) free(target);
     return(0);
 }
 
@@ -371,7 +369,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
     double Spa=0.0,dpa,ldpa,l0,Lpa0,Lpa0s,Lpa1,Lpa;
 
     g=1.0+e1/931.4943;
-    delt = ( sswitch & SSWITCH_ND ) ? delta(g,tno) : olddelta(g,tno);
+    delt = ( sswitch & SSWITCH_ND ) ? delta(g,target) : olddelta(g,target);
     b2=1.0-1.0/(g*g);
     b=sqrt(b2);
     z2=target->z2;
@@ -1156,8 +1154,9 @@ double renergy( double e, double r0, double z1, double a1, short sswitch, tdata 
  * @param finput An open file pointer containing the task list.
  * @param foutput An open file pointer to write results to.
  * @param sswitch The switch bit field.
+ * @param extratargets A pointer to an array of ::TDATA structures.
  */
-void run_range( FILE *finput, FILE *foutput, short sswitch )
+void run_range( FILE *finput, FILE *foutput, short sswitch, tdata *extratargets )
 {
     tdata *target;
     char task[2];
@@ -1171,7 +1170,7 @@ void run_range( FILE *finput, FILE *foutput, short sswitch )
         icols=fscanf(finput,"%s %lf %lf %lf %lf %s\n",
             task,&red1,&red2,&z1,&a1,abs);
         if(icols < 6) break;
-        target = find_target(abs);
+        target = find_target(abs,extratargets);
         out=0.0;
         if(icols==6 && strncmp( target->name, "Unknown", NAMEWIDTH ) != 0){
             if(strcmp( task, "r" )==0){
@@ -1196,7 +1195,9 @@ void run_range( FILE *finput, FILE *foutput, short sswitch )
  * accordingly.
  *
  * @param switchfile The name of an INI-type file containing switch configuration.
+ *
  * @return The switch bit field.
+ *
  * @warning If the iniparser library is not found, this function will only
  * return the default value #SSWITCH_DEFAULT.
  */
@@ -1209,22 +1210,93 @@ short init_switch( char *switchfile )
     if (access(switchfile,R_OK)) {
         sswitch = 0;
         d = iniparser_load( switchfile );
-        if (iniparser_getboolean(d,"crange:barkas",0)) sswitch |= SSWITCH_BA;
-        if (iniparser_getboolean(d,"crange:shell",0))  sswitch |= SSWITCH_SH;
-        if (iniparser_getboolean(d,"crange:leung",0))  sswitch |= SSWITCH_LE;
-        if (iniparser_getboolean(d,"crange:new delta",1))  sswitch |= SSWITCH_ND; /* True by default! */
-        if (iniparser_getboolean(d,"crange:new electron capture",0))  sswitch |= SSWITCH_EC;
-        if (iniparser_getboolean(d,"crange:finite nuclear size",1))  sswitch |= SSWITCH_NS; /* True by default! */
-        if (iniparser_getboolean(d,"crange:kinematic",0))  sswitch |= SSWITCH_KI;
-        if (iniparser_getboolean(d,"crange:radiative",0))  sswitch |= SSWITCH_RA;
-        if (iniparser_getboolean(d,"crange:pair",0))  sswitch |= SSWITCH_PA;
-        if (iniparser_getboolean(d,"crange:bremsstrahlung",0))  sswitch |= SSWITCH_BR;
+        if (iniparser_getboolean(d,"switch:barkas",0)) sswitch |= SSWITCH_BA;
+        if (iniparser_getboolean(d,"switch:shell",0))  sswitch |= SSWITCH_SH;
+        if (iniparser_getboolean(d,"switch:leung",0))  sswitch |= SSWITCH_LE;
+        if (iniparser_getboolean(d,"switch:new delta",1))  sswitch |= SSWITCH_ND; /* True by default! */
+        if (iniparser_getboolean(d,"switch:new electron capture",0))  sswitch |= SSWITCH_EC;
+        if (iniparser_getboolean(d,"switch:finite nuclear size",1))  sswitch |= SSWITCH_NS; /* True by default! */
+        if (iniparser_getboolean(d,"switch:kinematic",0))  sswitch |= SSWITCH_KI;
+        if (iniparser_getboolean(d,"switch:radiative",0))  sswitch |= SSWITCH_RA;
+        if (iniparser_getboolean(d,"switch:pair",0))  sswitch |= SSWITCH_PA;
+        if (iniparser_getboolean(d,"switch:bremsstrahlung",0))  sswitch |= SSWITCH_BR;
         iniparser_freedict(d);
     } else {
         fprintf(stderr,"Could not read switch file: %s. Using default crange switches.\n",switchfile);
     }
 #endif
-    return sswitch;
+    return(sswitch);
+}
+
+/**
+ * @brief Read optional target data file.
+ *
+ * This utility reads an INI-type file and returns an array of pointers to
+ * ::TDATA structures.
+ *
+ * @param targetfile the name of an INI-type file containing target data.
+ *
+ * @return A pointer to an array of ::TDATA structures.  This pointer must
+ * be free()d!
+ *
+ * @warning If the iniparser library is not found, this function will only
+ * return a NULL pointer.
+ */
+tdata *init_target( char *targetfile )
+{
+    tdata *table;
+    table = NULL;
+#ifdef HAVE_INIPARSER_H
+    dictionary *d;
+    char *section;
+    char key[NAMEWIDTH+5+1];
+    int i,n;
+
+    if (access(targetfile,R_OK)) {
+        d = iniparser_load( targetfile );
+        n = iniparser_getnsec(d);
+        table = (tdata*)calloc(n+1,sizeof(tdata));
+        for (i=0;i<n;i++) {
+            section=iniparser_getsecname(d,i);
+            sprintf(key,"%s:%s",section,"name");
+            /* printf("%s = %s\n",key,iniparser_getstring(d,key,"Unknown")); */
+            strncpy(table[i].name,iniparser_getstring(d,key,"Unknown"),NAMEWIDTH);
+            sprintf(key,"%s:%s",section,"z2");
+            /* printf("%s = %f\n",key,iniparser_getdouble(d,key,0.0)); */
+            table[i].z2 = iniparser_getdouble(d,key,0.0);
+            sprintf(key,"%s:%s",section,"a2");
+            table[i].a2 = iniparser_getdouble(d,key,0.0);
+            sprintf(key,"%s:%s",section,"iadj");
+            table[i].iadj = iniparser_getdouble(d,key,0.0);
+            sprintf(key,"%s:%s",section,"rho");
+            table[i].rho = iniparser_getdouble(d,key,0.0);
+            sprintf(key,"%s:%s",section,"pla");
+            table[i].pla = iniparser_getdouble(d,key,0.0);
+            sprintf(key,"%s:%s",section,"etad");
+            table[i].etad = iniparser_getdouble(d,key,0.0);
+            sprintf(key,"%s:%s",section,"bind");
+            table[i].bind = iniparser_getdouble(d,key,0.0);
+            sprintf(key,"%s:%s",section,"x0");
+            table[i].X0 = iniparser_getdouble(d,key,0.0);
+            sprintf(key,"%s:%s",section,"x1");
+            table[i].X1 = iniparser_getdouble(d,key,0.0);
+            sprintf(key,"%s:%s",section,"a");
+            table[i].a = iniparser_getdouble(d,key,0.0);
+            sprintf(key,"%s:%s",section,"m");
+            table[i].m = iniparser_getdouble(d,key,0.0);
+            sprintf(key,"%s:%s",section,"d0");
+            table[i].d0 = iniparser_getdouble(d,key,0.0);
+        }
+        iniparser_freedict(d);
+        /*
+         * Terminate the table with a dummy value.
+         */
+        strncpy(table[n].name,"Unknown",NAMEWIDTH);
+    } else {
+        fprintf(stderr,"Could not read target file: %s. Using built-in crange targets.\n",switchfile);
+    }
+#endif
+    return(table);
 }
 
 /**
@@ -1234,20 +1306,12 @@ short init_switch( char *switchfile )
  * absorber and range tables.  It also sets up the energy table by
  * creating a logarithmically uniform distribution of energies between
  * some minimum energy and some maximum energy, with a number of entries
- * given by #MAXE.  Finally, it opens the absorber data file for read-only
- * access. The variable pointed to by initstat will be set to zero on
- * successful completion of the initialization.
- *
- * @param targetfile The name of a file containing target data.
- *
- * @return The return value of fclose(targetfile), or 0 if no targetfile was opened.
- *
- * @bug The value of targetfile is currently ignored.
+ * given by #MAXE.
  */
-int init_tables( char* targetfile )
+void init_tables( void )
 {
     extern double trange[MAXE][MAXAB], tenerg[MAXE];
-    int i,j,initstat=0;
+    int i,j;
     double ln10,l10Emin,l10Emax,decades,entries;
 
 #ifdef M_LN10
@@ -1260,25 +1324,30 @@ int init_tables( char* targetfile )
     decades=l10Emax-l10Emin;
     entries=MAXE - 1.0;
     for(i=0;i < MAXAB;i++){
-        t[i].z2=t[i].a2=t[i].iadj=t[i].rho=t[i].pla=0.0;
-        t[i].X0=t[i].X1=t[i].a=t[i].m=t[i].d0=t[i].etad=t[i].bind=0.0;
         for(j=0;j < MAXE;j++){
             if(i==0) tenerg[j]=exp(ln10*(l10Emin + ((double)j)*decades/entries));
             trange[j][i]=0.0;
         }
     }
-    return initstat;
+    return;
 }
 
 /**
  * @brief Finds target data corresponding to a target name.
  *
+ * This function returns a pointer to a structure containing the target
+ * data corresponding to the input name.  There is a built-in list. The
+ * built-in list may be added to or overridden by supplying an INI-type
+ * file on the command line, which will then be parsed & passed to this
+ * function.
+ *
  * @param target The name of a target.
+ * @param extratargets A pointer to an array of ::TDATA structures.
  *
  * @return A pointer to a structure containing the target data.  If the
  * name of the target was not found, it will point to a dummy structure.
  */
-tdata *find_target( char *target )
+tdata *find_target( char *target, tdata *extratargets )
 {
     int k=0;
     static tdata targets[] = {
@@ -1327,6 +1396,13 @@ tdata *find_target( char *target )
         /* THIS MUST BE THE LAST STRUCTURE DEFINITION! */
         { "Unknown" ,  0.000,   0.000,   0.0, 0.0000e+00, 0.0000e+00, 0.0, 0.0000e+00,  0.0000, 0.0000, 0.00000, 0.0000, 0.00 }
     };
+    if (extratargets != NULL) {
+        while (strncmp(extratargets[k].name, "Unknown", NAMEWIDTH) != 0) {
+            if (strncmp(extratargets[k].name, target, NAMEWIDTH) == 0) return(&extratargets[k]);
+            k++;
+        }
+    }
+    k=0;
     while (strncmp(targets[k].name, "Unknown", NAMEWIDTH) != 0) {
         if (strncmp(targets[k].name, target, NAMEWIDTH) == 0) break;
         k++;
@@ -1334,5 +1410,5 @@ tdata *find_target( char *target )
     /*
      * If the while loop doesn't break, the 'Unknown' target will be returned.
      */
-    return &targets[k];
+    return(&targets[k]);
 }
