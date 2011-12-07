@@ -1,35 +1,13 @@
 /**
- * @file crange.c
- * Main program.
+ * @mainpage crange - The Berkeley Range-Energy Calculator
+ * @author Benjamin Weaver <benjamin.weaver@nyu.edu>
+ * @version 1.6
+ * @copyright (C) 2001-2011 Benjamin Weaver, LGPL
  */
-
-/*
- * This is version 1.5.3 of the Berkeley Range-Energy Calculator
- *
- * Benjamin Weaver, weaver@SSL.Berkeley.EDU
- * Space Sciences Laboratory
- * University of California
- * Berkeley, CA 94720-7450
- * http://ultraman.ssl.berkeley.edu/~weaver/dedx/
- *
- * Copyright (C) 2001-2011 Benjamin Weaver
- *
- *
- * This program is free software which I release under the GNU Lesser
- * General Public License. You may redistribute and/or modify this program
- * under the terms of that license as published by the Free Software
- * Foundation; either version 2.1 of the License, or (at your option) any
- * later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * To get a copy of the GNU Lesser General Puplic License, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA  02111-1307  USA
- *
+/**
+ * @file crange.c
+ * @brief Source code for crange.
+ * Main program.
  */
 
 /*
@@ -56,12 +34,9 @@ int main( int argc, char **argv )
     char *switchfile, *targetfile, *command, *outputname;
     int c, errflag=0, fd=-1;
     char tempfilename[15] = "";
-    extern int errno;
-    /*
-     * External variables used by getopt()
-     */
-    extern char *optarg;
-    extern int optind, optopt;
+    extern int errno; /**< From errno.h */
+    extern char *optarg; /**< External variable used by getopt(). */
+    extern int optind, optopt; /**< External variable used by getopt(). */
 
     while((c=getopt(argc,argv,":c:ho:s:t:")) != -1) {
         switch (c) {
@@ -169,11 +144,22 @@ int main( int argc, char **argv )
     return(0);
 }
 
-gsl_complex complex_hyperg( gsl_complex a, gsl_complex b, gsl_complex z )
-/*
- * Confluent hypergeometric function.  WARNING, may not be stable for
- * large values of |z|.
+/**
+ * @brief Confluent hypergeometric function.
+ *
+ * Computes the confluent hypergeometric function.  All input parameters
+ * are complex numbers.  Uses the formula:
+ * @f[ M(a,b,z) = 1 + \sum_{n=1} \frac{(a)_n}{(b)_n}\frac{z^n}{n!} , @f]
+ * where
+ * @f[ (x)_n \equiv \frac{\Gamma(x+n)}{\Gamma(x)} @f]
+ * is the Pochhammer Symbol.
+ *
+ * @param a First parameter of the hypergeometric function.
+ * @param b Second parameter of the hypergeometric function.
+ * @return The value @f$M(a,b,z)@f$, a complex number.
+ * @warning May not be stable for large values of @f$|z|@f$.
  */
+gsl_complex complex_hyperg( gsl_complex a, gsl_complex b, gsl_complex z )
 {
     gsl_complex Cm, previousterm, term, sumterm;
     double dm = 0.0;
@@ -193,12 +179,18 @@ gsl_complex complex_hyperg( gsl_complex a, gsl_complex b, gsl_complex z )
     return(sumterm);
 }
 
-gsl_complex complex_lngamma( gsl_complex z )
-/*
- * Fully complex logarithm of fully complex Gamma function.  Functional
- * in all portions of the complex plane, including the negative real axis.
- * Note however, that the Gamma function has poles at all integers <= 0.
+/**
+ * @brief Complex logarithm of the Gamma function.
+ *
+ * Computes the fully complex logarithm of the fully complex Gamma function.
+ * Works in all portions of the complex plane, including the negative real
+ * axis.
+ *
+ * @param z A complex number.
+ * @return @f$\ln \Gamma(z)@f$, a complex number.
+ * @warning The Gamma function has poles at all integers <= 0.
  */
+gsl_complex complex_lngamma( gsl_complex z )
 {
     gsl_complex result;
     double x, y, r, fj, cterm;
@@ -1190,10 +1182,18 @@ void run_range( FILE *finput, FILE *foutput, short sswitch )
     return;
 }
 
-short init_switch( char *switchfile )
-/*
- * Initializes the value of sswitch.
+/**
+ * @brief Initializes the value of of the switch bit field.
+ *
+ * This utility reads an INI-type file and sets the switch bit field
+ * accordingly.
+ *
+ * @param switchfile The name of an INI-type file containing switch configuration.
+ * @return The switch bit field.
+ * @warning If the iniparser library is not found, this function will only
+ * return the default value defined in crange.h.
  */
+short init_switch( char *switchfile )
 {
     short sswitch = SSWITCH_DEFAULT;
 #ifdef HAVE_INIPARSER_H
@@ -1220,8 +1220,9 @@ short init_switch( char *switchfile )
     return sswitch;
 }
 
-int init_tables( char* foo )
-/*
+/**
+ * @brief Initializes data tables.
+ *
  * This utility creates and sets to zero all entries in the external
  * absorber and range tables.  It also sets up the energy table by
  * creating a logarithmically uniform distribution of energies between
@@ -1229,25 +1230,30 @@ int init_tables( char* foo )
  * given by MAXE.  Finally, it opens the absorber data file for read-only
  * access. The variable pointed to by initstat will be set to zero on
  * successful completion of the initialization.
+ *
+ * @param targetfile The name of a file containing target data.
+ * @return The return value of fclose(targetfile), or 0 if no targetfile was opened.
+ * @bug The value of targetfile is currently ignored.
  */
+int init_tables( char* targetfile )
 {
     extern tdata t[MAXAB];
     extern double trange[MAXE][MAXAB], tenerg[MAXE];
-    int i,j,k,tcol,initstat;
+    int i,j,k,tcol,initstat=0;
     double ln10,l10Emin,l10Emax,decades,entries;
     char rswitch[20];
-    char root1[50] = DEDX ;
-    char *targetfile;
+    char root1[50] = CRANGE_DIR ;
+    char *my_targetfile;
     FILE *fabsorber;
 
-    targetfile = strcat( root1, "/target.dat" );
+    my_targetfile = strcat( root1, "/target.dat" );
 #ifdef M_LN10
     ln10=M_LN10;
 #else
     ln10=log(10.0);
 #endif
-    l10Emin=0.0; /* minimum energy 1 A MeV */
-    l10Emax=6.0; /* maximum energy 1 A TeV */
+    l10Emin=0.0; /**< minimum energy 1 A MeV */
+    l10Emax=6.0; /**< maximum energy 1 A TeV */
     decades=l10Emax-l10Emin;
     entries=MAXE - 1.0;
     for(i=0;i < MAXAB;i++){
@@ -1259,7 +1265,7 @@ int init_tables( char* foo )
         }
     }
     k=0;
-    fabsorber=fopen( targetfile , "r" );
+    fabsorber=fopen( my_targetfile , "r" );
     do{
         tcol=fscanf(fabsorber,
             "%s %lf %lf %lf %le %le %lf %lf %lf %lf %lf %lf %le\n",

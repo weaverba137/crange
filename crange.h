@@ -56,11 +56,11 @@
  * binary lives as well as the data files.
  * IMPORTANT:  Change this to your own working directory!
  */
-#ifdef DEDX
-#undef DEDX
+#ifdef CRANGE_DIR
+#undef CRANGE_DIR
 #endif
-#ifndef DEDX
-#define DEDX "."
+#ifndef CRANGE_DIR
+#define CRANGE_DIR "."
 #endif
 /*
  * MAXE sets the number of energies in the range-energy tables.
@@ -91,17 +91,17 @@
 /*
  * Define switch bits.
  */
-#define SSWITCH_BA  0x001 /* Barkas effect */
-#define SSWITCH_SH  0x002 /* Shell effect */
-#define SSWITCH_LE  0x004 /* Leung effect */
-#define SSWITCH_ND  0x008 /* Density effect switcher */
-#define SSWITCH_EC  0x010 /* Electron capture switcher */
-#define SSWITCH_NS  0x020 /* Finite Nuclear Size effect */
-#define SSWITCH_KI  0x040 /* Kinetic effect */
-#define SSWITCH_RA  0x080 /* Radiative correction effect */
-#define SSWITCH_PA  0x100 /* Pair Production energy loss */
-#define SSWITCH_BR  0x200 /* Projectile Bremsstrahlung */
-#define SSWITCH_DEFAULT (SSWITCH_ND | SSWITCH_NS)
+#define SSWITCH_BA  0x001 /**< Barkas effect bit. */
+#define SSWITCH_SH  0x002 /**< Shell effect bit. */
+#define SSWITCH_LE  0x004 /**< Leung effect bit. */
+#define SSWITCH_ND  0x008 /**< Density effect switcher bit. */
+#define SSWITCH_EC  0x010 /**< Electron capture switcher bit. */
+#define SSWITCH_NS  0x020 /**< Finite Nuclear Size effect bit. */
+#define SSWITCH_KI  0x040 /**< Kinetic effect bit. */
+#define SSWITCH_RA  0x080 /**< Radiative correction effect bit. */
+#define SSWITCH_PA  0x100 /**< Pair Production energy loss bit. */
+#define SSWITCH_BR  0x200 /**< Projectile Bremsstrahlung bit. */
+#define SSWITCH_DEFAULT (SSWITCH_ND | SSWITCH_NS) /**< Default bits set density effect and finite nuclear size. */
 /*
  * These external variables contain the range-energy tables.
  */
