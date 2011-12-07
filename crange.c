@@ -2,11 +2,14 @@
  * @mainpage crange - The Berkeley Range-Energy Calculator
  * @author Benjamin Weaver <benjamin.weaver@nyu.edu>
  * @version 1.6
+ *
  * @copyright (C) 2001-2011 Benjamin Weaver, LGPL
+ *
  */
 /**
  * @file crange.c
  * @brief Source code for crange.
+ *
  * Main program.
  */
 
@@ -157,7 +160,9 @@ int main( int argc, char **argv )
  * @param a First parameter of the hypergeometric function.
  * @param b Second parameter of the hypergeometric function.
  * @param z A complex number.
+ *
  * @return The value @f$M(a,b,z)@f$, a complex number.
+ *
  * @warning May not be stable for large values of @f$|z|@f$.
  */
 gsl_complex complex_hyperg( gsl_complex a, gsl_complex b, gsl_complex z )
@@ -188,7 +193,9 @@ gsl_complex complex_hyperg( gsl_complex a, gsl_complex b, gsl_complex z )
  * axis.
  *
  * @param z A complex number.
+ *
  * @return @f$\ln \Gamma(z)@f$, a complex number.
+ *
  * @warning The Gamma function has poles at all integers <= 0.
  */
 gsl_complex complex_lngamma( gsl_complex z )
@@ -1228,12 +1235,14 @@ short init_switch( char *switchfile )
  * absorber and range tables.  It also sets up the energy table by
  * creating a logarithmically uniform distribution of energies between
  * some minimum energy and some maximum energy, with a number of entries
- * given by MAXE.  Finally, it opens the absorber data file for read-only
+ * given by #MAXE.  Finally, it opens the absorber data file for read-only
  * access. The variable pointed to by initstat will be set to zero on
  * successful completion of the initialization.
  *
  * @param targetfile The name of a file containing target data.
+ *
  * @return The return value of fclose(targetfile), or 0 if no targetfile was opened.
+ *
  * @bug The value of targetfile is currently ignored.
  */
 int init_tables( char* targetfile )
