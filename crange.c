@@ -308,7 +308,7 @@ double effective_charge( double z0, double e1, double z2, short sswitch )
     return(z1);
 }
 
-double djdx( double e1, double z0, double I0, double f0, double K, short sswitch, int tno)
+double djdx( double e1, double z0, double I0, double f0, double K, short sswitch, tdata *target)
 /*
  * This computes the primary ionization, the number of delta-rays produced
  * per unit length.  The formula is based on H. Bethe. Ann. Phys.
@@ -323,7 +323,6 @@ double djdx( double e1, double z0, double I0, double f0, double K, short sswitch
  * K:  a constant that depends on the target.
  */
 {
-    extern tdata t[MAXAB];
     double emass=0.511003e+6; /* eV/c^2 */
     double z2,a2;
     double g,b2,b,z1;
@@ -331,11 +330,11 @@ double djdx( double e1, double z0, double I0, double f0, double K, short sswitch
     double J,f1,f2;
 
     g=1.0+e1/931.4943;
-    delt = ( sswitch & SSWITCH_ND ) ? delta(g,tno) : olddelta(g,tno);
+    delt = ( sswitch & SSWITCH_ND ) ? delta(g,target) : olddelta(g,target);
     b2=1.0-1.0/(g*g);
     b=sqrt(b2);
-    z2=t[tno].z2;
-    a2=t[tno].a2;
+    z2=target->z2;
+    a2=target->a2;
     z1 = effective_charge(z0, e1, z2, sswitch);
     f1=0.3070722*z1*z1*z2/(b2*a2);
     f2=log(2.0*emass*b2*g*g/I0);
@@ -343,7 +342,7 @@ double djdx( double e1, double z0, double I0, double f0, double K, short sswitch
     return(J);
 }
 
-double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tno )
+double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata *target )
 /*
  * This is the core of the whole package, the dE/dx calculator.  I have
  * based this largely on the work of M. H. Salamon, L.B.L. Report #10446
@@ -358,7 +357,6 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tn
  * tno:  number of the current target (for looking up in the tdata struct)
  */
 {
-    extern tdata t[MAXAB];
     static double fva[10]={0.33,0.078,0.03,0.014,0.0084,
         0.0053,0.0035,0.0025,0.0019,0.0014};
     int i;
@@ -376,11 +374,11 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tn
     delt = ( sswitch & SSWITCH_ND ) ? delta(g,tno) : olddelta(g,tno);
     b2=1.0-1.0/(g*g);
     b=sqrt(b2);
-    z2=t[tno].z2;
-    a2=t[tno].a2;
+    z2=target->z2;
+    a2=target->a2;
     z1 = effective_charge(z0, e1, z2, sswitch);
     f1=0.3070722*z1*z1*z2/(b2*a1*a2);
-    f2=log(2.0*emass*b2/t[tno].iadj);
+    f2=log(2.0*emass*b2/target->iadj);
     if( sswitch & SSWITCH_SH ){
         /*
          * The inner shell correction is somewhat problematic.  It arises when
@@ -394,9 +392,9 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tn
          * before this topic can be fully understood.
          */
         etam2=1.0/(b*b*g*g);
-        cadj=1.0e-6*(t[tno].iadj)*(t[tno].iadj)*etam2*(0.422377
+        cadj=1.0e-6*(target->iadj)*(target->iadj)*etam2*(0.422377
             +etam2*(0.0304043-etam2*0.00038106))
-            +1.0e-9*(t[tno].iadj)*(t[tno].iadj)*(t[tno].iadj)*etam2*(3.858019
+            +1.0e-9*(target->iadj)*(target->iadj)*(target->iadj)*etam2*(3.858019
             +etam2*(-0.1667989 + etam2*0.00157955));
         f2-=cadj/(z2);
         if( sswitch & SSWITCH_LE ){
@@ -406,7 +404,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tn
              * See P. T. Leung, Phys. Rev. A 40 (1989) 5417, and P. T. Leung,
              * Phys. Rev. A 60 (1999) 2562.
              */
-            f2-=(5.0/3.0)*log(2.0*emass*b2/t[tno].iadj)*(1.0e+03*t[tno].bind/(z2*emass))-(t[tno].iadj*t[tno].iadj/(4.0*emass*emass*b2));
+            f2-=(5.0/3.0)*log(2.0*emass*b2/target->iadj)*(1.0e+03*target->bind/(z2*emass))-(target->iadj*target->iadj/(4.0*emass*emass*b2));
         }
     }
     f6=2.0*log(g)-b2;
@@ -527,7 +525,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tn
     }
 }
 
-double delta( double g, int tno )
+double delta( double g, tdata *target )
 /*
  * This function implements the density effect correction as formulated
  * in R. M. Sternheimer and R. F. Peierls, Phys. Rev. B 3 (1971) 3681 and as
@@ -537,29 +535,28 @@ double delta( double g, int tno )
  * conducting materials, there is a low-energy density effect.
  */
 {
-    extern tdata t[MAXAB];
     double b,cbar,X,X0,X1;
 
-    X0=t[tno].X0;
-    X1=t[tno].X1;
-    cbar=2.0*log(t[tno].iadj/t[tno].pla)+1.0;
+    X0=target->X0;
+    X1=target->X1;
+    cbar=2.0*log(target->iadj/target->pla)+1.0;
     b=sqrt(1.0 - 1.0/(g*g));
     X=log10(b*g);
-    if(t[tno].etad>0) {
-        cbar-=2.303*log10(t[tno].etad);
-        X1-=0.5*log10(t[tno].etad);
-        X0-=0.5*log10(t[tno].etad);
+    if(target->etad>0) {
+        cbar-=2.303*log10(target->etad);
+        X1-=0.5*log10(target->etad);
+        X0-=0.5*log10(target->etad);
     }
     if(X < X0) {
-        return(t[tno].d0*exp(4.6052*(X-X0)));
+        return(target->d0*exp(4.6052*(X-X0)));
     } else if (X >= X0 && X < X1) {
-        return(4.6052*X + exp(log(t[tno].a) + t[tno].m*log(X1-X)) - cbar);
+        return(4.6052*X + exp(log(target->a) + target->m*log(X1-X)) - cbar);
     } else {
         return( 4.6052*X - cbar );
     }
 }
 
-double olddelta( double g, int tno )
+double olddelta( double g, tdata *target )
 /*
  * This function implements the density effect correction as originally
  * formulated in R. M. Sternheimer and R. F. Peierls, Phys. Rev. B 3 (1971)
@@ -567,16 +564,15 @@ double olddelta( double g, int tno )
  * compatibility with earlier codes.
  */
 {
-    extern tdata t[MAXAB];
     double b,cbar,y;
     double y0,y1,dy3,a;
 
     if( g < 1.8 ) return(0.0);
-    cbar=2.0*log(t[tno].iadj/t[tno].pla)+1.0;
+    cbar=2.0*log(target->iadj/target->pla)+1.0;
     b=sqrt(1.0 - 1.0/(g*g));
     y=2.0*log(b*g);
-    if( t[tno].etad > 0 ){
-        y+=log(t[tno].etad);
+    if( target->etad > 0 ){
+        y+=log(target->etad);
         if(cbar>=12.25){
             y1=23.03;
             y0 = ( cbar >= 13.804 ) ? 1.502*cbar-11.52 : 9.212;
@@ -589,7 +585,7 @@ double olddelta( double g, int tno )
             if(cbar<10.0)y0=7.370;
         }
     } else {
-        if(t[tno].iadj>=100.0){
+        if(target->iadj>=100.0){
             y1=13.82;
             y0 = ( cbar >= 5.215 ) ? 1.502*cbar-6.909 : 0.9212;
         } else {
@@ -897,7 +893,7 @@ double Fbrems( double x )
     }
 }
 
-double range( double e, double z1, double a1, short sswitch, int tno )
+double range( double e, double z1, double a1, short sswitch, tdata *target )
 /*
  * This function computes total range given initial energy.  The technique
  * is quite clever, in that if from one call to the next, the projectile
@@ -930,19 +926,19 @@ double range( double e, double z1, double a1, short sswitch, int tno )
         i=0;
         while(tenerg[i] < 8.0) {
             e1=tenerg[i];
-            trange[i][tno]=benton(e1, z1, a1, tno);
+            trange[i][tno]=benton(e1, z1, a1, target);
             i++;
         }
         while(i<MAXE){
             de2=(tenerg[i]-tenerg[i-1])/2.0;
             e1=tenerg[i-1]+1.33998104*de2;
-            dedx1=dedx(e1,rel,z1,a1,sswitch,tno);
+            dedx1=dedx(e1,rel,z1,a1,sswitch,target);
             e2=tenerg[i-1]+1.86113631*de2;
-            dedx2=dedx(e2,rel,z1,a1,sswitch,tno);
+            dedx2=dedx(e2,rel,z1,a1,sswitch,target);
             e3=tenerg[i-1]+0.13886369*de2;
-            dedx3=dedx(e3,rel,z1,a1,sswitch,tno);
+            dedx3=dedx(e3,rel,z1,a1,sswitch,target);
             e4=tenerg[i-1]+0.66001869*de2;
-            dedx4=dedx(e4,rel,z1,a1,sswitch,tno);
+            dedx4=dedx(e4,rel,z1,a1,sswitch,target);
             dr=de2*(0.65214515/dedx1 + 0.34785485/dedx2 + 0.34785485/dedx3
                 + 0.65214515/dedx4);
             trange[i][tno] = trange[i-1][tno] + dr;
@@ -959,7 +955,7 @@ double range( double e, double z1, double a1, short sswitch, int tno )
     }
 }
 
-double qrange( double e, double z1, double a1, short sswitch, int tno )
+double qrange( double e, double z1, double a1, short sswitch, tdata *target )
 /*
  * This function computes total range given initial energy.  This
  * is a direct integration of dE/dx from 1 A MeV up to the initial energy.
@@ -972,7 +968,7 @@ double qrange( double e, double z1, double a1, short sswitch, int tno )
     double ra[MAXE];
 
     if(e > ei){
-        ra[0]=benton(ei,z1,a1,tno);
+        ra[0]=benton(ei,z1,a1,target);
         i=1;
 #ifdef M_LN10
         ln10=M_LN10;
@@ -987,13 +983,13 @@ double qrange( double e, double z1, double a1, short sswitch, int tno )
             en=exp(ln10*(lei + ((double)i)*lef/entries));
             de2=(en-pen)/2.0;
             e1=pen+1.33998104*de2;
-            dedx1=dedx(e1,rel,z1,a1,sswitch,tno);
+            dedx1=dedx(e1,rel,z1,a1,sswitch,target);
             e2=pen+1.86113631*de2;
-            dedx2=dedx(e2,rel,z1,a1,sswitch,tno);
+            dedx2=dedx(e2,rel,z1,a1,sswitch,target);
             e3=pen+0.13886369*de2;
-            dedx3=dedx(e3,rel,z1,a1,sswitch,tno);
+            dedx3=dedx(e3,rel,z1,a1,sswitch,target);
             e4=pen+0.66001869*de2;
-            dedx4=dedx(e4,rel,z1,a1,sswitch,tno);
+            dedx4=dedx(e4,rel,z1,a1,sswitch,target);
             dr=de2*(0.65214515/dedx1 + 0.34785485/dedx2 + 0.34785485/dedx3
                 + 0.65214515/dedx4);
             ra[i] = ra[i-1] + dr;
@@ -1001,13 +997,13 @@ double qrange( double e, double z1, double a1, short sswitch, int tno )
         }while(en < e);
         return(ra[i-1]);
     } else if (e > 1.0 && e <= ei) {
-        return( benton(e,z1,a1,tno) );
+        return( benton(e,z1,a1,target) );
     } else {
-        return( e*benton(en,z1,a1,tno)/en );
+        return( e*benton(en,z1,a1,target)/en );
     }
 }
 
-double benton( double e, double z1, double a1, int tno )
+double benton( double e, double z1, double a1, tdata *target )
 /*
  * This function is the result of  empirical fits to very low energy
  * 1 A MeV < E < 8 A MeV ion ranges.  It follows the methods of
@@ -1018,7 +1014,6 @@ double benton( double e, double z1, double a1, int tno )
  * As yet I know of no nicer way to deal with these low energies.
  */
 {
-    extern tdata t[MAXAB];
     int l,m,n;
     double g,b,bzz,x;
     double term,logt,logi,loglambda;
@@ -1057,10 +1052,10 @@ double benton( double e, double z1, double a1, int tno )
     };
 
     logt=log( e * cr );
-    logi=log( t[tno].iadj );
+    logi=log( target->iadj );
     for (l = 0; l < 2; l++) {
         join[l] = cjoin[l][m=6];
-        while (m > 0) join[l] = 0.001*t[tno].iadj*join[l] + cjoin[l][--m];
+        while (m > 0) join[l] = 0.001*target->iadj*join[l] + cjoin[l][--m];
     }
     /*
      * join[l] demarcates the three energy regions represented by the
@@ -1079,7 +1074,7 @@ double benton( double e, double z1, double a1, int tno )
             loglambda*=logi;
         }
         loglambda/=logi;
-        loglambda+=log( (t[tno].a2)/(t[tno].z2) );
+        loglambda+=log( (target->a2)/(target->z2) );
         prnglo[l]=exp(loglambda);
         if (l == 1) prnglo[l]*=1.0e-03;
     }
@@ -1107,11 +1102,11 @@ double benton( double e, double z1, double a1, int tno )
         n = 3;
     }
     bzz=(31.8+3.86*exp((5.0/8.0)*logi))
-        *( (t[tno].a2)/(t[tno].z2) )*1.0e-06*exp((8.0/3.0)*log( z1 ));
+        *( (target->a2)/(target->z2) )*1.0e-06*exp((8.0/3.0)*log( z1 ));
     return(( (a1/cr)/(z1*z1) )*(prnglo[l] + bzz*cz[n]));
 }
 
-double renergy( double e, double r0, double z1, double a1, short sswitch, int tno )
+double renergy( double e, double r0, double z1, double a1, short sswitch, tdata *target )
 /*
  * This function finds extracts energies from the range tables by
  * table interpolation.  Inputs are range measured in g cm^-2 , and other
@@ -1125,11 +1120,11 @@ double renergy( double e, double r0, double z1, double a1, short sswitch, int tn
     int i;
 
     if( e > 0.0 ){
-        rr = range(e,z1,a1,sswitch,tno);
+        rr = range(e,z1,a1,sswitch,target);
         r = rr - r0;
         if( r < 0.0 ) return(0.0);
     } else {
-        rr = range(tenerg[0],z1,a1,sswitch,tno);
+        rr = range(tenerg[0],z1,a1,sswitch,target);
         r = r0;
     }
     if(r > trange[0][tno]){
@@ -1142,22 +1137,31 @@ double renergy( double e, double r0, double z1, double a1, short sswitch, int tn
     }
 }
 
-void run_range( FILE *finput, FILE *foutput, short sswitch )
-/*
- * The following is a utility function which steps through the
- * range, energy and dE/dx tasks specified in the input data file.
- * The tasks are denoted by a single letter:  r to compute ranges,
- * e to compute energies, and d to compute dE/dx.  The task letter should
- * be followed by the energy (or range) at which to compute range (or
- * energy), the charge and mass of the particle, and the name of the
- * target material.  Names of target materials can be found in the
- * target.dat file.  Target material names may be up to eight (8)
+/**
+ * @brief Parses and executes the task list.
+ *
+ * This utility function steps through the range, energy and dE/dx tasks
+ * specified in the input data file.
+ * The tasks are denoted by a single letter:
+ *     - @em r compute ranges
+ *     - @em e compute energies
+ *     - @em d compute dE/dx
+ *     - @em j compute dJ/dx (primary ionization)
+ * The task letter should be followed by the energy (or range) at which to
+ * compute range (or energy), the charge and mass of the particle, and the
+ * name of the target material.  Names of target materials can be found in the
+ * target.ini file.  Target material names may be up to #NAMEWIDTH
  * characters in length and should contain no whitespace.
+ *
+ * @param finput An open file pointer containing the task list.
+ * @param foutput An open file pointer to write results to.
+ * @param sswitch The switch bit field.
  */
+void run_range( FILE *finput, FILE *foutput, short sswitch )
 {
-    extern tdata t[MAXAB];
+    tdata *target;
     char task[2];
-    char abs[9],previous[9];
+    char abs[NAMEWIDTH+1];
     double red1,red2,z1,a1;
     double out=0.0;
     int icols=6;
@@ -1167,22 +1171,17 @@ void run_range( FILE *finput, FILE *foutput, short sswitch )
         icols=fscanf(finput,"%s %lf %lf %lf %lf %s\n",
             task,&red1,&red2,&z1,&a1,abs);
         if(icols < 6) break;
-        if( strcmp( abs, previous ) != 0 ) {
-            k=0;
-            while( (strcmp( t[k].tname, abs ) != 0)
-                && (strcmp( t[k].tname, "Unknown" ) != 0)) k++;
-        }
-        strcpy( previous, abs );
+        target = find_target(abs);
         out=0.0;
-        if(icols==6 && strcmp( t[k].tname, "Unknown" ) != 0){
+        if(icols==6 && strncmp( target->name, "Unknown", NAMEWIDTH ) != 0){
             if(strcmp( task, "r" )==0){
-                out=range(red1,z1,a1,sswitch,k);
+                out=range(red1,z1,a1,sswitch,target);
             } else if(strcmp( task, "e" )==0){
-                out=renergy(red1,red2,z1,a1,sswitch,k);
+                out=renergy(red1,red2,z1,a1,sswitch,target);
             } else if(strcmp( task, "d" )==0){
-                out=dedx(red1,red2,z1,a1,sswitch,k);
+                out=dedx(red1,red2,z1,a1,sswitch,target);
             } else if(strcmp( task, "j" )==0){
-                out=djdx(red1,z1,2.0,0.05,3.04,sswitch,k);
+                out=djdx(red1,z1,2.0,0.05,3.04,sswitch,target);
             }
         }
         fprintf(foutput,"%f\n",out);
@@ -1199,7 +1198,7 @@ void run_range( FILE *finput, FILE *foutput, short sswitch )
  * @param switchfile The name of an INI-type file containing switch configuration.
  * @return The switch bit field.
  * @warning If the iniparser library is not found, this function will only
- * return the default value defined in crange.h.
+ * return the default value #SSWITCH_DEFAULT.
  */
 short init_switch( char *switchfile )
 {
@@ -1247,16 +1246,10 @@ short init_switch( char *switchfile )
  */
 int init_tables( char* targetfile )
 {
-    extern tdata t[MAXAB];
     extern double trange[MAXE][MAXAB], tenerg[MAXE];
-    int i,j,k,tcol,initstat=0;
+    int i,j,initstat=0;
     double ln10,l10Emin,l10Emax,decades,entries;
-    char rswitch[20];
-    char root1[50] = CRANGE_DIR ;
-    char *my_targetfile;
-    FILE *fabsorber;
 
-    my_targetfile = strcat( root1, "/target.dat" );
 #ifdef M_LN10
     ln10=M_LN10;
 #else
@@ -1274,18 +1267,72 @@ int init_tables( char* targetfile )
             trange[j][i]=0.0;
         }
     }
-    k=0;
-    fabsorber=fopen( my_targetfile , "r" );
-    do{
-        tcol=fscanf(fabsorber,
-            "%s %lf %lf %lf %le %le %lf %lf %lf %lf %lf %lf %le\n",
-            t[k].tname,&(t[k].z2),&(t[k].a2),&(t[k].iadj),&(t[k].rho),
-            &(t[k].pla),&(t[k].X0),&(t[k].X1),&(t[k].a),&(t[k].m),
-            &(t[k].d0),&(t[k].etad),&(t[k].bind));
-        if(tcol < 13) fprintf(stderr,"Error at target %s :  %d items converted.\n",t[k].tname,tcol);
-        k++;
-    }while( strcmp( t[k-1].tname, "Unknown" ) != 0 );
-    initstat=fclose(fabsorber);
     return initstat;
 }
 
+/**
+ * @brief Finds target data corresponding to a target name.
+ *
+ * @param target The name of a target.
+ *
+ * @return A pointer to a structure containing the target data.  If the
+ * name of the target was not found, it will point to a dummy structure.
+ */
+tdata *find_target( char *target )
+{
+    int k=0;
+    static tdata targets[] = {
+        /* name     ,     z2,      a2,  iadj,        rho,        pla,etad,       bind,      X0,     X1,       a,      m,   d0*/
+        { "H"       ,  1.000,   1.008,  19.2, 8.3748e-05, 2.6300e-01, 1.0, 1.3606e-02,  1.8639, 3.2718, 0.14092, 5.7273, 0.00 },
+        { "He"      ,  2.000,   4.003,  41.8, 1.6632e-04, 2.6300e-01, 1.0, 7.7872e-02,  2.2017, 3.6122, 0.13443, 5.8347, 0.00 },
+        { "C"       ,  6.000,  12.011,  78.0, 2.0000e+00, 2.8803e+01, 0.0, 1.0251e+00, -0.0351, 2.4860, 0.20240, 3.0036, 0.10 },
+        { "N"       ,  7.000,  14.007,  82.0, 1.1653e-03, 6.9500e-01, 1.0, 1.4782e+00,  1.7378, 4.1323, 0.15349, 3.2125, 0.00 },
+        { "O"       ,  8.000,  15.999,  95.0, 1.3315e-03, 7.4400e-01, 0.0, 2.0359e+00,  1.7541, 4.3213, 0.11778, 3.2913, 0.00 },
+        { "Na"      , 11.000,  22.990, 149.0, 9.7100e-01, 1.9641e+01, 0.0, 4.4097e+00,  0.2880, 3.1962, 0.07772, 3.6452, 0.08 },
+        { "Al"      , 13.000,  26.980, 166.0, 2.6989e+00, 3.2860e+01, 0.0, 6.5929e+00,  0.1708, 3.0127, 0.08024, 3.6345, 0.12 },
+        { "Si"      , 14.000,  28.090, 173.0, 2.3300e+00, 3.1055e+01, 0.0, 7.8751e+00,  0.2014, 2.8715, 0.14921, 3.2546, 0.14 },
+        { "P"       , 15.000,  30.974, 173.0, 2.2000e+00, 2.9743e+01, 0.0, 9.2905e+00,  0.1696, 2.7815, 0.23610, 2.9158, 0.14 },
+        { "Ar"      , 18.000,  39.948, 188.0, 1.6620e-03, 7.8900e-01, 1.0, 1.4382e+01,  1.7635, 4.4855, 0.19714, 2.9618, 0.00 },
+        { "Fe"      , 26.000,  55.847, 286.0, 7.8740e+00, 5.5172e+01, 0.0, 3.4582e+01, -0.0012, 3.1531, 0.14680, 2.9632, 0.12 },
+        { "Ni"      , 28.000,  58.690, 311.0, 8.9020e+00, 5.9385e+01, 0.0, 4.1324e+01, -0.0566, 3.1851, 0.16496, 2.8430, 0.10 },
+        { "Cu"      , 29.000,  63.550, 323.0, 8.9600e+00, 5.8270e+01, 0.0, 4.4973e+01, -0.0254, 3.2792, 0.14339, 2.9044, 0.08 },
+        { "Ge"      , 32.000,  72.610, 350.0, 5.3230e+00, 4.4141e+01, 0.0, 5.7047e+01,  0.3376, 3.6096, 0.07188, 3.3306, 0.14 },
+        { "Ag"      , 47.000, 107.870, 470.0, 1.0500e+01, 6.1635e+01, 0.0, 1.4451e+02,  0.0657, 3.1074, 0.24585, 2.6899, 0.14 },
+        { "Ba"      , 56.000, 137.330, 491.0, 3.5000e+00, 3.4425e+01, 0.0, 2.2118e+02,  0.4190, 3.4547, 0.18268, 2.8906, 0.14 },
+        { "Os"      , 76.000, 190.200, 746.0, 2.2570e+01, 8.6537e+01, 0.0, 4.6939e+02,  0.0891, 3.5414, 0.12751, 2.9608, 0.10 },
+        { "Pt"      , 78.000, 195.090, 790.0, 2.1450e+01, 8.4389e+01, 0.0, 5.0101e+02,  0.1484, 3.6212, 0.11128, 3.0417, 0.12 },
+        { "Au"      , 79.000, 196.970, 790.0, 1.9320e+01, 8.0215e+01, 0.0, 5.1732e+02,  0.2021, 3.6979, 0.09756, 3.1101, 0.14 },
+        { "Pb"      , 82.000, 207.200, 823.0, 1.1350e+01, 6.1072e+01, 0.0, 5.6834e+02,  0.3776, 3.8073, 0.09359, 3.1608, 0.14 },
+        { "U"       , 92.000, 238.030, 890.0, 1.5370e+01, 7.7986e+01, 0.0, 7.6220e+02,  0.2260, 3.3721, 0.19677, 2.8171, 0.14 },
+        { "Air"     ,  7.312,  14.667,  85.4, 1.2048e-03, 7.0700e-01, 1.0, 1.7150e+00,  1.7418, 4.2759, 0.10914, 3.3994, 0.00 },
+        { "ArCO2"   , 15.867,  34.892, 174.7, 1.7000e-03, 8.0120e-01, 1.0, 1.7150e+00,  1.7418, 4.2759, 0.10914, 3.3994, 0.00 },
+        { "BC-408"  ,  3.381,   6.248,  62.8, 1.0320e+00, 2.1534e+01, 1.0, 4.9530e-01,  0.1769, 2.6747, 0.11442, 3.3762, 0.00 },
+        { "BP-1"    , 14.795,  32.575, 242.5, 3.0000e+00, 3.3636e+01, 0.0, 2.7489e+01,  0.0843, 3.6297, 0.06445, 3.3655, 0.00 },
+        { "CH2"     ,  2.667,   4.676,  57.4, 9.4000e-01, 2.1099e+01, 0.0, 3.5078e-01,  0.1370, 2.5177, 0.12108, 3.4292, 0.00 },
+        { "CO2"     ,  7.333,  14.670,  85.0, 1.8421e-03, 8.7400e-01, 1.0, 1.6990e+00,  1.6294, 4.1825, 0.11768, 3.3227, 0.00 },
+        { "CR-39"   ,  3.946,   7.413,  73.1, 1.4000e+00, 2.4780e+01, 0.0, 7.2426e-01,  0.1562, 2.6507, 0.12679, 3.3076, 0.00 },
+        { "CsI"     , 54.000, 129.905, 553.1, 4.5100e+00, 3.9455e+01, 0.0, 2.0258e+02,  0.0395, 3.3353, 0.25381, 2.6657, 0.00 },
+        { "Halo"    ,  1.077,   1.238,  19.2, 4.0880e-24, 5.4342e-11, 1.0, 1.8554e-02,  2.0000, 3.5000, 0.13500, 5.7500, 0.00 },
+        { "Hosta"   ,  4.250,   8.091,  72.3, 1.4000e+00, 2.4722e-01, 0.0, 7.7212e-01,  0.1606, 2.6255, 0.12860, 3.3288, 0.00 },
+        { "ISM"     ,  1.077,   1.238,  19.2, 2.0440e-24, 3.8426e-11, 1.0, 1.8554e-02,  2.0000, 3.5000, 0.13500, 5.7500, 0.00 },
+        { "Kapton"  ,  5.026,   9.803,  75.9, 1.4200e+00, 2.4586e+01, 0.0, 9.1859e-01,  0.1509, 2.5631, 0.15972, 3.1912, 0.00 },
+        { "Kevlar"  ,  4.000,   7.567,  71.7, 1.4500e+00, 2.5229e+01, 0.0, 9.1859e-01,  0.1509, 2.5631, 0.15972, 3.1912, 0.00 },
+        { "Lexan"   ,  4.061,   7.706,  73.1, 1.2040e+00, 2.2915e+01, 0.0, 6.8789e-01,  0.1606, 2.6255, 0.12860, 3.3288, 0.00 },
+        { "LH2"     ,  1.000,   1.008,  21.8, 6.0000e-02, 7.0310e+00, 0.0, 1.3606e-02,  0.4759, 1.9215, 0.13483, 5.6249, 0.00 },
+        { "Mesh"    , 21.400,  44.200, 223.0, 2.1500e+00, 2.9400e+01, 0.0, 3.4582e+01, -0.0012, 3.1531, 0.14680, 2.9632, 0.12 },
+        { "Mylar"   ,  4.456,   8.735,  78.7, 1.4000e+00, 2.4595e+01, 0.0, 8.4108e-01,  0.1562, 2.6507, 0.12679, 3.3067, 0.00 },
+        { "SiO2"    , 10.000,  20.029, 139.2, 2.3200e+00, 3.1014e+01, 0.0, 3.9822e+00,  0.1385, 3.0025, 0.08408, 3.5064, 0.00 },
+        { "Teflon"  ,  8.000,  16.669,  99.1, 2.2000e+00, 2.9609e+01, 0.0, 2.1465e+00,  0.1648, 2.7404, 0.10606, 3.4046, 0.00 },
+        { "Water"   ,  3.333,   6.005,  75.0, 1.0000e+00, 2.1469e+01, 0.0, 6.8770e-01,  0.2400, 2.8004, 0.09116, 3.4773, 0.00 },
+        /* THIS MUST BE THE LAST STRUCTURE DEFINITION! */
+        { "Unknown" ,  0.000,   0.000,   0.0, 0.0000e+00, 0.0000e+00, 0.0, 0.0000e+00,  0.0000, 0.0000, 0.00000, 0.0000, 0.00 }
+    };
+    while (strncmp(targets[k].name, "Unknown", NAMEWIDTH) != 0) {
+        if (strncmp(targets[k].name, target, NAMEWIDTH) == 0) break;
+        k++;
+    }
+    /*
+     * If the while loop doesn't break, the 'Unknown' target will be returned.
+     */
+    return &targets[k];
+}

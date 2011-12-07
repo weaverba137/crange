@@ -52,20 +52,9 @@
 #include <iniparser.h>
 #endif
 /*
- * Define working directory.  This is the directory in which the
- * binary lives as well as the data files.
- * IMPORTANT:  Change this to your own working directory!
+ *
  */
-#ifdef CRANGE_DIR
-#undef CRANGE_DIR
-#endif
-#ifndef CRANGE_DIR
-#define CRANGE_DIR "."
-#endif
-/*
- * MAXE sets the number of energies in the range-energy tables.
- */
-#define MAXE 200
+#define MAXE 200 /**< The number of energies in the range-energy tables. */
 /*
  * MAXAB sets the number of different target media which can be stored
  * in the range-energy tables.  It is suggested that MAXAB > number of
@@ -103,17 +92,21 @@
 #define SSWITCH_BR  0x200 /**< Projectile Bremsstrahlung bit. */
 #define SSWITCH_DEFAULT (SSWITCH_ND | SSWITCH_NS) /**< Default bits set density effect and finite nuclear size. */
 /*
- * These external variables contain the range-energy tables.
+ *
  */
-double trange[MAXE][MAXAB];
-double tenerg[MAXE];
+#define NAMEWIDTH 8 /**< The maximum number of characters in a target name. */
 /**
- * @struct TDATA crange.h
  * @brief Structure containing target data.
  *
  * Structure containing target data.
  */
 typedef struct TDATA {
+    /**
+     * @name Material name
+     */
+    /* @{ */
+    char name[NAMEWIDTH+1]; /**< The name of the material. */
+    /* @} */
     /**
      * @name General parameters.
      */
@@ -136,35 +129,31 @@ typedef struct TDATA {
     double m;  /**< Parameter used to interpolate the density effect between the values of X0 and X1. */
     double d0; /**< Low-energy density effect parameter, only non-zero for conducting materials. */
     /* @} */
-    /**
-     * @name Material name
-     */
-    /* @{ */
-    char tname[9]; /**< The name of the material. */
-    /* @} */
 } tdata;
 /*
- * Declare an external array of structures
+ * These external variables contain the range-energy tables.
  */
-tdata t[MAXAB];
+double trange[MAXE][MAXAB];
+double tenerg[MAXE];
 /*
  * Delcare all the functions in crange.c
  */
 gsl_complex complex_hyperg( gsl_complex a, gsl_complex b, gsl_complex z );
 gsl_complex complex_lngamma( gsl_complex z );
 double effective_charge( double z0, double e1, double z2, short sswitch );
-double djdx( double e1, double z0, double I0, double f0, double K, short sswitch, int tno);
-double dedx( double e1, double rel0, double z0, double a1, short sswitch, int tno );
-double delta( double g, int tno );
-double olddelta( double g, int tno );
+double djdx( double e1, double z0, double I0, double f0, double K, short sswitch, tdata *target);
+double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata *target );
+double delta( double g, tdata *target );
+double olddelta( double g, tdata *target );
 double bma( double z1, double b );
 double relbloch( double z12, double b1, double lambda, double theta0 );
 double lindhard( double zz, double aa, double bb, short sswitch );
 double Fbrems( double x );
-double range( double e, double z1, double a1, short sswitch, int tno );
-double qrange( double e, double z1, double a1, short sswitch, int tno );
-double benton( double e, double z1, double a1, int tno );
-double renergy( double e, double r0, double z1, double a1, short sswitch, int tno );
+double range( double e, double z1, double a1, short sswitch, tdata *target );
+double qrange( double e, double z1, double a1, short sswitch, tdata *target );
+double benton( double e, double z1, double a1, tdata *target );
+double renergy( double e, double r0, double z1, double a1, short sswitch, tdata *target );
 void run_range( FILE *finput, FILE *foutput, short sswitch );
 short init_switch( char *switchfile);
 int init_tables( char *targetfile );
+tdata *find_target( char *target );
