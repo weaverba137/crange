@@ -31,6 +31,7 @@
 int main( int argc, char **argv )
 {
     FILE *finput,*foutput;
+    tdata *extratargets;
     short sswitch;
     int ini=0, have_switch=0, have_target=0, have_command=0, have_output=0;
     char inputname[50];
@@ -97,7 +98,7 @@ int main( int argc, char **argv )
         return(1);
     }
     sswitch = (have_switch) ? init_switch(switchfile) : SSWITCH_DEFAULT;
-    target = (have_target) ? init_target(targetfile) : NULL;
+    extratargets = (have_target) ? init_target(targetfile) : NULL;
     init_tables();
     if(argc-optind >= 1) {
         sscanf(argv[optind],"%s",inputname);
@@ -141,7 +142,7 @@ int main( int argc, char **argv )
     fclose(finput);
     fclose(foutput);
     if (have_command) unlink(tempfilename);
-    if (have_target) free(target);
+    if (have_target) free(extratargets);
     return(0);
 }
 
