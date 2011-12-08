@@ -255,16 +255,26 @@ gsl_complex complex_lngamma( gsl_complex z )
     return(result);
 }
 
-double effective_charge( double z0, double e1, double z2, short sswitch )
-/*
+/**
+ * @brief Computes effective projectile charge.
+ *
  * This is the modification of projectile charge due to electron
- * capture.  F. Hubert, R. Bimbot, and H. Gauvin, At. Data Nuc. Data
- * Tab. 46 (1990) 1, give an empirically determined function which
- * depends on the target material.  Two older versions, from
- * J. M. Anthony and W. A. Landford, Phys. Rev. A 25 (1982) 1868,
- * and T. E. Pierce and M. Blann, Phys. Rev. 173 (1968) 390 are also
- * available.
+ * capture.  Hubert, Bimbot and Gauvin, @cite art:fh2, give an
+ * empirically determined function which depends on the target material.
+ * Two older versions, from Anthony and Landford, @cite art:jma,
+ * and Pierce and Blann, @cite art:tep are also available.
+ *
+ * @param z0 The bare projectile charge.
+ * @param e1 The projectile kinetic energy in A MeV.
+ * @param z2 The target mean nuclear charge.
+ * @param sswitch The switch bit field.
+ *
+ * @return The effective projectile charge.
+ *
+ * @bug The Pierce and Blann formula is not actually available; it is simply
+ * commented out.
  */
+double effective_charge( double z0, double e1, double z2, short sswitch )
 {
     double z23, z1, g, b2, b;
     double capA, capB;
