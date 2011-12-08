@@ -1,30 +1,9 @@
-/*
- * This is version 1.5.3 of the Berkeley Range-Energy Calculator
+/**
+ * @file crange.h
+ * @brief Header file for crange.
  *
- * Benjamin Weaver, weaver@SSL.Berkeley.EDU
- * Space Sciences Laboratory
- * University of California
- * Berkeley, CA 94720-7450
- * http://ultraman.ssl.berkeley.edu/~weaver/dedx/
- *
- * Copyright (C) 2001-2011 Benjamin Weaver
- *
- *
- * This program is free software which I release under the GNU Lesser
- * General Public License. You may redistribute and/or modify this program
- * under the terms of that license as published by the Free Software
- * Foundation; either version 2.1 of the License, or (at your option) any
- * later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * To get a copy of the GNU Lesser General Puplic License, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA  02111-1307  USA
- *
+ * This header file collects all the other header files needed to compile
+ * crange, as well as all defines, function declarations, etc.
  */
 
 /*
@@ -65,19 +44,23 @@
 #define MAXAB 50
 /*
  * Miscellaneous defines. ALPHA is the fine structure constant, and we want
- * exactly that value.  Otherwise, M_PI and M_PI_2 should be defined in math.h.
+ * exactly that value.  Otherwise, M_PI, M_PI_2 and M_LN10 should be defined in
+ * math.h.
  */
 #ifndef M_PI
-#define M_PI 3.14159265358979323846264338327950288
+#define M_PI 3.14159265358979323846264338327950288 /**< The value of pi, in case it is not defined in math.h. */
 #endif
 #ifndef M_PI_2
-#define M_PI_2 1.57079632679489661923132169163975144
+#define M_PI_2 1.57079632679489661923132169163975144 /**< The value of pi/2, in case it is not defined in math.h. */
+#endif
+#ifndef M_LN10
+#define M_LN10 2.30258509299404568402 /**< The value of @f$\ln 10@f$ in case it is not defined in math.h */
 #endif
 #ifdef ALPHA
 #undef ALPHA
 #endif
 #ifndef ALPHA
-#define ALPHA 7.29735301383e-3
+#define ALPHA 7.29735301383e-3 /**< The fine structure constant. */
 #endif
 /*
  * Define switch bits.

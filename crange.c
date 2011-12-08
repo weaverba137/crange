@@ -997,23 +997,18 @@ double qrange( double e, double z1, double a1, short sswitch, tdata *target )
     int i;
     double de2,dr,dedx1,dedx2,dedx3,dedx4,e1,e2,e3,e4;
     double ei=8.0,lef,lei,en=1.0,pen,rel = 0.0;
-    double ln10,entries;
+    double entries;
     double ra[MAXE];
 
     if(e > ei){
         ra[0]=benton(ei,z1,a1,target);
         i=1;
-#ifdef M_LN10
-        ln10=M_LN10;
-#else
-        ln10=log(10.0);
-#endif
         lei=log10(ei);
         lef=log10(e);
         entries = (double) (MAXE - 1);
         do {
             pen=en;
-            en=exp(ln10*(lei + ((double)i)*lef/entries));
+            en=exp(M_LN10*(lei + ((double)i)*lef/entries));
             de2=(en-pen)/2.0;
             e1=pen+1.33998104*de2;
             dedx1=dedx(e1,rel,z1,a1,sswitch,target);
@@ -1364,15 +1359,10 @@ double energy_table( int i )
     /*
      * The values of all of these are known at compile time.
      */
-    double ln10, decades, entries;
-#ifdef M_LN10
-    ln10=M_LN10;
-#else
-    ln10=log(10.0);
-#endif
+    double decades, entries;
     decades=LOGTENEMAX-LOGTENEMIN;
     entries=MAXE - 1.0;
-    return(exp(ln10*(LOGTENEMIN + ((double)i)*decades/entries)));
+    return(exp(M_LN10*(LOGTENEMIN + ((double)i)*decades/entries)));
 }
 
 /**
