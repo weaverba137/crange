@@ -149,6 +149,7 @@ int main( int argc, char **argv )
     } else {
         foutput=stdout;
     }
+    init_table();
     run_range( finput, foutput, sswitch, extratargets );
     fclose(finput);
     fclose(foutput);
@@ -924,8 +925,8 @@ double Fbrems( double x )
  * The savings in calculation time can be enormous.  However, the
  * range of valid energies is limited by the size of the table.  The
  * function dE/dx is evaluated at most of the energies defined by the function
- * energy_table().  Results are stored in the two dimensional array
- * trange[][].  The second index of trange[][] can have an arbitrary range
+ * energy_table().  Results are stored in the ::RANGE_TABLE array
+ * trange[].  The size of trange[] (set by ::MAXAB) is arbitrary
  * and should be set to whatever is most useful.  Certainly it should
  * be no smaller than the number of target materials being used.
  *
@@ -939,56 +940,77 @@ double Fbrems( double x )
  */
 double range( double e, double z1, double a1, short sswitch, tdata *target )
 {
-    extern double trange[MAXE][MAXAB];
-    static double z1p = 0.0, a1p = 0.0;
-    int table=1,i;
-    double de2,dr,dedx1,dedx2,dedx3,dedx4,e1,e2,e3,e4;
+    extern range_table trange[MAXAB];
+    int table=1,i,k;
+    double de2,dr,dedx1,dedx2,dedx3,dedx4,e0,e1,e2,e3,e4;
     double rel = 0.0;
     int tno = 0;
 
-    if( (z1==z1p) && (a1==a1p) ) {
-        if( (trange[ MAXE - 1 ][tno] > 0) ) table = 0;
-    } else {
-        z1p=z1;
-        a1p=a1;
+    /*
+     * Search the range table for existing data
+     */
+    for (k=0;k<MAXAB;k++) {
+        if ((trange[k].z1 == z1) && (trange[k].a1 == a1) &&
+            (trange[k].sswitch == sswitch) &&
+            strncmp(trange[k].target->name,target->name,NAMEWIDTH) == 0) {
+            tno = k;
+            table = 0;
+            break;
+        }
     }
     if(table){
+        /*
+         * Define the meta-data for the new table.  First, find an unused index
+         * in the trange array.
+         */
+        k=0;
+        while (k < MAXAB && trange[k].target != NULL) k++;
+        /*
+         * If all the tables are filled, use the first entry.
+         */
+        if (k == MAXAB) k=0;
+        tno=k;
+        trange[tno].z1 = z1;
+        trange[tno].a1 = a1;
+        trange[tno].sswitch = sswitch;
+        trange[tno].target = target;
         i=0;
         while(energy_table(i) < 8.0) {
             e1=energy_table(i);
-            trange[i][tno]=benton(e1, z1, a1, target);
+            trange[tno].range[i]=benton(e1, z1, a1, target);
             i++;
         }
         while(i<MAXE){
-            de2=(energy_table(i)-energy_table(i-1))/2.0;
-            e1=energy_table(i-1)+1.33998104*de2;
+            e0=energy_table(i-1);
+            de2=(energy_table(i)-e0)/2.0;
+            e1=e0+1.33998104*de2;
             dedx1=dedx(e1,rel,z1,a1,sswitch,target);
-            e2=energy_table(i-1)+1.86113631*de2;
+            e2=e0+1.86113631*de2;
             dedx2=dedx(e2,rel,z1,a1,sswitch,target);
-            e3=energy_table(i-1)+0.13886369*de2;
+            e3=e0+0.13886369*de2;
             dedx3=dedx(e3,rel,z1,a1,sswitch,target);
-            e4=energy_table(i-1)+0.66001869*de2;
+            e4=e0+0.66001869*de2;
             dedx4=dedx(e4,rel,z1,a1,sswitch,target);
             dr=de2*(0.65214515/dedx1 + 0.34785485/dedx2 + 0.34785485/dedx3
                 + 0.65214515/dedx4);
-            trange[i][tno] = trange[i-1][tno] + dr;
+            trange[tno].range[i] = trange[tno].range[i-1] + dr;
             i++;
         }
     }
     if( e > energy_table(0)) {
         i=1;
         while( e > energy_table(i) ) i++;
-        return( trange[i-1][tno] + ( e - energy_table(i-1) )
-            *(trange[i][tno]-trange[i-1][tno])/(energy_table(i)-energy_table(i-1)) );
+        return( trange[tno].range[i-1] + ( e - energy_table(i-1) )
+            *(trange[tno].range[i]-trange[tno].range[i-1])/(energy_table(i)-energy_table(i-1)) );
     } else {
-        return( e*trange[0][tno]/energy_table(0) );
+        return( e*trange[tno].range[0]/energy_table(0) );
     }
 }
 
 /**
  * @brief Computes total range by direct integration of dE/dx.
  *
- * This function computes total range in g cm^-2 by direct integration of the
+ * This function computes total range by direct integration of the
  * dedx() function.  It does not create a range table or do table
  * interpolation.
  *
@@ -998,6 +1020,7 @@ double range( double e, double z1, double a1, short sswitch, tdata *target )
  * @param sswitch The switch bit field.
  * @param target A pointer to a ::TDATA structure.
  *
+ * @return Total range in g cm<sup>-2</sup>.
  * @bug Currently, this function isn't called by anything.
  */
 double qrange( double e, double z1, double a1, short sswitch, tdata *target )
@@ -1150,7 +1173,7 @@ double benton( double e, double z1, double a1, tdata *target )
  * table if it has already been computed.
  *
  * @param e Projectile energy [A MeV].
- * @param r0 Range [g cm^-2].
+ * @param r0 Range [g cm<sup>-2</sup>].
  * @param z1 Projectile charge.
  * @param a1 Projectile atomic mass.
  * @param sswitch The switch bit field.
@@ -1160,9 +1183,9 @@ double benton( double e, double z1, double a1, tdata *target )
  */
 double renergy( double e, double r0, double z1, double a1, short sswitch, tdata *target )
 {
-    extern double trange[MAXE][MAXAB];
+    extern range_table trange[MAXAB];
     double rr,r;
-    int i;
+    int i,k;
     int tno = 0;
 
     if( e > 0.0 ){
@@ -1173,13 +1196,25 @@ double renergy( double e, double r0, double z1, double a1, short sswitch, tdata 
         rr = range(energy_table(0),z1,a1,sswitch,target);
         r = r0;
     }
-    if(r > trange[0][tno]){
+    /*
+     * Search the range table for existing data, which should be there, since
+     * we called range().
+     */
+    for (k=0;k<MAXAB;k++) {
+        if ((trange[k].z1 == z1) && (trange[k].a1 == a1) &&
+            (trange[k].sswitch == sswitch) &&
+            strncmp(trange[k].target->name,target->name,NAMEWIDTH) == 0) {
+            tno = k;
+            break;
+        }
+    }
+    if(r > trange[tno].range[0]){
         i=1;
         while( r > trange[i][tno] ) i++;
         return(energy_table(i-1)+(r-trange[i-1][tno])*(energy_table(i)-energy_table(i-1))/
             (trange[i][tno]-trange[i-1][tno]));
     } else {
-        return(energy_table(0)*r/trange[0][tno]);
+        return(energy_table(0)*r/trange[tno].range[0]);
     }
 }
 
@@ -1349,7 +1384,24 @@ tdata *init_target( char *targetfile )
 #endif
     return(table);
 }
-
+/**
+ * @brief Initialize range-energy tables.
+ *
+ * Sets all data in the array of ::RANGE_TABLE structures trange to zero.
+ *
+ */
+void init_table(void)
+{
+    extern range_table trange[MAXAB];
+    int k,l;
+    for (k=0;k<MAXAB;k++) {
+        trange[k].z1 = trange[k].a1 = 0.0;
+        trange[k].sswitch = 0;
+        trange[k].target = NULL;
+        for (l=0;l<MAXE;l++) trange[k].range[l] = 0.0;
+    }
+    return;
+}
 /**
  * @brief Returns the energy corresponding to a value in a range table.
  *

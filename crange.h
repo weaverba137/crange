@@ -122,11 +122,28 @@ struct TDATA {
  */
 typedef struct TDATA tdata;
 /**
+ * @brief Structure to store range tables.
+ *
+ * This structure contains a range table and its associated metadata.
+ */
+struct RANGE_TABLE {
+    double z1;           /**< The projectile charge. */
+    double a1;           /**< The projectile mass. */
+    tdata *target;       /**< A pointer to the ::TDATA structure used in constructing the table. */
+    double trange[MAXE]; /**< The actual table of range values. */
+};
+/**
+ * @brief Define range_table.
+ *
+ * Define a range_table variable for convenience.
+ */
+typedef struct RANGE_TABLE range_table;
+/**
  * @brief The range-energy table.
  *
  * This external variable contains the range-energy tables.
  */
-double trange[MAXE][MAXAB];
+range_table trange[MAXAB];
 /*
  * Delcare all the functions in crange.c
  */
