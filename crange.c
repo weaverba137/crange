@@ -38,6 +38,7 @@ int main( int argc, char **argv )
     char *switchfile, *targetfile, *command, *outputname;
     int c, errflag=0, listflag=0, fd=-1;
     char tempfilename[15] = "";
+    static char list[5] = "List";
     extern int errno; /* From errno.h */
     extern char *optarg; /* External variable used by getopt(). */
     extern int optind, optopt; /* External variable used by getopt(). */
@@ -94,7 +95,7 @@ int main( int argc, char **argv )
         }
     }
     if (errflag) {
-        fprintf(stderr,"usage: crange [-c COMMAND] [-h] [-o FILE] [-s switch.ini] [-t target.dat] <task file>\n");
+        fprintf(stderr,"usage: crange [-c COMMAND] [-h] [-l] [-o FILE] [-s switch.ini] [-t target.dat] <task file>\n");
         fprintf(stderr,"       -c COMMAND    = Execute this one-line command instead of reading it from a file.\n");
         fprintf(stderr,"       -h            = Print this help message and exit.\n");
         fprintf(stderr,"       -l            = Print the built-in target table and exit.\n");
@@ -105,7 +106,7 @@ int main( int argc, char **argv )
         return(1);
     }
     if (listflag) {
-        listdummy = find_target("List",NULL);
+        listdummy = find_target(list,NULL);
         return(0);
     }
     sswitch = (have_switch) ? init_switch(switchfile) : SSWITCH_DEFAULT;
