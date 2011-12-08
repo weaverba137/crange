@@ -1210,9 +1210,9 @@ double renergy( double e, double r0, double z1, double a1, short sswitch, tdata 
     }
     if(r > trange[tno].range[0]){
         i=1;
-        while( r > trange[i][tno] ) i++;
-        return(energy_table(i-1)+(r-trange[i-1][tno])*(energy_table(i)-energy_table(i-1))/
-            (trange[i][tno]-trange[i-1][tno]));
+        while( r > trange[tno].range[i] ) i++;
+        return(energy_table(i-1)+(r-trange[tno].range[i-1])*(energy_table(i)-energy_table(i-1))/
+            (trange[tno].range[i]-trange[tno].range[i-1]));
     } else {
         return(energy_table(0)*r/trange[tno].range[0]);
     }
