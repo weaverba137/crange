@@ -107,7 +107,6 @@ int main( int argc, char **argv )
     }
     if (listflag) {
         listdummy = find_target(list,NULL);
-        printf("%s\n", listdummy->name);
         return(0);
     }
     sswitch = (have_switch) ? init_switch(switchfile) : SSWITCH_DEFAULT;
@@ -1442,7 +1441,6 @@ tdata *find_target( char *target, tdata *extratargets )
         { "Unknown" ,  0.000,   0.000,   0.0, 0.0000e+00, 0.0000e+00, 0.0, 0.0000e+00,  0.0000, 0.0000, 0.00000, 0.0000, 0.00 }
     };
     if (strncmp("List", target, NAMEWIDTH) == 0) {
-        printf("List detected\n");
         while (strncmp(targets[k].name, "Unknown", NAMEWIDTH) != 0) {
             print_target(&targets[k]);
             k++;
