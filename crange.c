@@ -107,6 +107,7 @@ int main( int argc, char **argv )
     }
     if (listflag) {
         listdummy = find_target(list,NULL);
+        printf("%s\n", listdummy->name);
         return(0);
     }
     sswitch = (have_switch) ? init_switch(switchfile) : SSWITCH_DEFAULT;
