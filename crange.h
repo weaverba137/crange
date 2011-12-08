@@ -85,7 +85,7 @@
  *
  * Structure containing target data.
  */
-typedef struct TDATA {
+struct TDATA {
     /**
      * @name Material name
      */
@@ -114,7 +114,14 @@ typedef struct TDATA {
     double m;  /**< Parameter used to interpolate the density effect between the values of X0 and X1. */
     double d0; /**< Low-energy density effect parameter, only non-zero for conducting materials. */
     /* @} */
-} tdata;
+};
+/**
+ * @brief Define tdata.
+ *
+ * Define a tdata variable for convenience.
+ *
+ */
+typedef struct TDATA tdata;
 /*
  * These external variables contain the range-energy tables.
  */
