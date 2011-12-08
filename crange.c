@@ -1159,6 +1159,7 @@ double renergy( double e, double r0, double z1, double a1, short sswitch, tdata 
     extern double trange[MAXE][MAXAB];
     double rr,r;
     int i;
+    int tno = 0;
 
     if( e > 0.0 ){
         rr = range(e,z1,a1,sswitch,target);
