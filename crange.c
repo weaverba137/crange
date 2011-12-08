@@ -964,11 +964,22 @@ double range( double e, double z1, double a1, short sswitch, tdata *target )
     }
 }
 
-double qrange( double e, double z1, double a1, short sswitch, tdata *target )
-/*
- * This function computes total range given initial energy.  This
- * is a direct integration of dE/dx from 1 A MeV up to the initial energy.
+/**
+ * @brief Computes total range by direct integration of dE/dx.
+ *
+ * This function computes total range in g cm^-2 by direct integration of the
+ * dedx() function.  It does not create a range table or do table
+ * interpolation.
+ *
+ * @param e Initial energy in A MeV.
+ * @param z1 Projectile charge.
+ * @param a1 Projectile mass.
+ * @param sswitch The switch bit field.
+ * @param target A pointer to a ::TDATA structure.
+ *
+ * @bug Currently, this function isn't called by anything.
  */
+double qrange( double e, double z1, double a1, short sswitch, tdata *target )
 {
     int i;
     double de2,dr,dedx1,dedx2,dedx3,dedx4,e1,e2,e3,e4;
@@ -1325,7 +1336,8 @@ tdata *init_target( char *targetfile )
  *
  * This utility returns an energy value from a (virtual) vector containing
  * A logarithmically uniform distribution of energies between a minimum
- * and maximum energy, with a number of entries given by #MAXE.
+ * and maximum energy (defined by #LOGTENEMIN and #LOGTENEMAX),
+ * with a number of entries given by #MAXE.
  *
  * @param i The index of the vector.
  *
@@ -1333,17 +1345,18 @@ tdata *init_target( char *targetfile )
  */
 double energy_table( int i )
 {
-    double ln10,l10Emin,l10Emax,decades,entries;
+    /*
+     * The values of all of these are known at compile time.
+     */
+    double ln10, decades, entries;
 #ifdef M_LN10
     ln10=M_LN10;
 #else
     ln10=log(10.0);
 #endif
-    l10Emin=0.0; /* minimum energy 1 A MeV */
-    l10Emax=6.0; /* maximum energy 1 A TeV */
-    decades=l10Emax-l10Emin;
+    decades=LOGTENEMAX-LOGTENEMIN;
     entries=MAXE - 1.0;
-    return(exp(ln10*(l10Emin + ((double)i)*decades/entries)));
+    return(exp(ln10*(LOGTENEMIN + ((double)i)*decades/entries)));
 }
 
 /**
@@ -1446,12 +1459,12 @@ tdata *find_target( char *target, tdata *extratargets )
 void print_target( tdata *target )
 {
     printf("[%s]\n",target->name);
-    printf("name = %s ; Target name\n", target->name);
+    printf("name =   %8s ; Target name\n", target->name);
     printf("z2   = %f ; Mean nuclear charge\n", target->z2);
     printf("a2   = %f ; Mean nuclear mass\n", target->a2);
     printf("iadj = %f ; Logarithmic mean ionization potential [eV]\n", target->iadj);
     printf("rho  = %f ; Density [g cm^-3]\n", target->rho);
-    printf("pla  = %f ; Plasma frequency [eV]\n", target->plasma);
+    printf("pla  = %f ; Plasma frequency [eV]\n", target->pla);
     printf("etad = %f ; Ratio of density to density at STP for gasses (zero for everything else)\n", target->etad);
     printf("bind = %f ; Total electronic binding energy [eV]\n", target->bind);
     printf("X0   = %f ; Density effect turn-on value\n", target->X0);
