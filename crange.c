@@ -1442,6 +1442,7 @@ tdata *find_target( char *target, tdata *extratargets )
         { "Unknown" ,  0.000,   0.000,   0.0, 0.0000e+00, 0.0000e+00, 0.0, 0.0000e+00,  0.0000, 0.0000, 0.00000, 0.0000, 0.00 }
     };
     if (strncmp("List", target, NAMEWIDTH)) {
+        printf("List detected\n");
         while (strncmp(targets[k].name, "Unknown", NAMEWIDTH) != 0) {
             print_target(&targets[k]);
             k++;
