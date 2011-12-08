@@ -127,10 +127,11 @@ typedef struct TDATA tdata;
  * This structure contains a range table and its associated metadata.
  */
 struct RANGE_TABLE {
-    double z1;           /**< The projectile charge. */
-    double a1;           /**< The projectile mass. */
-    tdata *target;       /**< A pointer to the ::TDATA structure used in constructing the table. */
-    double trange[MAXE]; /**< The actual table of range values. */
+    double z1;          /**< The projectile charge. */
+    double a1;          /**< The projectile mass. */
+    short sswitch;      /**< The switch bit field. */
+    tdata *target;      /**< A pointer to the ::TDATA structure used in constructing the table. */
+    double range[MAXE]; /**< The actual table of range values. */
 };
 /**
  * @brief Define range_table.
@@ -165,6 +166,7 @@ double renergy( double e, double r0, double z1, double a1, short sswitch, tdata 
 void run_range( FILE *finput, FILE *foutput, short sswitch, tdata *extratargets );
 short init_switch( char *switchfile);
 tdata *init_target( char *targetfile );
+void init_table(void);
 double energy_table( int i );
 tdata *find_target( char *target, tdata *extratargets );
 void print_target( tdata *target );
