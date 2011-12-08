@@ -5,7 +5,6 @@
  * This header file collects all the other header files needed to compile
  * crange, as well as all defines, function declarations, etc.
  */
-
 /*
  * Standard includes here to keep crange.c clean
  */
@@ -122,8 +121,10 @@ struct TDATA {
  *
  */
 typedef struct TDATA tdata;
-/*
- * These external variables contain the range-energy tables.
+/**
+ * @brief The range-energy table.
+ *
+ * This external variable contains the range-energy tables.
  */
 double trange[MAXE][MAXAB];
 /*

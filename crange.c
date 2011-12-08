@@ -914,22 +914,30 @@ double Fbrems( double x )
     }
 }
 
-double range( double e, double z1, double a1, short sswitch, tdata *target )
-/*
+/**
+ * @brief Computes total range given initial energy.
+ *
  * This function computes total range given initial energy.  The technique
  * is quite clever, in that if from one call to the next, the projectile
  * and target material parameters do not change, the calculation of
  * range is performed by table interpolation rather than direct integration.
  * The savings in calculation time can be enormous.  However, the
  * range of valid energies is limited by the size of the table.  The
- * function dE/dx is evaluated at most of the energies contained in the
- * array tenerg[].  Results are stored in the two dimensional array
+ * function dE/dx is evaluated at most of the energies defined by the function
+ * energy_table().  Results are stored in the two dimensional array
  * trange[][].  The second index of trange[][] can have an arbitrary range
  * and should be set to whatever is most useful.  Certainly it should
  * be no smaller than the number of target materials being used.
- * Output is range in units of g cm^-2.  The arguments are the same as
- * those described for the dedx() function.
+ *
+ * @param e Initial projectile kinetic energy in A MeV.
+ * @param z1 Projectile charge.
+ * @param a1 Projectile atomic mass.
+ * @param sswitch The switch bit field.
+ * @param target A pointer to a ::TDATA structure.
+ *
+ * @return Projectile range in g cm<sup>-2</sup>.
  */
+double range( double e, double z1, double a1, short sswitch, tdata *target )
 {
     extern double trange[MAXE][MAXAB];
     static double z1p = 0.0, a1p = 0.0;
