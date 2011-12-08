@@ -134,7 +134,6 @@ typedef struct TDATA {
  * These external variables contain the range-energy tables.
  */
 double trange[MAXE][MAXAB];
-double tenerg[MAXE];
 /*
  * Delcare all the functions in crange.c
  */
@@ -156,5 +155,6 @@ double renergy( double e, double r0, double z1, double a1, short sswitch, tdata 
 void run_range( FILE *finput, FILE *foutput, short sswitch, tdata *extratargets );
 short init_switch( char *switchfile);
 tdata *init_target( char *targetfile );
-void init_tables( void );
+double energy_table( int i );
 tdata *find_target( char *target, tdata *extratargets );
+void print_target( tdata *target );

@@ -31,18 +31,18 @@
 int main( int argc, char **argv )
 {
     FILE *finput,*foutput;
-    tdata *extratargets;
+    tdata *extratargets, *listdummy;
     short sswitch;
-    int ini=0, have_switch=0, have_target=0, have_command=0, have_output=0;
+    int have_switch=0, have_target=0, have_command=0, have_output=0;
     char inputname[50];
     char *switchfile, *targetfile, *command, *outputname;
-    int c, errflag=0, fd=-1;
+    int c, errflag=0, listflag=0, fd=-1;
     char tempfilename[15] = "";
     extern int errno; /* From errno.h */
     extern char *optarg; /* External variable used by getopt(). */
     extern int optind, optopt; /* External variable used by getopt(). */
 
-    while((c=getopt(argc,argv,":c:ho:s:t:")) != -1) {
+    while((c=getopt(argc,argv,":c:hlo:s:t:")) != -1) {
         switch (c) {
         case 'c':
             /*
@@ -56,6 +56,12 @@ int main( int argc, char **argv )
              * Print help and exit.
              */
             errflag++;
+            break;
+        case 'l':
+            /*
+             * Print the built-in target table and exit.
+             */
+            listflag++;
             break;
         case 'o':
             /*
@@ -91,15 +97,19 @@ int main( int argc, char **argv )
         fprintf(stderr,"usage: crange [-c COMMAND] [-h] [-o FILE] [-s switch.ini] [-t target.dat] <task file>\n");
         fprintf(stderr,"       -c COMMAND    = Execute this one-line command instead of reading it from a file.\n");
         fprintf(stderr,"       -h            = Print this help message and exit.\n");
+        fprintf(stderr,"       -l            = Print the built-in target table and exit.\n");
         fprintf(stderr,"       -o FILE       = Write to this file instead of standard output.\n");
         fprintf(stderr,"       -s switch.ini = Override the default switch values by reading this file.\n");
         fprintf(stderr,"       -t target.dat = Override the default target values by reading this file.\n");
         fprintf(stderr,"       <task file>   = A file containing a list of tasks for crange.  Required unless a command is specified with -c.\n");
         return(1);
     }
+    if (listflag) {
+        listdummy = find_target("List",NULL);
+        return(0);
+    }
     sswitch = (have_switch) ? init_switch(switchfile) : SSWITCH_DEFAULT;
     extratargets = (have_target) ? init_target(targetfile) : NULL;
-    init_tables();
     if(argc-optind >= 1) {
         sscanf(argv[optind],"%s",inputname);
         finput=fopen(inputname, "r");
@@ -138,7 +148,7 @@ int main( int argc, char **argv )
     } else {
         foutput=stdout;
     }
-    run_range( finput, foutput, sswitch, target );
+    run_range( finput, foutput, sswitch, extratargets );
     fclose(finput);
     fclose(foutput);
     if (have_command) unlink(tempfilename);
@@ -909,7 +919,7 @@ double range( double e, double z1, double a1, short sswitch, tdata *target )
  * those described for the dedx() function.
  */
 {
-    extern double tenerg[MAXE],trange[MAXE][MAXAB];
+    extern trange[MAXE][MAXAB];
     static double z1p = 0.0, a1p = 0.0;
     int table=1,i;
     double de2,dr,dedx1,dedx2,dedx3,dedx4,e1,e2,e3,e4;
@@ -923,20 +933,20 @@ double range( double e, double z1, double a1, short sswitch, tdata *target )
     }
     if(table){
         i=0;
-        while(tenerg[i] < 8.0) {
-            e1=tenerg[i];
+        while(energy_table(i) < 8.0) {
+            e1=energy_table(i);
             trange[i][tno]=benton(e1, z1, a1, target);
             i++;
         }
         while(i<MAXE){
-            de2=(tenerg[i]-tenerg[i-1])/2.0;
-            e1=tenerg[i-1]+1.33998104*de2;
+            de2=(energy_table(i)-energy_table(i-1))/2.0;
+            e1=energy_table(i-1)+1.33998104*de2;
             dedx1=dedx(e1,rel,z1,a1,sswitch,target);
-            e2=tenerg[i-1]+1.86113631*de2;
+            e2=energy_table(i-1)+1.86113631*de2;
             dedx2=dedx(e2,rel,z1,a1,sswitch,target);
-            e3=tenerg[i-1]+0.13886369*de2;
+            e3=energy_table(i-1)+0.13886369*de2;
             dedx3=dedx(e3,rel,z1,a1,sswitch,target);
-            e4=tenerg[i-1]+0.66001869*de2;
+            e4=energy_table(i-1)+0.66001869*de2;
             dedx4=dedx(e4,rel,z1,a1,sswitch,target);
             dr=de2*(0.65214515/dedx1 + 0.34785485/dedx2 + 0.34785485/dedx3
                 + 0.65214515/dedx4);
@@ -944,13 +954,13 @@ double range( double e, double z1, double a1, short sswitch, tdata *target )
             i++;
         }
     }
-    if( e > tenerg[0]) {
+    if( e > energy_table(0)) {
         i=1;
-        while( e > tenerg[i] ) i++;
-        return( trange[i-1][tno] + ( e - tenerg[i-1] )
-            *(trange[i][tno]-trange[i-1][tno])/(tenerg[i]-tenerg[i-1]) );
+        while( e > energy_table(i) ) i++;
+        return( trange[i-1][tno] + ( e - energy_table(i-1) )
+            *(trange[i][tno]-trange[i-1][tno])/(energy_table(i)-energy_table(i-1)) );
     } else {
-        return( e*trange[0][tno]/tenerg[0] );
+        return( e*trange[0][tno]/energy_table(0) );
     }
 }
 
@@ -1105,16 +1115,25 @@ double benton( double e, double z1, double a1, tdata *target )
     return(( (a1/cr)/(z1*z1) )*(prnglo[l] + bzz*cz[n]));
 }
 
-double renergy( double e, double r0, double z1, double a1, short sswitch, tdata *target )
-/*
- * This function finds extracts energies from the range tables by
- * table interpolation.  Inputs are range measured in g cm^-2 , and other
- * inputs described above. The first call to range() is to initialize
- * the range-energy tables or find the correct table if it has
- * already been computed.
+/**
+ * @brief Extract energies from range tables.
+ *
+ * This function extracts energies from a range table by table interpolation.
+ * It calls range() to initialze the range table or to find the correct
+ * table if it has already been computed.
+ *
+ * @param e Projectile energy [A MeV].
+ * @param r0 Range [g cm^-2].
+ * @param z1 Projectile charge.
+ * @param a1 Projectile atomic mass.
+ * @param sswitch The switch bit field.
+ * @param target A pointer to a ::TDATA structure.
+ *
+ * @return The final energy of the projectile.
  */
+double renergy( double e, double r0, double z1, double a1, short sswitch, tdata *target )
 {
-    extern double trange[MAXE][MAXAB],tenerg[MAXE];
+    extern double trange[MAXE][MAXAB];
     double rr,r;
     int i;
 
@@ -1123,16 +1142,16 @@ double renergy( double e, double r0, double z1, double a1, short sswitch, tdata 
         r = rr - r0;
         if( r < 0.0 ) return(0.0);
     } else {
-        rr = range(tenerg[0],z1,a1,sswitch,target);
+        rr = range(energy_table(0),z1,a1,sswitch,target);
         r = r0;
     }
     if(r > trange[0][tno]){
         i=1;
         while( r > trange[i][tno] ) i++;
-        return(tenerg[i-1]+(r-trange[i-1][tno])*(tenerg[i]-tenerg[i-1])/
+        return(energy_table(i-1)+(r-trange[i-1][tno])*(energy_table(i)-energy_table(i-1))/
             (trange[i][tno]-trange[i-1][tno]));
     } else {
-        return(tenerg[0]*r/trange[0][tno]);
+        return(energy_table(0)*r/trange[0][tno]);
     }
 }
 
@@ -1146,6 +1165,7 @@ double renergy( double e, double r0, double z1, double a1, short sswitch, tdata 
  *     - @em e compute energies
  *     - @em d compute dE/dx
  *     - @em j compute dJ/dx (primary ionization)
+ *
  * The task letter should be followed by the energy (or range) at which to
  * compute range (or energy), the charge and mass of the particle, and the
  * name of the target material.  Names of target materials can be found in the
@@ -1294,27 +1314,26 @@ tdata *init_target( char *targetfile )
          */
         strncpy(table[n].name,"Unknown",NAMEWIDTH);
     } else {
-        fprintf(stderr,"Could not read target file: %s. Using built-in crange targets.\n",switchfile);
+        fprintf(stderr,"Could not read target file: %s. Using built-in crange targets.\n",targetfile);
     }
 #endif
     return(table);
 }
 
 /**
- * @brief Initializes data tables.
+ * @brief Returns the energy corresponding to a value in a range table.
  *
- * This utility creates and sets to zero all entries in the external
- * absorber and range tables.  It also sets up the energy table by
- * creating a logarithmically uniform distribution of energies between
- * some minimum energy and some maximum energy, with a number of entries
- * given by #MAXE.
+ * This utility returns an energy value from a (virtual) vector containing
+ * A logarithmically uniform distribution of energies between a minimum
+ * and maximum energy, with a number of entries given by #MAXE.
+ *
+ * @param i The index of the vector.
+ *
+ * @return The @em i th energy in A MeV.
  */
-void init_tables( void )
+double energy_table( int i )
 {
-    extern double trange[MAXE][MAXAB], tenerg[MAXE];
-    int i,j;
     double ln10,l10Emin,l10Emax,decades,entries;
-
 #ifdef M_LN10
     ln10=M_LN10;
 #else
@@ -1324,13 +1343,7 @@ void init_tables( void )
     l10Emax=6.0; /* maximum energy 1 A TeV */
     decades=l10Emax-l10Emin;
     entries=MAXE - 1.0;
-    for(i=0;i < MAXAB;i++){
-        for(j=0;j < MAXE;j++){
-            if(i==0) tenerg[j]=exp(ln10*(l10Emin + ((double)j)*decades/entries));
-            trange[j][i]=0.0;
-        }
-    }
-    return;
+    return(exp(ln10*(l10Emin + ((double)i)*decades/entries)));
 }
 
 /**
@@ -1340,7 +1353,8 @@ void init_tables( void )
  * data corresponding to the input name.  There is a built-in list. The
  * built-in list may be added to or overridden by supplying an INI-type
  * file on the command line, which will then be parsed & passed to this
- * function.
+ * function.  If the special target name "List" is passed to this function,
+ * the built-in list will be printed as an INI-type file.
  *
  * @param target The name of a target.
  * @param extratargets A pointer to an array of ::TDATA structures.
@@ -1397,6 +1411,14 @@ tdata *find_target( char *target, tdata *extratargets )
         /* THIS MUST BE THE LAST STRUCTURE DEFINITION! */
         { "Unknown" ,  0.000,   0.000,   0.0, 0.0000e+00, 0.0000e+00, 0.0, 0.0000e+00,  0.0000, 0.0000, 0.00000, 0.0000, 0.00 }
     };
+    if (strncmp("List", target, NAMEWIDTH)) {
+        while (strncmp(targets[k].name, "Unknown", NAMEWIDTH) != 0) {
+            print_target(&targets[k]);
+            k++;
+        }
+        print_target(&targets[k]);
+        return(&targets[0]);
+    }
     if (extratargets != NULL) {
         while (strncmp(extratargets[k].name, "Unknown", NAMEWIDTH) != 0) {
             if (strncmp(extratargets[k].name, target, NAMEWIDTH) == 0) return(&extratargets[k]);
@@ -1412,4 +1434,31 @@ tdata *find_target( char *target, tdata *extratargets )
      * If the while loop doesn't break, the 'Unknown' target will be returned.
      */
     return(&targets[k]);
+}
+
+/**
+ * @brief Prints a target table entry in INI format.
+ *
+ * This utility prints a ::TDATA structure in INI format.
+ *
+ * @param target A pointer to a ::TDATA structure.
+ */
+void print_target( tdata *target )
+{
+    printf("[%s]\n",target->name);
+    printf("name = %s ; Target name\n", target->name);
+    printf("z2   = %f ; Mean nuclear charge\n", target->z2);
+    printf("a2   = %f ; Mean nuclear mass\n", target->a2);
+    printf("iadj = %f ; Logarithmic mean ionization potential [eV]\n", target->iadj);
+    printf("rho  = %f ; Density [g cm^-3]\n", target->rho);
+    printf("pla  = %f ; Plasma frequency [eV]\n", target->plasma);
+    printf("etad = %f ; Ratio of density to density at STP for gasses (zero for everything else)\n", target->etad);
+    printf("bind = %f ; Total electronic binding energy [eV]\n", target->bind);
+    printf("X0   = %f ; Density effect turn-on value\n", target->X0);
+    printf("X1   = %f ; Density effect asymptotic bound\n", target->X1);
+    printf("a    = %f ; Density effect interpolation parameter\n", target->a);
+    printf("m    = %f ; Density effect interpolation parameter\n", target->m);
+    printf("d0   = %f ; Low energy density effect value (zero for everything but conductors)\n", target->d0);
+    printf("\n");
+    return;
 }
