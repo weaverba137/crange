@@ -1475,19 +1475,19 @@ tdata *find_target( char *target, tdata *extratargets )
 void print_target( tdata *target )
 {
     printf("[%s]\n",target->name);
-    printf("name =   %8s ; Target name\n", target->name);
-    printf("z2   = %f ; Mean nuclear charge\n", target->z2);
-    printf("a2   = %f ; Mean nuclear mass\n", target->a2);
-    printf("iadj = %f ; Logarithmic mean ionization potential [eV]\n", target->iadj);
-    printf("rho  = %f ; Density [g cm^-3]\n", target->rho);
-    printf("pla  = %f ; Plasma frequency [eV]\n", target->pla);
-    printf("etad = %f ; Ratio of density to density at STP for gasses (zero for everything else)\n", target->etad);
-    printf("bind = %f ; Total electronic binding energy [eV]\n", target->bind);
-    printf("X0   = %f ; Density effect turn-on value\n", target->X0);
-    printf("X1   = %f ; Density effect asymptotic bound\n", target->X1);
-    printf("a    = %f ; Density effect interpolation parameter\n", target->a);
-    printf("m    = %f ; Density effect interpolation parameter\n", target->m);
-    printf("d0   = %f ; Low energy density effect value (zero for everything but conductors)\n", target->d0);
+    printf("name = %10s ; Target name\n", target->name);
+    printf("z2   = %10.3f ; Mean nuclear charge\n", target->z2);
+    printf("a2   = %10.3f ; Mean nuclear mass\n", target->a2);
+    printf("iadj = %10.1f ; Logarithmic mean ionization potential [eV]\n", target->iadj);
+    printf("rho  = %10.4e ; Density [g cm^-3]\n", target->rho);
+    printf("pla  = %10.4e ; Plasma frequency [eV]\n", target->pla);
+    printf("etad = %10.1f ; Ratio of density to density at STP for gasses (zero for everything else)\n", target->etad);
+    printf("bind = %10.4e ; Total electronic binding energy [eV]\n", target->bind);
+    printf("X0   = %-10.4f ; Density effect turn-on value\n", target->X0);
+    printf("X1   = %10.4f ; Density effect asymptotic bound\n", target->X1);
+    printf("a    = %10.5f ; Density effect interpolation parameter\n", target->a);
+    printf("m    = %10.4f ; Density effect interpolation parameter\n", target->m);
+    printf("d0   = %10.2f ; Low energy density effect value (zero for everything but conductors)\n", target->d0);
     printf("\n");
     return;
 }
