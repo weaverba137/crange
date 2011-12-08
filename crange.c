@@ -919,7 +919,7 @@ double range( double e, double z1, double a1, short sswitch, tdata *target )
  * those described for the dedx() function.
  */
 {
-    extern trange[MAXE][MAXAB];
+    extern double trange[MAXE][MAXAB];
     static double z1p = 0.0, a1p = 0.0;
     int table=1,i;
     double de2,dr,dedx1,dedx2,dedx3,dedx4,e1,e2,e3,e4;
