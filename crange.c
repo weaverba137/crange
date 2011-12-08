@@ -261,6 +261,7 @@ gsl_complex complex_lngamma( gsl_complex z )
  * This is the modification of projectile charge due to electron
  * capture.  Hubert, Bimbot and Gauvin, @cite art:fh2, give an
  * empirically determined function which depends on the target material.
+ * This version is used if #SSWITCH_EC is set.
  * Two older versions, from Anthony and Landford, @cite art:jma,
  * and Pierce and Blann, @cite art:tep are also available.
  *
@@ -934,6 +935,7 @@ double range( double e, double z1, double a1, short sswitch, tdata *target )
     int table=1,i;
     double de2,dr,dedx1,dedx2,dedx3,dedx4,e1,e2,e3,e4;
     double rel = 0.0;
+    int tno = 0;
 
     if( (z1==z1p) && (a1==a1p) ) {
         if( (trange[ MAXE - 1 ][tno] > 0) ) table = 0;
@@ -1197,6 +1199,8 @@ double renergy( double e, double r0, double z1, double a1, short sswitch, tdata 
  * @param foutput An open file pointer to write results to.
  * @param sswitch The switch bit field.
  * @param extratargets A pointer to an array of ::TDATA structures.
+ *
+ * @bug The primary ionization parameters are currently hard-coded.
  */
 void run_range( FILE *finput, FILE *foutput, short sswitch, tdata *extratargets )
 {
@@ -1215,13 +1219,13 @@ void run_range( FILE *finput, FILE *foutput, short sswitch, tdata *extratargets 
         target = find_target(abs,extratargets);
         out=0.0;
         if(icols==6 && strncmp( target->name, "Unknown", NAMEWIDTH ) != 0){
-            if(strcmp( task, "r" )==0){
+            if(strncmp( task, "r", 1 )==0){
                 out=range(red1,z1,a1,sswitch,target);
-            } else if(strcmp( task, "e" )==0){
+            } else if(strncmp( task, "e", 1 )==0){
                 out=renergy(red1,red2,z1,a1,sswitch,target);
-            } else if(strcmp( task, "d" )==0){
+            } else if(strncmp( task, "d", 1 )==0){
                 out=dedx(red1,red2,z1,a1,sswitch,target);
-            } else if(strcmp( task, "j" )==0){
+            } else if(strncmp( task, "j", 1 )==0){
                 out=djdx(red1,z1,2.0,0.05,3.04,sswitch,target);
             }
         }
