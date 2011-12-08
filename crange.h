@@ -52,8 +52,10 @@
 #include <iniparser.h>
 #endif
 /*
- *
+ * These values define the range-energy tables
  */
+#define LOGTENEMIN 0.0 /**< @f$ \log_{10} E_{\mathrm{min}} @f$ Minimum energy in units of A MeV. */
+#define LOGTENEMAX 6.0 /**< @f$ \log_{10} E_{\mathrm{max}} @f$ Maximum energy in units of A MeV. */
 #define MAXE 200 /**< The number of energies in the range-energy tables. */
 /*
  * MAXAB sets the number of different target media which can be stored
