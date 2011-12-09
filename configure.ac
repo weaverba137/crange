@@ -24,7 +24,7 @@ AC_CHECK_LIB([gsl],[gsl_blas_dgemm])
 AC_CHECK_LIB([iniparser], [iniparser_getboolean])
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdlib.h string.h unistd.h errno.h iniparser.h gsl/gsl_complex.h gsl/gsl_complex_math.h])
+AC_CHECK_HEADERS([stdlib.h string.h unistd.h errno.h time.h iniparser.h gsl/gsl_complex.h gsl/gsl_complex_math.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 

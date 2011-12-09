@@ -14,6 +14,7 @@
 #include <string.h>
 #include <unistd.h> /* to get getopt() */
 #include <errno.h>
+#include <time.h>
 /*
  * Include headers for various complex arithmetic functions.
  */
@@ -79,10 +80,13 @@
  *
  */
 #define NAMEWIDTH 8 /**< The maximum number of characters in a target name. */
+/*
+ *
+ */
 /**
  * @brief Structure containing target data.
  *
- * Structure containing target data.
+ * This structure contains all the data related to target materials.
  */
 struct TDATA {
     /**
@@ -131,6 +135,7 @@ struct RANGE_TABLE {
     double a1;          /**< The projectile mass. */
     short sswitch;      /**< The switch bit field. */
     tdata *target;      /**< A pointer to the ::TDATA structure used in constructing the table. */
+    time_t timestamp;   /**< The time at which the table was created. */
     double range[MAXE]; /**< The actual table of range values. */
 };
 /**
@@ -159,7 +164,7 @@ double bma( double z1, double b );
 double relbloch( double z12, double b1, double lambda, double theta0 );
 double lindhard( double zz, double aa, double bb, short sswitch );
 double Fbrems( double x );
-double range( double e, double z1, double a1, short sswitch, tdata *target );
+double range( double e, double z1, double a1, short sswitch, tdata *target, int *tno );
 double qrange( double e, double z1, double a1, short sswitch, tdata *target );
 double benton( double e, double z1, double a1, tdata *target );
 double renergy( double e, double r0, double z1, double a1, short sswitch, tdata *target );

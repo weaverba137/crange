@@ -983,16 +983,17 @@ double Fbrems( double x )
  * @param a1 Projectile atomic mass.
  * @param sswitch The switch bit field.
  * @param target A pointer to a ::TDATA structure.
+ * @param tno A pointer to the index of the most recently generated or used table.
  *
  * @return Projectile range in g cm<sup>-2</sup>.
  */
-double range( double e, double z1, double a1, short sswitch, tdata *target )
+double range( double e, double z1, double a1, short sswitch, tdata *target, int *tno )
 {
     extern range_table trange[MAXAB];
-    int table=1,i,k;
-    double de2,dr,dedx1,dedx2,dedx3,dedx4,e0,e1,e2,e3,e4;
+    int table=1,i,k,l;
+    double de2,dr,dedx1,dedx2,dedx3,dedx4,e0,e1,e2,e3,e4,dt,dtk;
     double rel = 0.0;
-    int tno = 0;
+    time_t ct;
     /* End declarations */
     /*
      * Search the range table for existing data
@@ -1001,7 +1002,7 @@ double range( double e, double z1, double a1, short sswitch, tdata *target )
         if ((trange[k].z1 == z1) && (trange[k].a1 == a1) &&
             (trange[k].sswitch == sswitch) &&
             strncmp(trange[k].target->name,target->name,NAMEWIDTH) == 0) {
-            tno = k;
+            *tno = k;
             table = 0;
             break;
         }
@@ -1014,18 +1015,31 @@ double range( double e, double z1, double a1, short sswitch, tdata *target )
         k=0;
         while (k < MAXAB && trange[k].target != NULL) k++;
         /*
-         * If all the tables are filled, use the first entry.
+         * If all the tables are filled, replace the oldest entry.
          */
-        if (k == MAXAB) k=0;
-        tno=k;
-        trange[tno].z1 = z1;
-        trange[tno].a1 = a1;
-        trange[tno].sswitch = sswitch;
-        trange[tno].target = target;
+        if (k == MAXAB) {
+            l=0;
+            ct = time(NULL);
+            dt = 0.0;
+            while (l < MAXAB) {
+                dtk = difftime(ct,trange[l].timestamp);
+                if (dtk > dt) {
+                    dt = dtk;
+                    k = l;
+                }
+                l++;
+            }
+        }
+        *tno=k;
+        trange[*tno].z1 = z1;
+        trange[*tno].a1 = a1;
+        trange[*tno].sswitch = sswitch;
+        trange[*tno].target = target;
+        trange[*tno].timestamp = time(NULL);
         i=0;
         while(energy_table(i) < 8.0) {
             e1=energy_table(i);
-            trange[tno].range[i]=benton(e1, z1, a1, target);
+            trange[*tno].range[i]=benton(e1, z1, a1, target);
             i++;
         }
         while(i<MAXE){
@@ -1041,17 +1055,17 @@ double range( double e, double z1, double a1, short sswitch, tdata *target )
             dedx4=dedx(e4,rel,z1,a1,sswitch,target);
             dr=de2*(0.65214515/dedx1 + 0.34785485/dedx2 + 0.34785485/dedx3
                 + 0.65214515/dedx4);
-            trange[tno].range[i] = trange[tno].range[i-1] + dr;
+            trange[*tno].range[i] = trange[*tno].range[i-1] + dr;
             i++;
         }
     }
     if( e > energy_table(0)) {
         i=1;
         while( e > energy_table(i) ) i++;
-        return( trange[tno].range[i-1] + ( e - energy_table(i-1) )
-            *(trange[tno].range[i]-trange[tno].range[i-1])/(energy_table(i)-energy_table(i-1)) );
+        return( trange[*tno].range[i-1] + ( e - energy_table(i-1) )
+            *(trange[*tno].range[i]-trange[*tno].range[i-1])/(energy_table(i)-energy_table(i-1)) );
     } else {
-        return( e*trange[tno].range[0]/energy_table(0) );
+        return( e*trange[*tno].range[0]/energy_table(0) );
     }
 }
 /**
@@ -1242,24 +1256,12 @@ double renergy( double e, double r0, double z1, double a1, short sswitch, tdata 
     int tno = 0;
     /* End declarations */
     if( e > 0.0 ){
-        rr = range(e,z1,a1,sswitch,target);
+        rr = range(e,z1,a1,sswitch,target,&tno);
         r = rr - r0;
         if( r < 0.0 ) return(0.0);
     } else {
-        rr = range(energy_table(0),z1,a1,sswitch,target);
+        rr = range(energy_table(0),z1,a1,sswitch,target,&tno);
         r = r0;
-    }
-    /*
-     * Search the range table for existing data, which should be there, since
-     * we called range().
-     */
-    for (k=0;k<MAXAB;k++) {
-        if ((trange[k].z1 == z1) && (trange[k].a1 == a1) &&
-            (trange[k].sswitch == sswitch) &&
-            strncmp(trange[k].target->name,target->name,NAMEWIDTH) == 0) {
-            tno = k;
-            break;
-        }
     }
     if(r > trange[tno].range[0]){
         i=1;
@@ -1303,6 +1305,7 @@ void run_range( FILE *finput, FILE *foutput, short sswitch, tdata *extratargets 
     double out=0.0;
     int icols=6;
     int k=0;
+    int tno=0;
     /* End declarations */
     for(;;){
         icols=fscanf(finput,"%s %lf %lf %lf %lf %s\n",
@@ -1312,7 +1315,7 @@ void run_range( FILE *finput, FILE *foutput, short sswitch, tdata *extratargets 
         out=0.0;
         if(icols==6 && strncmp( target->name, "Unknown", NAMEWIDTH ) != 0){
             if(strncmp( task, "r", 1 )==0){
-                out=range(red1,z1,a1,sswitch,target);
+                out=range(red1,z1,a1,sswitch,target,&tno);
             } else if(strncmp( task, "e", 1 )==0){
                 out=renergy(red1,red2,z1,a1,sswitch,target);
             } else if(strncmp( task, "d", 1 )==0){
