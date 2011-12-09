@@ -595,6 +595,7 @@ double delta( double g, tdata *target )
  * compatibility with earlier codes.
  *
  * @param g Projectile Lorentz factor.
+ * @param target A pointer to a ::TDATA structure.
  *
  * @return The value of the density effect.
  */
