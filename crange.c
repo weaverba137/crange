@@ -12,12 +12,10 @@
  *
  * Main program.
  */
-
 /*
  * Include headers for variable and function declarations, &c..
  */
 #include <crange.h>
-
 /**
  * @brief Main crange program.
  *
@@ -42,7 +40,7 @@ int main( int argc, char **argv )
     extern int errno; /* From errno.h */
     extern char *optarg; /* External variable used by getopt(). */
     extern int optind, optopt; /* External variable used by getopt(). */
-
+    /* End declarations */
     while((c=getopt(argc,argv,":c:hlo:s:t:")) != -1) {
         switch (c) {
         case 'c':
@@ -157,7 +155,6 @@ int main( int argc, char **argv )
     if (have_target) free(extratargets);
     return(0);
 }
-
 /**
  * @brief Confluent hypergeometric function.
  *
@@ -180,7 +177,7 @@ gsl_complex complex_hyperg( gsl_complex a, gsl_complex b, gsl_complex z )
 {
     gsl_complex Cm, previousterm, term, sumterm;
     double dm = 0.0;
-
+    /* End declarations */
     term=GSL_COMPLEX_ONE;
     sumterm=GSL_COMPLEX_ONE;
     do {
@@ -195,7 +192,6 @@ gsl_complex complex_hyperg( gsl_complex a, gsl_complex b, gsl_complex z )
     } while( gsl_complex_abs(term) > 1.0e-6 && gsl_complex_abs(previousterm) > 1.0e-6 );
     return(sumterm);
 }
-
 /**
  * @brief Complex logarithm of the Gamma function.
  *
@@ -223,7 +219,7 @@ gsl_complex complex_lngamma( gsl_complex z )
         -1.231739572450155,
         0.1208650973866179e-2,
         -0.5395239384953e-5};
-
+    /* End declarations */
     if(GSL_REAL(z)>0) {
         x=GSL_REAL(z)-1.0;
         y=GSL_IMAG(z);
@@ -256,7 +252,6 @@ gsl_complex complex_lngamma( gsl_complex z )
     }
     return(result);
 }
-
 /**
  * @brief Computes effective projectile charge.
  *
@@ -281,7 +276,7 @@ double effective_charge( double z0, double e1, double z2, short sswitch )
 {
     double z23, z1, g, b2, b;
     double capA, capB;
-
+    /* End declarations */
     g=1.0+e1/931.4943;
     b2=1.0-1.0/(g*g);
     b=sqrt(b2);
@@ -329,28 +324,33 @@ double effective_charge( double z0, double e1, double z2, short sswitch )
     }
     return(z1);
 }
-
-double djdx( double e1, double z0, double I0, double f0, double K, short sswitch, tdata *target)
-/*
- * This computes the primary ionization, the number of delta-rays produced
- * per unit length.  The formula is based on H. Bethe. Ann. Phys.
- * 5 (1930), p. 325 as well as R.L. Fleischer,
- * P.B. Price, R.M. Walker and E.L. Hubbard. Phys. Rev. 156 (1967), p. 353.
- * Output is number of delta-rays per unit length in units of g^-1 cm^2.
+/**
+ * @brief Computes primary ionization.
  *
- * e1: kinetic energy in A MeV
- * z0: bare projectile charge
- * I0: binding energy of outermost electron in eV
- * f0: fraction of electrons in the outermost state
- * K:  a constant that depends on the target.
+ * This computes the primary ionization, the number of delta-rays produced
+ * per unit length.  The formula is based on H. Bethe @cite art:hb,
+ * as well as Fleischer <em>et al.</em>, @cite art:rlf.
+ *
+ * @param e1 The projectile kinetic energy in A MeV.
+ * @param z0 The projectile charge.
+ * @param I0 The binding energy of outermost electron in eV.
+ * @param f0 The fraction of electrons in the outermost state.
+ * @param K  A constant that depends on the target.
+ * @param sswitch The switch bit field.
+ * @param target A pointer to a ::TDATA structure.
+ *
+ * @return Number of delta-rays per unit length in units of g<sup>-1</sup> cm<sup>2</sup>.
+ *
+ * @bug The parameters needed are not contained in the target table.
  */
+double djdx( double e1, double z0, double I0, double f0, double K, short sswitch, tdata *target)
 {
     double emass=0.511003e+6; /* eV/c^2 */
     double z2,a2;
     double g,b2,b,z1;
     double delt;
     double J,f1,f2;
-
+    /* End declarations */
     g=1.0+e1/931.4943;
     delt = ( sswitch & SSWITCH_ND ) ? delta(g,target) : olddelta(g,target);
     b2=1.0-1.0/(g*g);
@@ -363,21 +363,24 @@ double djdx( double e1, double z0, double I0, double f0, double K, short sswitch
     J=0.5*f1*(f2-b2-delt+K)*(f0/I0);
     return(J);
 }
-
-double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata *target )
-/*
+/**
+ * @brief Computes dE/dx.
+ *
  * This is the core of the whole package, the dE/dx calculator.  I have
  * based this largely on the work of M. H. Salamon, L.B.L. Report #10446
  * (1980).  Values of certain physical constants have been updated,
  * as well as some of the corrections to the basic stopping power formula.
- * Output is dE/dx in units of A MeV g^-1 cm^2.
  *
- * e1:   kinetic energy in A MeV
- * rel0: restricted energy loss parameter in eV
- * z0:   bare projectile charge
- * a1:   projectile atomic number
- * tno:  number of the current target (for looking up in the tdata struct)
+ * @param e1 The projectile kinetic energy in A MeV.
+ * @param rel0 Restricted energy loss parameter in eV.
+ * @param z0 The projectile charge.
+ * @param a1 The projectile atomic number.
+ * @param sswitch The switch bit field.
+ * @param target A pointer to a ::TDATA structure.
+ *
+ * @return dE/dx in units of A MeV g<sup>-1</sup> cm<sup>2</sup>
  */
+double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata *target )
 {
     static double fva[10]={0.33,0.078,0.03,0.014,0.0084,
         0.0053,0.0035,0.0025,0.0019,0.0014};
@@ -391,7 +394,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
     double S,REL,f1,f2,f3,f4,f6,f7,f8,f9;
     double Sbr=0.0,Bbr;
     double Spa=0.0,dpa,ldpa,l0,Lpa0,Lpa0s,Lpa1,Lpa;
-
+    /* End declarations */
     g=1.0+e1/931.4943;
     delt = ( sswitch & SSWITCH_ND ) ? delta(g,target) : olddelta(g,target);
     b2=1.0-1.0/(g*g);
@@ -546,19 +549,25 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
         return(S);
     }
 }
-
-double delta( double g, tdata *target )
-/*
+/**
+ * @brief Computes the density effect.
+ *
  * This function implements the density effect correction as formulated
- * in R. M. Sternheimer and R. F. Peierls, Phys. Rev. B 3 (1971) 3681 and as
- * extended in R. M. Sternheimer, M. J. Berger, S. M. Seltzer, Atom. Data
- * and Nucl. Data Tables 30 (1984) 261.  This version can distinguish
- * between solids and gasses, and between metals and insulators.  For
- * conducting materials, there is a low-energy density effect.
+ * in Sternheimer and Peierls, @cite art:rms2 and as
+ * extended in Sternheimer, Berger and Seltzer, @cite art:rms1.
+ * This version can distinguish between solids and gasses, and between
+ * metals and insulators.  For conducting materials, there is a
+ * low-energy density effect.
+ *
+ * @param g Projectile Lorentz factor.
+ * @param target A pointer to a ::TDATA structure.
+ *
+ * @return The value of the density effect.
  */
+double delta( double g, tdata *target )
 {
     double b,cbar,X,X0,X1;
-
+    /* End declarations */
     X0=target->X0;
     X1=target->X1;
     cbar=2.0*log(target->iadj/target->pla)+1.0;
@@ -577,18 +586,23 @@ double delta( double g, tdata *target )
         return( 4.6052*X - cbar );
     }
 }
-
-double olddelta( double g, tdata *target )
-/*
+/**
+ * @brief Computes an obsolete version of the density effect.
+ *
  * This function implements the density effect correction as originally
- * formulated in R. M. Sternheimer and R. F. Peierls, Phys. Rev. B 3 (1971)
- * 3681.  Although it is now obsolete, I have included it here for
+ * formulated in Sternheimer and Peierls, @cite art:rms2.
+ * Although it is now obsolete, I have included it here for
  * compatibility with earlier codes.
+ *
+ * @param g Projectile Lorentz factor.
+ *
+ * @return The value of the density effect.
  */
+double olddelta( double g, tdata *target )
 {
     double b,cbar,y;
     double y0,y1,dy3,a;
-
+    /* End declarations */
     if( g < 1.8 ) return(0.0);
     cbar=2.0*log(target->iadj/target->pla)+1.0;
     b=sqrt(1.0 - 1.0/(g*g));
@@ -625,18 +639,27 @@ double olddelta( double g, tdata *target )
         }
     }
 }
-
-double bma( double z1, double b )
-/*
+/**
+ * @brief Computes the Bloch, Mott and Ahlen corrections.
+ *
  * This function is provided for historical reasons and implements the
  * Bloch, Mott & Ahlen corrections described below.
+ *
+ * @param z1 The projectile charge.
+ * @param b The projectile velocity in units of the speed of light
+ * (@em i.e. @f$ \beta = v/c @f$).
+ *
+ * @return The sum of the Bloch, Mott and Ahlen corrections.
+ *
+ * @bug Currently, this function is not called by anything.
  */
+double bma( double z1, double b )
 {
     int n,msum;
     double b2,y,y2,sumr,fn,fn2,f3,f5;
     double lambda, theta0, cosx, st;
     gsl_complex Cz1,Cz2;
-
+    /* End declarations */
     /*
      * This section includes the Mott correction of S. P. Ahlen, Phys. Rev.
      * A 17 (1978) 1236, the Bloch correction of F. Bloch, Ann. Phys.
@@ -703,13 +726,22 @@ double bma( double z1, double b )
         );
     return( f3 + f5 );
 }
-
-double relbloch( double z12, double b1, double lambda, double theta0 )
-/*
- * This is the relativistic Bloch (or Ahlen) correction of S. P. Ahlen,
- * Phys. Rev. A 25 (1982) 1856.  The evaluation of this correction has
+/**
+ * @brief Compute the relativistic Bloch correction.
+ *
+ * This is the relativistic Bloch (or Ahlen) correction of Ahlen,
+ * @cite art:spa3.  The evaluation of this correction has
  * been enormously simplified by the use of fully complex arithmetic.
+ *
+ * @param z12 The projectile charge.
+ * @param b1 The projectile velocity in units of the speed of light
+ * (@em i.e. @f$ \beta = v/c @f$).
+ * @param lambda A free parameter, described in bma().
+ * @param theta0 A free parameter, described in bma().
+ *
+ * @return The value of the relativistic Bloch correction.
  */
+double relbloch( double z12, double b1, double lambda, double theta0 )
 {
     gsl_complex Cl1, Cl2;
     gsl_complex Cf1,Cf2,Cf3,Cf4,Cf5,Cf6,Cf7;
@@ -718,7 +750,7 @@ double relbloch( double z12, double b1, double lambda, double theta0 )
     double abgl;
     double g,nu;
     double sigma,es,bloch2;
-
+    /* End declarations */
     nu=z12*ALPHA/b1;
     g=1.0/sqrt(1.0-b1*b1);
     abgl=ALPHA/(b1*g*lambda);
@@ -747,22 +779,28 @@ double relbloch( double z12, double b1, double lambda, double theta0 )
         + 2.0*nu*GSL_REAL(Cl2));
     return(bloch2);
 }
-
-double lindhard( double zz, double aa, double bb, short sswitch )
-/*
- * This is the Lindhard-Sorensen correction including finite nuclear
- * size effects as described in J. Lindhard and A. H. Sorensen,
- * Phys. Rev. A 53 (1996) 2443.  The defined variable SSWITCH_NS will turn off the
+/**
+ * @brief Compute the Lindhard-Sørensen correction.
+ *
+ * This is the Lindhard-Sørensen correction including finite nuclear
+ * size effects as described in Lindhard and Sørensen, @cite art:jl2.
+ * The defined variable #SSWITCH_NS will turn off the
  * nuclear size effect if it is set to zero.  For values of the Lorentz
  * factor above 10/R, where R is the nuclear size divided by the electron
  * Compton wavelength, the correction is set to its asymptotic value
- * which is described by A. H. Sorensen,in Photonic, Electronic and Atomic
- * Collisions; Invited Papers XX Int. Conf. on the Physics of Electronic
- * and Atomic Collisions, eds. F. Aumayr and H. Winter (World Scientific,
- * Singapore, 1998) 475.  This also avoids some difficulties with the
- * evaluation of the confluent hypergeometric function (A. H. Sorensen,
- * private communication).
+ * which is described by Sørensen, @cite proc:ahs. This also avoids some
+ * difficulties with the evaluation of the confluent hypergeometric function
+ * (A. H. Sorensen, private communication).
+ *
+ * @param zz The projectile charge.
+ * @param aa The projectile atomic mass.
+ * @param bb The projectile velocity in units of the speed of light
+ * (@em i.e. @f$ \beta = v/c @f$).
+ * @param sswitch The switch bit field.
+ *
+ * @return The value of the Lindhard-Sørensen correction.
  */
+double lindhard( double zz, double aa, double bb, short sswitch )
 {
     gsl_complex Cexir, Cexis, Cedr, Ceds, Cske, Cmske, Cgrgs;
     gsl_complex Clamr,Clams;
@@ -779,7 +817,7 @@ double lindhard( double zz, double aa, double bb, short sswitch )
     double term1,term2,term3,sumterm;
     double pct;
     double lls;
-
+    /* End declarations */
     Cpi=gsl_complex_rect(M_PI,0.0);
     Cone=GSL_COMPLEX_ONE;
     a3=exp(log(aa)/3.0);
@@ -890,12 +928,22 @@ double lindhard( double zz, double aa, double bb, short sswitch )
     lls = sumterm + 0.5*bb*bb;
     return(lls);
 }
-
+/**
+ * @brief Compute a mathematical function related to bremsstrahlung.
+ *
+ * A mathematical function.
+ *
+ * @param x The input parameter.
+ *
+ * @return The value of the function.
+ *
+ * @bug Currently, this function is unused.
+ */
 double Fbrems( double x )
 {
     int n=1;
     double t=1.0,s=0.0;
-
+    /* End declarations */
     if (x == 1.0) {
         return(M_PI*M_PI/12.0);
     } else if (x < 1.0) {
@@ -914,7 +962,6 @@ double Fbrems( double x )
         return(M_PI*M_PI/12.0 + 0.5*log(x)*log(x) + s);
     }
 }
-
 /**
  * @brief Computes total range given initial energy.
  *
@@ -945,7 +992,7 @@ double range( double e, double z1, double a1, short sswitch, tdata *target )
     double de2,dr,dedx1,dedx2,dedx3,dedx4,e0,e1,e2,e3,e4;
     double rel = 0.0;
     int tno = 0;
-
+    /* End declarations */
     /*
      * Search the range table for existing data
      */
@@ -1006,7 +1053,6 @@ double range( double e, double z1, double a1, short sswitch, tdata *target )
         return( e*trange[tno].range[0]/energy_table(0) );
     }
 }
-
 /**
  * @brief Computes total range by direct integration of dE/dx.
  *
@@ -1030,7 +1076,7 @@ double qrange( double e, double z1, double a1, short sswitch, tdata *target )
     double ei=8.0,lef,lei,en=1.0,pen,rel = 0.0;
     double entries;
     double ra[MAXE];
-
+    /* End declarations */
     if(e > ei){
         ra[0]=benton(ei,z1,a1,target);
         i=1;
@@ -1061,17 +1107,24 @@ double qrange( double e, double z1, double a1, short sswitch, tdata *target )
         return( e*benton(en,z1,a1,target)/en );
     }
 }
-
-double benton( double e, double z1, double a1, tdata *target )
-/*
- * This function is the result of  empirical fits to very low energy
+/**
+ * @brief Computes ranges at low energies.
+ *
+ * This function is the result of empirical fits to very low energy
  * 1 A MeV < E < 8 A MeV ion ranges.  It follows the methods of
- * W. H. Barkas and M. J. Berger, Studies of Penetration of Charged
- * Particles in Matter, Natl. Acad. Sci. Pub. 1133 (1964).  A simplified
+ * Barkas and Berger, @cite coll:whb. A simplified
  * discussion, with a more complicated formula is given in
- * E. V. Benton and R. P. Henke, Nucl. Inst. Meth. 67 (1969) 87.
+ * Benton and Henke, @cite art:evb1.
  * As yet I know of no nicer way to deal with these low energies.
+ *
+ * @param e Projectile kinetic energy in A MeV.
+ * @param z1 Projectile charge.
+ * @param a1 Projectile atomic mass.
+ * @param target A pointer to a ::TDATA structure.
+ *
+ * @return Projectile range in g cm<sup>-2</sup>.
  */
+double benton( double e, double z1, double a1, tdata *target )
 {
     int l,m,n;
     double g,b,bzz,x;
@@ -1109,7 +1162,7 @@ double benton( double e, double z1, double a1, tdata *target )
         { 0.94,  20.19, -84.08,  132.98, -30.77, -102.29, 64.03},
         {12.62, -51.96, 199.14, -367.09, 327.06, -108.57,  0.00}
     };
-
+    /* End declarations */
     logt=log( e * cr );
     logi=log( target->iadj );
     for (l = 0; l < 2; l++) {
@@ -1164,7 +1217,6 @@ double benton( double e, double z1, double a1, tdata *target )
         *( (target->a2)/(target->z2) )*1.0e-06*exp((8.0/3.0)*log( z1 ));
     return(( (a1/cr)/(z1*z1) )*(prnglo[l] + bzz*cz[n]));
 }
-
 /**
  * @brief Extract energies from range tables.
  *
@@ -1172,7 +1224,7 @@ double benton( double e, double z1, double a1, tdata *target )
  * It calls range() to initialze the range table or to find the correct
  * table if it has already been computed.
  *
- * @param e Projectile energy [A MeV].
+ * @param e Projectile kinetic energy [A MeV].
  * @param r0 Range [g cm<sup>-2</sup>].
  * @param z1 Projectile charge.
  * @param a1 Projectile atomic mass.
@@ -1187,7 +1239,7 @@ double renergy( double e, double r0, double z1, double a1, short sswitch, tdata 
     double rr,r;
     int i,k;
     int tno = 0;
-
+    /* End declarations */
     if( e > 0.0 ){
         rr = range(e,z1,a1,sswitch,target);
         r = rr - r0;
@@ -1217,7 +1269,6 @@ double renergy( double e, double r0, double z1, double a1, short sswitch, tdata 
         return(energy_table(0)*r/trange[tno].range[0]);
     }
 }
-
 /**
  * @brief Parses and executes the task list.
  *
@@ -1251,7 +1302,7 @@ void run_range( FILE *finput, FILE *foutput, short sswitch, tdata *extratargets 
     double out=0.0;
     int icols=6;
     int k=0;
-
+    /* End declarations */
     for(;;){
         icols=fscanf(finput,"%s %lf %lf %lf %lf %s\n",
             task,&red1,&red2,&z1,&a1,abs);
@@ -1273,7 +1324,6 @@ void run_range( FILE *finput, FILE *foutput, short sswitch, tdata *extratargets 
     }
     return;
 }
-
 /**
  * @brief Initializes the value of of the switch bit field.
  *
@@ -1292,7 +1342,7 @@ short init_switch( char *switchfile )
     short sswitch = SSWITCH_DEFAULT;
 #ifdef HAVE_INIPARSER_H
     dictionary *d;
-
+    /* End declarations */
     if (access(switchfile,R_OK)) {
         sswitch = 0;
         d = iniparser_load( switchfile );
@@ -1313,7 +1363,6 @@ short init_switch( char *switchfile )
 #endif
     return(sswitch);
 }
-
 /**
  * @brief Read optional target data file.
  *
@@ -1337,7 +1386,7 @@ tdata *init_target( char *targetfile )
     char *section;
     char key[NAMEWIDTH+5+1];
     int i,n;
-
+    /* End declarations */
     if (access(targetfile,R_OK)) {
         d = iniparser_load( targetfile );
         n = iniparser_getnsec(d);
@@ -1394,6 +1443,7 @@ void init_table(void)
 {
     extern range_table trange[MAXAB];
     int k,l;
+    /* End declarations */
     for (k=0;k<MAXAB;k++) {
         trange[k].z1 = trange[k].a1 = 0.0;
         trange[k].sswitch = 0;
@@ -1420,11 +1470,11 @@ double energy_table( int i )
      * The values of all of these are known at compile time.
      */
     double decades, entries;
+    /* End declarations */
     decades=LOGTENEMAX-LOGTENEMIN;
     entries=MAXE - 1.0;
     return(exp(M_LN10*(LOGTENEMIN + ((double)i)*decades/entries)));
 }
-
 /**
  * @brief Finds target data corresponding to a target name.
  *
@@ -1490,6 +1540,7 @@ tdata *find_target( char *target, tdata *extratargets )
         /* THIS MUST BE THE LAST STRUCTURE DEFINITION! */
         { "Unknown" ,  0.000,   0.000,   0.0, 0.0000e+00, 0.0000e+00, 0.0, 0.0000e+00,  0.0000, 0.0000, 0.00000, 0.0000, 0.00 }
     };
+    /* End declarations */
     if (strncmp("List", target, NAMEWIDTH) == 0) {
         while (strncmp(targets[k].name, "Unknown", NAMEWIDTH) != 0) {
             print_target(&targets[k]);
@@ -1514,7 +1565,6 @@ tdata *find_target( char *target, tdata *extratargets )
      */
     return(&targets[k]);
 }
-
 /**
  * @brief Prints a target table entry in INI format.
  *
