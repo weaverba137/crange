@@ -791,7 +791,7 @@ double relbloch( double z12, double b1, double lambda, double theta0 )
  * Compton wavelength, the correction is set to its asymptotic value
  * which is described by Sørensen, @cite proc:ahs. This also avoids some
  * difficulties with the evaluation of the confluent hypergeometric function
- * (A. H. Sorensen, private communication).
+ * (A. H. Sørensen, private communication).
  *
  * @param zz The projectile charge.
  * @param aa The projectile atomic mass.
