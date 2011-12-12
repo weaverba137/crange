@@ -1452,6 +1452,7 @@ void init_table(void)
         trange[k].z1 = trange[k].a1 = 0.0;
         trange[k].sswitch = 0;
         trange[k].target = NULL;
+        trange[k].timestamp = (time_t)0;
         for (l=0;l<MAXE;l++) trange[k].range[l] = 0.0;
     }
     return;
