@@ -22,3 +22,6 @@ MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
 install-data-hook:
 	test -z "$(docdir)" || cp -Rv doc/html "$(DESTDIR)$(docdir)"
+
+uninstall-local:
+	cd "$(DESTDIR)$(docdir)" && rm -rf html
