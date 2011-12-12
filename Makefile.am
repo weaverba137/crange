@@ -20,3 +20,5 @@ endif
 EXTRA_DIST = autogen.sh $(DX_CONFIG) doc/html
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
+install-data-hook:
+	test -z "$(docdir)" || cp -Rv doc/html "$(DESTDIR)$(docdir)"
