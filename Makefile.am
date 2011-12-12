@@ -2,7 +2,7 @@
 ACLOCAL_AMFLAGS = -I m4
 bin_PROGRAMS = crange
 crange_SOURCES = crange.h crange.c
-dist_doc_DATA = COPYRIGHT INSTALL LGPL README switch.ini target.ini doc/html
+dist_doc_DATA = COPYRIGHT INSTALL LGPL README switch.ini target.ini doc/crange.pdf
 dist_bin_SCRIPTS = crange_version
 
 include aminclude.am
