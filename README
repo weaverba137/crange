@@ -6,34 +6,6 @@ Copyright (c) 2001-2011 by Benjamin Weaver.  This program is free software
 which I release under the GNU Lesser General Public License.
 Read the COPYRIGHT file for more info.
 
-Thank you for choosing the Berkeley Range-Energy Calculator.
-
-System requirements:
-
-Although the range energy code has been verified only for SunOS and Linux,
-it should run on any system with a C compiler.
-
-Version:
-
-This is version 1.6 of the Berkeley Range-Energy Calculator.
-
-1.6:   Make crange compatible with GNU autotools & GNU Scientific Library.
-1.5.3: Simplified calculation switching and added a crange.h file
-1.5.2: Increased value of MAXAB to acommodate a larger target data file
-1.5.1: Fixed typo in one of the parameters of the electron capture corection
-
-Installation:
-
-See the INSTALL file.
-
-Running:
-
-Some details can be found in the comments to crange.c.
-The program is run by typing "crange [options] [data.in]".  The first
-argument is the name of a file containing a list of tasks for the
-calculator to perform.  There are a number of command-line options that
-control the behaviour of crange.  These can be seen by typing crange -h
-
 Tasks:
 
 The input file is a list of tasks for the program to perform.  Here's
@@ -59,38 +31,6 @@ air.  The fifth line computes REL instead of dE/dx with the REL cutoff set to
 Arguments which are zero (0) are dummies which are necessary for
 place-holding.
 
-The switch.ini file included with this distribution provides an example
-for the user.  The values in the example file are those that are compiled
-into the program by default.  Users may supply their own switch.ini file
-on the command line. In order to do this, crange must be compiled against
-the iniparser library, version 3.0 or later, see http://ndevilla.free.fr/iniparser/.
-If you don't wish to install this library, the code will still compile, but
-you will not be able to change the default settings.
-
 The list of tasks may be of any length in any combination of ranges,
 energies, or dE/dx.  The order of the output will be the same as the
-order of the input.  The available target materials are listed in the
-target.ini file.  Target Data is taken from and is in the same order
-as Sternheimer, Berger, & Seltzer, Atom. Data and Nucl. Data Tables
-30 (1984) 261.  The definitions of the material properties are in the
-target.ini file.  Note that the values in the target.ini file are already
-compiled in to the program.  The user may add additional target materials or
-override existing materials by creating a new target.ini file with new
-or updated values.
-
-More detailed explanations of each of these effects may be found in the
-code itself, including references to the original literature.
-
-Updates:
-
-Check
-
-http://sdss.physics.nyu.edu/~bw55/dedx/
-
-for updates.
-
-Contact:
-
-For questions or to report bugs, please contact
-Benjamin Weaver <benjamin.weaver@nyu.edu>.
-
+order of the input.

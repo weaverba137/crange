@@ -5,12 +5,80 @@
  *
  * @copyright (C) 2001-2011 Benjamin Weaver, LGPL
  *
+ * @section sec-intro Introduction
+ *
+ * Thank you for choosing the Berkeley Range-Energy Calculator.
+ *
+ * @section sec-preinstall Pre-Installation
+ *
+ * @subsection subsec-sysreq System Requirements
+ *
+ * crange should run on any POSIX-based system that has the appropriate
+ * libraries installed (see @ref subsec-prereq Prerequisites).
+ *
+ * @subsection subsec-prereq
+ *
+ * @subsubsection subsubsec-gsl GNU Scientific Library
+ *
+ * The GNU Scientific Library (http://www.gnu.org/s/gsl/) is required.
+ * This code was most recently tested with version 1.15, though any version
+ * with full complex variable support should work.
+ *
+ * @subsubsection subsubsec-iniparser iniParser
+ *
+ * The iniParser Library (http://ndevilla.free.fr/iniparser/), version 3.0 or
+ * later is strongly recommended.  The code will still compile if it is
+ * not installed, but the resulting binary will not be able to read optional
+ * target or switch information, so only compiled-in defaults will be
+ * available.
+ *
+ * @section sec-install Installation
+ *
+ * See the INSTALL file.
+ *
+ * @section sec-running Running
+ *
+ * @subsection subsec-command On the Command Line
+ *
+ * Type crange -h to get the list of command-line options.
+ *
+ * @subsection subsec-tasks Task List
+ *
+ * @subsection subsec-switch Switching Optional Effects
+ *
+ * The switch.ini file included with the source distribution shows the
+ * effects that may be turned on or off by the user.  The values in the
+ * switch.ini file are the default values that are compiled into the program.
+ * The user may supply a modified switch.ini file on the command line.
+ * There are additional details in the file itself.
+ *
+ * @subsection subsec-target Adding or Modifying Targets
+ *
+ * The target.ini file included with the source distribution lists the
+ * targets that are compiled in to the program by default.  Most of the target
+ * data is taken from Sternheimer, Berger and Seltzer, @cite art:rms1.
+ * The definitions of the material properties are in the target.ini file.
+ * The user may add additional targets or orverride existing target values
+ * by supplying a different target.ini file (with the same format!) on
+ * the command line.
+ *
+ * @section sec-updates Updates
+ *
+ * Visit http://sdss.physics.nyu.edu/~bw55/dedx/ .
+ *
+ * @section sec-history History
+ *
+ *  - 1.6:   Make crange compatible with GNU autotools and GNU Scientific Library.
+ *  - 1.5.3: Simplified calculation switching and added a crange.h file
+ *  - 1.5.2: Increased value of MAXAB to acommodate a larger target data file
+ *  - 1.5.1: Fixed typo in one of the parameters of the electron capture corection
+ *
  */
 /**
  * @file crange.c
  * @brief Source code for crange.
  *
- * Main program.
+ * This file contains all source code for the crange executable.
  */
 /*
  * Include headers for variable and function declarations, &c..
