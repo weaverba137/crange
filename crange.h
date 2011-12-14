@@ -1,6 +1,6 @@
 /**
- * @file crange.h
- * @brief Header file for crange.
+ * \file crange.h
+ * \brief Header file for crange.
  *
  * This header file collects all the other header files needed to compile
  * crange, as well as all defines, function declarations, etc.
@@ -33,15 +33,10 @@
 /*
  * These values define the range-energy tables
  */
-#define LOGTENEMIN 0.0 /**< @f$ \log_{10} E_{\mathrm{min}} @f$ Minimum energy in units of A MeV. */
-#define LOGTENEMAX 6.0 /**< @f$ \log_{10} E_{\mathrm{max}} @f$ Maximum energy in units of A MeV. */
+#define LOGTENEMIN 0.0 /**< \f$ \log_{10} E_{\mathrm{min}} \f$ Minimum energy in units of A MeV. */
+#define LOGTENEMAX 6.0 /**< \f$ \log_{10} E_{\mathrm{max}} \f$ Maximum energy in units of A MeV. */
 #define MAXE 200 /**< The number of energies in the range-energy tables. */
-/*
- * MAXAB sets the number of different target media which can be stored
- * in the range-energy tables.  It is suggested that MAXAB > number of
- * target media in the target.dat file.
- */
-#define MAXAB 50
+#define MAXAB 50 /**< The number of range tables.  Arbitrary, but should be larger than the number of targets. */
 /*
  * Miscellaneous defines. ALPHA is the fine structure constant, and we want
  * exactly that value.  Otherwise, M_PI, M_PI_2 and M_LN10 should be defined in
@@ -54,7 +49,7 @@
 #define M_PI_2 1.57079632679489661923132169163975144 /**< The value of pi/2, in case it is not defined in math.h. */
 #endif
 #ifndef M_LN10
-#define M_LN10 2.30258509299404568402 /**< The value of @f$\ln 10@f$ in case it is not defined in math.h */
+#define M_LN10 2.30258509299404568402 /**< The value of \f$ \ln 10 \f$ in case it is not defined in math.h */
 #endif
 #ifdef ALPHA
 #undef ALPHA
@@ -102,7 +97,7 @@ struct TDATA {
     double z2;   /**< The mean nuclear charge. */
     double a2;   /**< The mean atomic mass number. */
     double iadj; /**< The logarithmic mean ionization potential [eV]. */
-    double rho;  /**< The density [g cm^-3]. */
+    double rho;  /**< The density [g cm<sup>-3</sup>]. */
     double pla;  /**< The plasma frequency [eV]. */
     double etad; /**< The ratio of density to density at STP for gaseous targets. Should be set to zero for non-gaseous materials. */
     double bind; /**< The total electronic binding energy [eV]. */
@@ -111,8 +106,8 @@ struct TDATA {
      * @name Density effect parameters.
      */
     /* @{ */
-    double X0; /**< Value of @f$\log_{10} \beta\gamma@f$ at which the density effect turns on. */
-    double X1; /**< Value of @f$\log_{10} \beta\gamma@f$ above which the high-energy form of the density effect may be used. */
+    double X0; /**< Value of \f$ \log_{10} \beta\gamma \f$ at which the density effect turns on. */
+    double X1; /**< Value of \f$ \log_{10} \beta\gamma \f$ above which the high-energy form of the density effect may be used. */
     double a;  /**< Parameter used to interpolate the density effect between the values of X0 and X1. */
     double m;  /**< Parameter used to interpolate the density effect between the values of X0 and X1. */
     double d0; /**< Low-energy density effect parameter, only non-zero for conducting materials. */

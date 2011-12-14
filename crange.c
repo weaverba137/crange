@@ -1,30 +1,30 @@
 /**
- * @mainpage crange - The Berkeley Range-Energy Calculator
- * @author Benjamin Weaver <benjamin.weaver@nyu.edu>
- * @version 1.6
+ * \mainpage crange - The Berkeley Range-Energy Calculator
+ * \author Benjamin Weaver <benjamin.weaver@nyu.edu>
+ * \version 1.6
  *
- * @copyright (C) 2001-2011 Benjamin Weaver, LGPL
+ * \copyright (C) 2001-2011 Benjamin Weaver, LGPL
  *
- * @section sec-intro Introduction
+ * \section sec-intro Introduction
  *
  * Thank you for choosing the Berkeley Range-Energy Calculator.
  *
- * @section sec-preinstall Pre-Installation
+ * \section sec-preinstall Pre-Installation
  *
- * @subsection subsec-sysreq System Requirements
+ * \subsection subsec-sysreq System Requirements
  *
  * crange should run on any POSIX-based system that has the appropriate
- * libraries installed (see @ref subsec-prereq "Prerequisites").
+ * libraries installed (see \ref subsec-prereq "Prerequisites").
  *
- * @subsection subsec-prereq Library Prerequisites
+ * \subsection subsec-prereq Library Prerequisites
  *
- * @subsubsection subsubsec-gsl GNU Scientific Library
+ * \subsubsection subsubsec-gsl GNU Scientific Library
  *
  * The GNU Scientific Library (http://www.gnu.org/s/gsl/) is required.
  * This code was most recently tested with version 1.15, though any version
  * with full complex variable support should work.
  *
- * @subsubsection subsubsec-iniparser iniParser
+ * \subsubsection subsubsec-iniparser iniParser
  *
  * The iniParser Library (http://ndevilla.free.fr/iniparser/), version 3.0 or
  * later is strongly recommended.  The code will still compile if it is
@@ -32,21 +32,21 @@
  * target or switch information, so only compiled-in defaults will be
  * available.
  *
- * @section sec-install Installation
+ * \section sec-install Installation
  *
  * See the INSTALL file.
  *
- * @section sec-running Running
+ * \section sec-running Running
  *
- * @subsection subsec-command On the Command Line
+ * \subsection subsec-command On the Command Line
  *
  * Type crange -h to get the list of command-line options.
  *
- * @subsection subsec-tasks Task List
+ * \subsection subsec-tasks Task List
  *
  * The crange program executes a list of tasks from a file.  Here's an example:
  *
- * @verbinclude tasks.txt
+ * \verbinclude tasks.txt
  *
  * The first line tells the calculator to compute the range (in g cm<sup>-2</sup>) of
  * uranium (Z=92,A=238) at a kinetic energy of 1200 MeV per nucleon, in an
@@ -65,7 +65,7 @@
  * energies or dE/dx.  The order of the output will be the same as the
  * order of the input.
  *
- * @subsection subsec-switch Switching Optional Effects
+ * \subsection subsec-switch Switching Optional Effects
  *
  * The switch.ini file included with the source distribution shows the
  * effects that may be turned on or off by the user.  The values in the
@@ -73,11 +73,11 @@
  * The user may supply a modified switch.ini file on the command line.
  * There are additional details in the file itself.
  *
- * @subsection subsec-target Adding or Modifying Targets
+ * \subsection subsec-target Adding or Modifying Targets
  *
  * The target.ini file included with the source distribution lists the
  * targets that are compiled in to the program by default.  Most of the target
- * data is taken from Sternheimer, Berger and Seltzer, @cite art:rms1.
+ * data is taken from Sternheimer, Berger \& Seltzer, \cite art:rms1.
  * The definitions of the material properties are in the target.ini file.
  * The user may add additional targets or orverride existing target values
  * by supplying a different target.ini file (with the same format!) on
@@ -97,7 +97,7 @@
  */
 /**
  * @file crange.c
- * @brief Source code for crange.
+ * \brief Source code for crange.
  *
  * This file contains all source code for the crange executable.
  */
@@ -106,14 +106,14 @@
  */
 #include <crange.h>
 /**
- * @brief Main crange program.
+ * \brief Main crange program.
  *
  * Standard C main() program.
  *
- * @param argc Number of command line options.
- * @param argv The command line options.
+ * \param argc Number of command line options.
+ * \param argv The command line options.
  *
- * @return The exit status.
+ * \return The exit status.
  */
 int main( int argc, char **argv )
 {
@@ -245,22 +245,22 @@ int main( int argc, char **argv )
     return(0);
 }
 /**
- * @brief Confluent hypergeometric function.
+ * \brief Confluent hypergeometric function.
  *
  * Computes the confluent hypergeometric function.  All input parameters
  * are complex numbers.  Uses the formula:
- * @f[ M(a,b,z) = 1 + \sum_{n=1} \frac{(a)_n}{(b)_n}\frac{z^n}{n!} , @f]
+ * \f[ M(a,b,z) = 1 + \sum_{n=1} \frac{(a)_n}{(b)_n}\frac{z^n}{n!} , \f]
  * where
- * @f[ (x)_n \equiv \frac{\Gamma(x+n)}{\Gamma(x)} @f]
+ * \f[ (x)_n \equiv \frac{\Gamma(x+n)}{\Gamma(x)} \f]
  * is the Pochhammer Symbol.
  *
- * @param a First parameter of the hypergeometric function.
- * @param b Second parameter of the hypergeometric function.
- * @param z A complex number.
+ * \param a First parameter of the hypergeometric function.
+ * \param b Second parameter of the hypergeometric function.
+ * \param z A complex number.
  *
- * @return The value @f$M(a,b,z)@f$, a complex number.
+ * \return The value \f$ M(a,b,z) \f$ , a complex number.
  *
- * @warning May not be stable for large values of @f$|z|@f$.
+ * \warning May not be stable for large values of \f$|z|\f$.
  */
 gsl_complex complex_hyperg( gsl_complex a, gsl_complex b, gsl_complex z )
 {
@@ -282,17 +282,17 @@ gsl_complex complex_hyperg( gsl_complex a, gsl_complex b, gsl_complex z )
     return(sumterm);
 }
 /**
- * @brief Complex logarithm of the Gamma function.
+ * \brief Complex logarithm of the Gamma function.
  *
  * Computes the fully complex logarithm of the fully complex Gamma function.
  * Works in all portions of the complex plane, including the negative real
  * axis.
  *
- * @param z A complex number.
+ * \param z A complex number.
  *
- * @return @f$\ln \Gamma(z)@f$, a complex number.
+ * \return \f$ \ln \Gamma(z) \f$ , a complex number.
  *
- * @warning The Gamma function has poles at all integers <= 0.
+ * \warning The Gamma function has poles at all integers \<= 0.
  */
 gsl_complex complex_lngamma( gsl_complex z )
 {
@@ -342,23 +342,23 @@ gsl_complex complex_lngamma( gsl_complex z )
     return(result);
 }
 /**
- * @brief Computes effective projectile charge.
+ * \brief Computes effective projectile charge.
  *
  * This is the modification of projectile charge due to electron
- * capture.  Hubert, Bimbot and Gauvin, @cite art:fh2, give an
+ * capture.  Hubert, Bimbot \& Gauvin, \cite art:fh2, give an
  * empirically determined function which depends on the target material.
  * This version is used if #SSWITCH_EC is set.
- * Two older versions, from Anthony and Landford, @cite art:jma,
- * and Pierce and Blann, @cite art:tep are also available.
+ * Two older versions, from Anthony \& Landford, \cite art:jma,
+ * and Pierce \& Blann, \cite art:tep are also available.
  *
- * @param z0 The bare projectile charge.
- * @param e1 The projectile kinetic energy in A MeV.
- * @param z2 The target mean nuclear charge.
- * @param sswitch The switch bit field.
+ * \param z0 The bare projectile charge.
+ * \param e1 The projectile kinetic energy in A MeV.
+ * \param z2 The target mean nuclear charge.
+ * \param sswitch The switch bit field.
  *
- * @return The effective projectile charge.
+ * \return The effective projectile charge.
  *
- * @bug The Pierce and Blann formula is not actually available; it is simply
+ * \bug The Pierce \& Blann formula is not actually available; it is simply
  * commented out.
  */
 double effective_charge( double z0, double e1, double z2, short sswitch )
@@ -414,23 +414,23 @@ double effective_charge( double z0, double e1, double z2, short sswitch )
     return(z1);
 }
 /**
- * @brief Computes primary ionization.
+ * \brief Computes primary ionization.
  *
  * This computes the primary ionization, the number of delta-rays produced
- * per unit length.  The formula is based on H. Bethe @cite art:hb,
- * as well as Fleischer <em>et al.</em>, @cite art:rlf.
+ * per unit length.  The formula is based on H. Bethe \cite art:hb,
+ * as well as Fleischer <em>et al.</em>, \cite art:rlf.
  *
- * @param e1 The projectile kinetic energy in A MeV.
- * @param z0 The projectile charge.
- * @param I0 The binding energy of outermost electron in eV.
- * @param f0 The fraction of electrons in the outermost state.
- * @param K  A constant that depends on the target.
- * @param sswitch The switch bit field.
- * @param target A pointer to a ::TDATA structure.
+ * \param e1 The projectile kinetic energy in A MeV.
+ * \param z0 The projectile charge.
+ * \param I0 The binding energy of outermost electron in eV.
+ * \param f0 The fraction of electrons in the outermost state.
+ * \param K  A constant that depends on the target.
+ * \param sswitch The switch bit field.
+ * \param target A pointer to a ::TDATA structure.
  *
- * @return Number of delta-rays per unit length in units of g<sup>-1</sup> cm<sup>2</sup>.
+ * \return Number of delta-rays per unit length in units of g<sup>-1</sup> cm<sup>2</sup>.
  *
- * @bug The parameters needed are not contained in the target table.
+ * \bug The parameters needed are not contained in the target table.
  */
 double djdx( double e1, double z0, double I0, double f0, double K, short sswitch, tdata *target)
 {
@@ -453,21 +453,21 @@ double djdx( double e1, double z0, double I0, double f0, double K, short sswitch
     return(J);
 }
 /**
- * @brief Computes dE/dx.
+ * \brief Computes dE/dx.
  *
  * This is the core of the whole package, the dE/dx calculator.  I have
  * based this largely on the work of M. H. Salamon, L.B.L. Report #10446
  * (1980).  Values of certain physical constants have been updated,
  * as well as some of the corrections to the basic stopping power formula.
  *
- * @param e1 The projectile kinetic energy in A MeV.
- * @param rel0 Restricted energy loss parameter in eV.
- * @param z0 The projectile charge.
- * @param a1 The projectile atomic number.
- * @param sswitch The switch bit field.
- * @param target A pointer to a ::TDATA structure.
+ * \param e1 The projectile kinetic energy in A MeV.
+ * \param rel0 Restricted energy loss parameter in eV.
+ * \param z0 The projectile charge.
+ * \param a1 The projectile atomic number.
+ * \param sswitch The switch bit field.
+ * \param target A pointer to a ::TDATA structure.
  *
- * @return dE/dx in units of A MeV g<sup>-1</sup> cm<sup>2</sup>
+ * \return dE/dx in units of A MeV g<sup>-1</sup> cm<sup>2</sup>
  */
 double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata *target )
 {
@@ -639,19 +639,19 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
     }
 }
 /**
- * @brief Computes the density effect.
+ * \brief Computes the density effect.
  *
  * This function implements the density effect correction as formulated
- * in Sternheimer and Peierls, @cite art:rms2 and as
- * extended in Sternheimer, Berger and Seltzer, @cite art:rms1.
+ * in Sternheimer \& Peierls, \cite art:rms2 and as
+ * extended in Sternheimer, Berger \& Seltzer, \cite art:rms1.
  * This version can distinguish between solids and gasses, and between
  * metals and insulators.  For conducting materials, there is a
  * low-energy density effect.
  *
- * @param g Projectile Lorentz factor.
- * @param target A pointer to a ::TDATA structure.
+ * \param g Projectile Lorentz factor.
+ * \param target A pointer to a ::TDATA structure.
  *
- * @return The value of the density effect.
+ * \return The value of the density effect.
  */
 double delta( double g, tdata *target )
 {
@@ -676,17 +676,17 @@ double delta( double g, tdata *target )
     }
 }
 /**
- * @brief Computes an obsolete version of the density effect.
+ * \brief Computes an obsolete version of the density effect.
  *
  * This function implements the density effect correction as originally
- * formulated in Sternheimer and Peierls, @cite art:rms2.
+ * formulated in Sternheimer \& Peierls, \cite art:rms2.
  * Although it is now obsolete, I have included it here for
  * compatibility with earlier codes.
  *
- * @param g Projectile Lorentz factor.
- * @param target A pointer to a ::TDATA structure.
+ * \param g Projectile Lorentz factor.
+ * \param target A pointer to a ::TDATA structure.
  *
- * @return The value of the density effect.
+ * \return The value of the density effect.
  */
 double olddelta( double g, tdata *target )
 {
@@ -730,18 +730,18 @@ double olddelta( double g, tdata *target )
     }
 }
 /**
- * @brief Computes the Bloch, Mott and Ahlen corrections.
+ * \brief Computes the Bloch, Mott and Ahlen corrections.
  *
  * This function is provided for historical reasons and implements the
- * Bloch, Mott & Ahlen corrections described below.
+ * Bloch, Mott \& Ahlen corrections described below.
  *
- * @param z1 The projectile charge.
- * @param b The projectile velocity in units of the speed of light
- * (@em i.e. @f$ \beta = v/c @f$).
+ * \param z1 The projectile charge.
+ * \param b The projectile velocity in units of the speed of light
+ * (\em i.e. \f$ \beta = v/c \f$).
  *
- * @return The sum of the Bloch, Mott and Ahlen corrections.
+ * \return The sum of the Bloch, Mott and Ahlen corrections.
  *
- * @bug Currently, this function is not called by anything.
+ * \bug Currently, this function is not called by anything.
  */
 double bma( double z1, double b )
 {
@@ -817,19 +817,19 @@ double bma( double z1, double b )
     return( f3 + f5 );
 }
 /**
- * @brief Compute the relativistic Bloch correction.
+ * \brief Compute the relativistic Bloch correction.
  *
  * This is the relativistic Bloch (or Ahlen) correction of Ahlen,
- * @cite art:spa3.  The evaluation of this correction has
+ * \cite art:spa3.  The evaluation of this correction has
  * been enormously simplified by the use of fully complex arithmetic.
  *
- * @param z12 The projectile charge.
- * @param b1 The projectile velocity in units of the speed of light
- * (@em i.e. @f$ \beta = v/c @f$).
- * @param lambda A free parameter, described in bma().
- * @param theta0 A free parameter, described in bma().
+ * \param z12 The projectile charge.
+ * \param b1 The projectile velocity in units of the speed of light
+ * (\em i.e. \f$ \beta = v/c \f$).
+ * \param lambda A free parameter, described in bma().
+ * \param theta0 A free parameter, described in bma().
  *
- * @return The value of the relativistic Bloch correction.
+ * \return The value of the relativistic Bloch correction.
  */
 double relbloch( double z12, double b1, double lambda, double theta0 )
 {
@@ -870,25 +870,25 @@ double relbloch( double z12, double b1, double lambda, double theta0 )
     return(bloch2);
 }
 /**
- * @brief Compute the Lindhard-Sørensen correction.
+ * \brief Compute the Lindhard-Sørensen correction.
  *
  * This is the Lindhard-Sørensen correction including finite nuclear
- * size effects as described in Lindhard and Sørensen, @cite art:jl2.
+ * size effects as described in Lindhard \& Sørensen, \cite art:jl2.
  * The defined variable #SSWITCH_NS will turn off the
  * nuclear size effect if it is set to zero.  For values of the Lorentz
  * factor above 10/R, where R is the nuclear size divided by the electron
  * Compton wavelength, the correction is set to its asymptotic value
- * which is described by Sørensen, @cite proc:ahs. This also avoids some
+ * which is described by Sørensen, \cite proc:ahs. This also avoids some
  * difficulties with the evaluation of the confluent hypergeometric function
  * (A. H. Sørensen, private communication).
  *
- * @param zz The projectile charge.
- * @param aa The projectile atomic mass.
- * @param bb The projectile velocity in units of the speed of light
- * (@em i.e. @f$ \beta = v/c @f$).
- * @param sswitch The switch bit field.
+ * \param zz The projectile charge.
+ * \param aa The projectile atomic mass.
+ * \param bb The projectile velocity in units of the speed of light
+ * (\em i.e. \f$ \beta = v/c \f$).
+ * \param sswitch The switch bit field.
  *
- * @return The value of the Lindhard-Sørensen correction.
+ * \return The value of the Lindhard-Sørensen correction.
  */
 double lindhard( double zz, double aa, double bb, short sswitch )
 {
@@ -1019,15 +1019,15 @@ double lindhard( double zz, double aa, double bb, short sswitch )
     return(lls);
 }
 /**
- * @brief Compute a mathematical function related to bremsstrahlung.
+ * \brief Compute a mathematical function related to bremsstrahlung.
  *
  * A mathematical function.
  *
- * @param x The input parameter.
+ * \param x The input parameter.
  *
- * @return The value of the function.
+ * \return The value of the function.
  *
- * @bug Currently, this function is unused.
+ * \bug Currently, this function is unused.
  */
 double Fbrems( double x )
 {
@@ -1053,7 +1053,7 @@ double Fbrems( double x )
     }
 }
 /**
- * @brief Computes total range given initial energy.
+ * \brief Computes total range given initial energy.
  *
  * This function computes total range given initial energy.  The technique
  * is quite clever, in that if from one call to the next, the projectile
@@ -1063,18 +1063,18 @@ double Fbrems( double x )
  * range of valid energies is limited by the size of the table.  The
  * function dE/dx is evaluated at most of the energies defined by the function
  * energy_table().  Results are stored in the ::RANGE_TABLE array
- * trange[].  The size of trange[] (set by ::MAXAB) is arbitrary
+ * ::trange.  The size of ::trange (set by ::MAXAB) is arbitrary
  * and should be set to whatever is most useful.  Certainly it should
  * be no smaller than the number of target materials being used.
  *
- * @param e Initial projectile kinetic energy in A MeV.
- * @param z1 Projectile charge.
- * @param a1 Projectile atomic mass.
- * @param sswitch The switch bit field.
- * @param target A pointer to a ::TDATA structure.
- * @param tno A pointer to the index of the most recently generated or used table.
+ * \param e Initial projectile kinetic energy in A MeV.
+ * \param z1 Projectile charge.
+ * \param a1 Projectile atomic mass.
+ * \param sswitch The switch bit field.
+ * \param target A pointer to a ::TDATA structure.
+ * \param tno A pointer to the index of the most recently generated or used table.
  *
- * @return Projectile range in g cm<sup>-2</sup>.
+ * \return Projectile range in g cm<sup>-2</sup>.
  */
 double range( double e, double z1, double a1, short sswitch, tdata *target, int *tno )
 {
@@ -1158,20 +1158,20 @@ double range( double e, double z1, double a1, short sswitch, tdata *target, int 
     }
 }
 /**
- * @brief Computes total range by direct integration of dE/dx.
+ * \brief Computes total range by direct integration of dE/dx.
  *
  * This function computes total range by direct integration of the
  * dedx() function.  It does not create a range table or do table
  * interpolation.
  *
- * @param e Initial energy in A MeV.
- * @param z1 Projectile charge.
- * @param a1 Projectile mass.
- * @param sswitch The switch bit field.
- * @param target A pointer to a ::TDATA structure.
+ * \param e Initial energy in A MeV.
+ * \param z1 Projectile charge.
+ * \param a1 Projectile mass.
+ * \param sswitch The switch bit field.
+ * \param target A pointer to a ::TDATA structure.
  *
- * @return Total range in g cm<sup>-2</sup>.
- * @bug Currently, this function isn't called by anything.
+ * \return Total range in g cm<sup>-2</sup>.
+ * \bug Currently, this function isn't called by anything.
  */
 double qrange( double e, double z1, double a1, short sswitch, tdata *target )
 {
@@ -1212,21 +1212,21 @@ double qrange( double e, double z1, double a1, short sswitch, tdata *target )
     }
 }
 /**
- * @brief Computes ranges at low energies.
+ * \brief Computes ranges at low energies.
  *
  * This function is the result of empirical fits to very low energy
- * 1 A MeV < E < 8 A MeV ion ranges.  It follows the methods of
- * Barkas and Berger, @cite coll:whb. A simplified
+ * 1 A MeV \< E \< 8 A MeV ion ranges.  It follows the methods of
+ * Barkas \& Berger, \cite coll:whb. A simplified
  * discussion, with a more complicated formula is given in
- * Benton and Henke, @cite art:evb1.
+ * Benton \& Henke, \cite art:evb1.
  * As yet I know of no nicer way to deal with these low energies.
  *
- * @param e Projectile kinetic energy in A MeV.
- * @param z1 Projectile charge.
- * @param a1 Projectile atomic mass.
- * @param target A pointer to a ::TDATA structure.
+ * \param e Projectile kinetic energy in A MeV.
+ * \param z1 Projectile charge.
+ * \param a1 Projectile atomic mass.
+ * \param target A pointer to a ::TDATA structure.
  *
- * @return Projectile range in g cm<sup>-2</sup>.
+ * \return Projectile range in g cm<sup>-2</sup>.
  */
 double benton( double e, double z1, double a1, tdata *target )
 {
@@ -1322,20 +1322,20 @@ double benton( double e, double z1, double a1, tdata *target )
     return(( (a1/cr)/(z1*z1) )*(prnglo[l] + bzz*cz[n]));
 }
 /**
- * @brief Extract energies from range tables.
+ * \brief Extract energies from range tables.
  *
  * This function extracts energies from a range table by table interpolation.
  * It calls range() to initialze the range table or to find the correct
  * table if it has already been computed.
  *
- * @param e Projectile kinetic energy [A MeV].
- * @param r0 Range [g cm<sup>-2</sup>].
- * @param z1 Projectile charge.
- * @param a1 Projectile atomic mass.
- * @param sswitch The switch bit field.
- * @param target A pointer to a ::TDATA structure.
+ * \param e Projectile kinetic energy [A MeV].
+ * \param r0 Range [g cm<sup>-2</sup>].
+ * \param z1 Projectile charge.
+ * \param a1 Projectile atomic mass.
+ * \param sswitch The switch bit field.
+ * \param target A pointer to a ::TDATA structure.
  *
- * @return The final energy of the projectile.
+ * \return The final energy of the projectile.
  */
 double renergy( double e, double r0, double z1, double a1, short sswitch, tdata *target )
 {
@@ -1362,15 +1362,15 @@ double renergy( double e, double r0, double z1, double a1, short sswitch, tdata 
     }
 }
 /**
- * @brief Parses and executes the task list.
+ * \brief Parses and executes the task list.
  *
  * This utility function steps through the range, energy and dE/dx tasks
  * specified in the input data file.
  * The tasks are denoted by a single letter:
- *     - @em r compute ranges
- *     - @em e compute energies
- *     - @em d compute dE/dx
- *     - @em j compute dJ/dx (primary ionization)
+ *     - \em r compute ranges
+ *     - \em e compute energies
+ *     - \em d compute dE/dx
+ *     - \em j compute dJ/dx (primary ionization)
  *
  * The task letter should be followed by the energy (or range) at which to
  * compute range (or energy), the charge and mass of the particle, and the
@@ -1378,12 +1378,12 @@ double renergy( double e, double r0, double z1, double a1, short sswitch, tdata 
  * target.ini file.  Target material names may be up to #NAMEWIDTH
  * characters in length and should contain no whitespace.
  *
- * @param finput An open file pointer containing the task list.
- * @param foutput An open file pointer to write results to.
- * @param sswitch The switch bit field.
- * @param extratargets A pointer to an array of ::TDATA structures.
+ * \param finput An open file pointer containing the task list.
+ * \param foutput An open file pointer to write results to.
+ * \param sswitch The switch bit field.
+ * \param extratargets A pointer to an array of ::TDATA structures.
  *
- * @bug The primary ionization parameters are currently hard-coded.
+ * \bug The primary ionization parameters are currently hard-coded.
  */
 void run_range( FILE *finput, FILE *foutput, short sswitch, tdata *extratargets )
 {
@@ -1418,16 +1418,16 @@ void run_range( FILE *finput, FILE *foutput, short sswitch, tdata *extratargets 
     return;
 }
 /**
- * @brief Initializes the value of of the switch bit field.
+ * \brief Initializes the value of of the switch bit field.
  *
  * This utility reads an INI-type file and sets the switch bit field
  * accordingly.
  *
- * @param switchfile The name of an INI-type file containing switch configuration.
+ * \param switchfile The name of an INI-type file containing switch configuration.
  *
- * @return The switch bit field.
+ * \return The switch bit field.
  *
- * @warning If the iniparser library is not found, this function will only
+ * \warning If the iniparser library is not found, this function will only
  * return the default value #SSWITCH_DEFAULT.
  */
 short init_switch( char *switchfile )
@@ -1457,17 +1457,17 @@ short init_switch( char *switchfile )
     return(sswitch);
 }
 /**
- * @brief Read optional target data file.
+ * \brief Read optional target data file.
  *
  * This utility reads an INI-type file and returns an array of pointers to
  * ::TDATA structures.
  *
- * @param targetfile the name of an INI-type file containing target data.
+ * \param targetfile the name of an INI-type file containing target data.
  *
- * @return A pointer to an array of ::TDATA structures.  This pointer must
+ * \return A pointer to an array of ::TDATA structures.  This pointer must
  * be free()d!
  *
- * @warning If the iniparser library is not found, this function will only
+ * \warning If the iniparser library is not found, this function will only
  * return a NULL pointer.
  */
 tdata *init_target( char *targetfile )
@@ -1527,7 +1527,7 @@ tdata *init_target( char *targetfile )
     return(table);
 }
 /**
- * @brief Initialize range-energy tables.
+ * \brief Initialize range-energy tables.
  *
  * Sets all data in the array of ::RANGE_TABLE structures trange to zero.
  *
@@ -1547,16 +1547,16 @@ void init_table(void)
     return;
 }
 /**
- * @brief Returns the energy corresponding to a value in a range table.
+ * \brief Returns the energy corresponding to a value in a range table.
  *
  * This utility returns an energy value from a (virtual) vector containing
  * A logarithmically uniform distribution of energies between a minimum
  * and maximum energy (defined by #LOGTENEMIN and #LOGTENEMAX),
  * with a number of entries given by #MAXE.
  *
- * @param i The index of the vector.
+ * \param i The index of the vector.
  *
- * @return The @em i th energy in A MeV.
+ * \return The \em i th energy in A MeV.
  */
 double energy_table( int i )
 {
@@ -1570,7 +1570,7 @@ double energy_table( int i )
     return(exp(M_LN10*(LOGTENEMIN + ((double)i)*decades/entries)));
 }
 /**
- * @brief Finds target data corresponding to a target name.
+ * \brief Finds target data corresponding to a target name.
  *
  * This function returns a pointer to a structure containing the target
  * data corresponding to the input name.  There is a built-in list. The
@@ -1579,10 +1579,10 @@ double energy_table( int i )
  * function.  If the special target name "List" is passed to this function,
  * the built-in list will be printed as an INI-type file.
  *
- * @param target The name of a target.
- * @param extratargets A pointer to an array of ::TDATA structures.
+ * \param target The name of a target.
+ * \param extratargets A pointer to an array of ::TDATA structures.
  *
- * @return A pointer to a structure containing the target data.  If the
+ * \return A pointer to a structure containing the target data.  If the
  * name of the target was not found, it will point to a dummy structure.
  */
 tdata *find_target( char *target, tdata *extratargets )
@@ -1660,11 +1660,11 @@ tdata *find_target( char *target, tdata *extratargets )
     return(&targets[k]);
 }
 /**
- * @brief Prints a target table entry in INI format.
+ * \brief Prints a target table entry in INI format.
  *
  * This utility prints a ::TDATA structure in INI format.
  *
- * @param target A pointer to a ::TDATA structure.
+ * \param target A pointer to a ::TDATA structure.
  */
 void print_target( tdata *target )
 {
