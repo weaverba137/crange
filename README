@@ -8,16 +8,6 @@ Read the COPYRIGHT file for more info.
 
 Tasks:
 
-The input file is a list of tasks for the program to perform.  Here's
-an example:
-
-r 1200 0 92 238 Al
-e 0 9.2 79 197 CR-39
-e 10600 9.2 79 197 CR-39
-d 10600 0 79 197 Air
-d 10600 300 79 197 Air
-j 10600 0 79 197 Air
-
 The first line tells the calculator to compute the range (in g cm^-2) of
 uranium (Z=92,A=238) at a kinetic energy of 1200 MeV per nucleon, in an
 aluminum target.  The second line tells the calculator to compute the

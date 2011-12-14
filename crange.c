@@ -14,9 +14,9 @@
  * @subsection subsec-sysreq System Requirements
  *
  * crange should run on any POSIX-based system that has the appropriate
- * libraries installed (see @ref subsec-prereq Prerequisites).
+ * libraries installed (see @ref subsec-prereq "Prerequisites").
  *
- * @subsection subsec-prereq
+ * @subsection subsec-prereq Library Prerequisites
  *
  * @subsubsection subsubsec-gsl GNU Scientific Library
  *
@@ -37,6 +37,10 @@
  * See the INSTALL file.
  *
  * @section sec-running Running
+ *
+ * The crange program executes a list of tasks from a file.  Here's an example:
+ *
+ * @verbinclude tasks.txt
  *
  * @subsection subsec-command On the Command Line
  *
