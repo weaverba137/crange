@@ -38,15 +38,32 @@
  *
  * @section sec-running Running
  *
- * The crange program executes a list of tasks from a file.  Here's an example:
- *
- * @verbinclude tasks.txt
- *
  * @subsection subsec-command On the Command Line
  *
  * Type crange -h to get the list of command-line options.
  *
  * @subsection subsec-tasks Task List
+ *
+ * The crange program executes a list of tasks from a file.  Here's an example:
+ *
+ * @verbinclude tasks.txt
+ *
+ * The first line tells the calculator to compute the range (in g cm<sup>-2</sup>) of
+ * uranium (Z=92,A=238) at a kinetic energy of 1200 MeV per nucleon, in an
+ * aluminum target.  The second line tells the calculator to compute the
+ * initial kinetic energy (in A MeV) of gold (Z=79,A=197) whose range in
+ * the plastic track-etch detector CR-39 was 9.2 g cm<sup>-2</sup>.  The third line asks
+ * for the final kinetic energy after passing through 9.2 g cm<sup>-2</sup> of CR-39, given
+ * an initial energy of 10.6 A GeV. The fourth line tells the calculator to
+ * compute dE/dx (in A MeV g<sup>-1</sup> cm<sup>2</sup>) for gold with kinetic energy 10.6 A GeV in
+ * air.  The fifth line computes REL instead of dE/dx with the REL cutoff set to
+ * 300 eV. The sixth line computes primary ionization.
+ * Arguments which are zero (0) are dummies which are necessary for
+ * place-holding.
+ *
+ * The list of tasks may be of any length in any combination of ranges,
+ * energies or dE/dx.  The order of the output will be the same as the
+ * order of the input.
  *
  * @subsection subsec-switch Switching Optional Effects
  *

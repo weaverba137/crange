@@ -4,23 +4,11 @@ Homepage: http://sdss.physics.nyu.edu/~bw55/dedx/
 
 Copyright (c) 2001-2011 by Benjamin Weaver.  This program is free software
 which I release under the GNU Lesser General Public License.
-Read the COPYRIGHT file for more info.
+Read the COPYRIGHT file for more info.  Read the INSTALL file for installation
+instructions.
 
-Tasks:
+The main documentation for this package is processed by doxygen.  It is
+available in PDF or HTML form.  It will be installed in
+$prefix/share/doc/crange, where $prefix is /usr/local or the value
+passed to the configure script with --prefix.
 
-The first line tells the calculator to compute the range (in g cm^-2) of
-uranium (Z=92,A=238) at a kinetic energy of 1200 MeV per nucleon, in an
-aluminum target.  The second line tells the calculator to compute the
-initial kinetic energy (in A MeV) of gold (Z=79,A=197) whose range in
-the plastic track-etch detector CR-39 was 9.2 g cm^-2.  The third line asks
-for the final kinetic energy after passing through 9.2 g cm^-2 of CR-39, given
-an initial energy of 10.6 A GeV. The fourth line tells the calculator to
-compute dE/dx (in A MeV g^-1 cm^2) for gold with kinetic energy 10.6 A GeV in
-air.  The fifth line computes REL instead of dE/dx with the REL cutoff set to
-300 eV. The sixth line computes primary ionization.
-Arguments which are zero (0) are dummies which are necessary for
-place-holding.
-
-The list of tasks may be of any length in any combination of ranges,
-energies, or dE/dx.  The order of the output will be the same as the
-order of the input.
