@@ -79,19 +79,19 @@
  *
  */
 /**
- * @brief Structure containing target data.
+ * \brief Structure containing target data.
  *
  * This structure contains all the data related to target materials.
  */
 struct TDATA {
     /**
-     * @name Material name
+     * \name Material name
      */
     /* @{ */
     char name[NAMEWIDTH+1]; /**< The name of the material. */
     /* @} */
     /**
-     * @name General parameters.
+     * \name General parameters.
      */
     /* @{ */
     double z2;   /**< The mean nuclear charge. */
@@ -103,7 +103,7 @@ struct TDATA {
     double bind; /**< The total electronic binding energy [eV]. */
     /* @} */
     /**
-     * @name Density effect parameters.
+     * \name Density effect parameters.
      */
     /* @{ */
     double X0; /**< Value of \f$ \log_{10} \beta\gamma \f$ at which the density effect turns on. */
@@ -114,14 +114,14 @@ struct TDATA {
     /* @} */
 };
 /**
- * @brief Define tdata.
+ * \brief Define tdata.
  *
  * Define a tdata variable for convenience.
  *
  */
 typedef struct TDATA tdata;
 /**
- * @brief Structure to store range tables.
+ * \brief Structure to store range tables.
  *
  * This structure contains a range table and its associated metadata.
  */
@@ -134,13 +134,13 @@ struct RANGE_TABLE {
     double range[MAXE]; /**< The actual table of range values. */
 };
 /**
- * @brief Define range_table.
+ * \brief Define range_table.
  *
  * Define a range_table variable for convenience.
  */
 typedef struct RANGE_TABLE range_table;
 /**
- * @brief The range-energy table.
+ * \brief The range-energy table.
  *
  * This external variable contains the range-energy tables.
  */

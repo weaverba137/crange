@@ -83,11 +83,11 @@
  * by supplying a different target.ini file (with the same format!) on
  * the command line.
  *
- * @section sec-updates Updates
+ * \section sec-updates Updates
  *
  * Visit http://sdss.physics.nyu.edu/~bw55/dedx/ .
  *
- * @section sec-history History
+ * \section sec-history History
  *
  *  - 1.6:   Make crange compatible with GNU autotools and GNU Scientific Library.
  *  - 1.5.3: Simplified calculation switching and added a crange.h file
@@ -96,7 +96,7 @@
  *
  */
 /**
- * @file crange.c
+ * \file crange.c
  * \brief Source code for crange.
  *
  * This file contains all source code for the crange executable.
