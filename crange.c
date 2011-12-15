@@ -182,13 +182,13 @@ int main( int argc, char **argv )
         }
     }
     if (errflag) {
-        fprintf(stderr,"usage: crange [-c COMMAND] [-h] [-l] [-o FILE] [-s switch.ini] [-t target.dat] <task file>\n");
+        fprintf(stderr,"usage: crange [-c COMMAND] [-h] [-l] [-o FILE] [-s switch.ini] [-t target.ini] <task file>\n");
         fprintf(stderr,"       -c COMMAND    = Execute this one-line command instead of reading it from a file.\n");
         fprintf(stderr,"       -h            = Print this help message and exit.\n");
         fprintf(stderr,"       -l            = Print the built-in target table and exit.\n");
         fprintf(stderr,"       -o FILE       = Write to this file instead of standard output.\n");
         fprintf(stderr,"       -s switch.ini = Override the default switch values by reading this file.\n");
-        fprintf(stderr,"       -t target.dat = Override the default target values by reading this file.\n");
+        fprintf(stderr,"       -t target.ini = Override the default target values by reading this file.\n");
         fprintf(stderr,"       <task file>   = A file containing a list of tasks for crange.  Required unless a command is specified with -c.\n");
         return(1);
     }

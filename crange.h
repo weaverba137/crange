@@ -57,8 +57,10 @@
 #ifndef ALPHA
 #define ALPHA 7.29735301383e-3 /**< The fine structure constant. */
 #endif
-/*
- * Define switch bits.
+/**
+ * \brief Define switch bits.
+ *
+ * These define the values in the switch bit field.
  */
 #define SSWITCH_BA  0x001 /**< Barkas effect bit. */
 #define SSWITCH_SH  0x002 /**< Shell effect bit. */
