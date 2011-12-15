@@ -38,9 +38,7 @@
 #define MAXE 200 /**< The number of energies in the range-energy tables. */
 #define MAXAB 50 /**< The number of range tables.  Arbitrary, but should be larger than the number of targets. */
 /*
- * Miscellaneous defines. ALPHA is the fine structure constant, and we want
- * exactly that value.  Otherwise, M_PI, M_PI_2 and M_LN10 should be defined in
- * math.h.
+ * M_PI, M_PI_2 and M_LN10 should be defined in math.h.
  */
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338327950288 /**< The value of pi, in case it is not defined in math.h. */
@@ -51,15 +49,34 @@
 #ifndef M_LN10
 #define M_LN10 2.30258509299404568402 /**< The value of \f$ \ln 10 \f$ in case it is not defined in math.h */
 #endif
+/*
+ * Physical constants.
+ */
 #ifdef ALPHA
 #undef ALPHA
 #endif
 #ifndef ALPHA
 #define ALPHA 7.29735301383e-3 /**< The fine structure constant. */
 #endif
-/**
- * \brief Define switch bits.
- *
+#ifdef ATOMICMASSUNIT
+#undef ATOMICMASSUNIT
+#endif
+#ifndef ATOMICMASSUNIT
+#define ATOMICMASSUNIT 931.4943 /**< 1 amu in units of MeV/c<sup>2</sup>. */
+#endif
+#ifdef PROTONMASS
+#undef PROTONMASS
+#endif
+#ifndef PROTONMASS
+#define PROTONMASS 938.2723 /**< Proton mass in units of MeV/c<sup>2</sup>. */
+#endif
+#ifdef ELECTRONMASS
+#undef ELECTRONMASS
+#endif
+#ifndef ELECTRONMASS
+#define ELECTRONMASS 0.511003e+6 /**< Electron mass in units of eV/c<sup>2</sup>. */
+#endif
+/*
  * These define the values in the switch bit field.
  */
 #define SSWITCH_BA  0x001 /**< Barkas effect bit. */

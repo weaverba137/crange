@@ -366,7 +366,7 @@ double effective_charge( double z0, double e1, double z2, short sswitch )
     double z23, z1, g, b2, b;
     double capA, capB;
     /* End declarations */
-    g=1.0+e1/931.4943;
+    g=1.0+e1/ATOMICMASSUNIT;
     b2=1.0-1.0/(g*g);
     b=sqrt(b2);
     z23 = exp((2.0/3.0)*log(z0));
@@ -434,13 +434,12 @@ double effective_charge( double z0, double e1, double z2, short sswitch )
  */
 double djdx( double e1, double z0, double I0, double f0, double K, short sswitch, tdata *target)
 {
-    double emass=0.511003e+6; /* eV/c^2 */
     double z2,a2;
     double g,b2,b,z1;
     double delt;
     double J,f1,f2;
     /* End declarations */
-    g=1.0+e1/931.4943;
+    g=1.0+e1/ATOMICMASSUNIT;
     delt = ( sswitch & SSWITCH_ND ) ? delta(g,target) : olddelta(g,target);
     b2=1.0-1.0/(g*g);
     b=sqrt(b2);
@@ -448,7 +447,7 @@ double djdx( double e1, double z0, double I0, double f0, double K, short sswitch
     a2=target->a2;
     z1 = effective_charge(z0, e1, z2, sswitch);
     f1=0.3070722*z1*z1*z2/(b2*a2);
-    f2=log(2.0*emass*b2*g*g/I0);
+    f2=log(2.0*ELECTRONMASS*b2*g*g/I0);
     J=0.5*f1*(f2-b2-delt+K)*(f0/I0);
     return(J);
 }
@@ -459,6 +458,9 @@ double djdx( double e1, double z0, double I0, double f0, double K, short sswitch
  * based this largely on the work of Salamon, \cite tech:mhs.
  * Values of certain physical constants have been updated,
  * as well as some of the corrections to the basic stopping power formula.
+ *
+ * If the restricted energy loss parameter \em rel0 is non-zero, dedx() computes
+ * restricted energy loss instead.
  *
  * \param e1 The projectile kinetic energy in A MeV.
  * \param rel0 Restricted energy loss parameter in eV.
@@ -474,7 +476,6 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
     static double fva[10]={0.33,0.078,0.03,0.014,0.0084,
         0.0053,0.0035,0.0025,0.0019,0.0014};
     int i;
-    double emass=0.511003e+6; /* eV/c^2 */
     double z2,a2;
     double g,b2,b,z1;
     double delt;
@@ -484,7 +485,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
     double Sbr=0.0,Bbr;
     double Spa=0.0,dpa,ldpa,l0,Lpa0,Lpa0s,Lpa1,Lpa;
     /* End declarations */
-    g=1.0+e1/931.4943;
+    g=1.0+e1/ATOMICMASSUNIT;
     delt = ( sswitch & SSWITCH_ND ) ? delta(g,target) : olddelta(g,target);
     b2=1.0-1.0/(g*g);
     b=sqrt(b2);
@@ -492,7 +493,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
     a2=target->a2;
     z1 = effective_charge(z0, e1, z2, sswitch);
     f1=0.3070722*z1*z1*z2/(b2*a1*a2);
-    f2=log(2.0*emass*b2/target->iadj);
+    f2=log(2.0*ELECTRONMASS*b2/target->iadj);
     if( sswitch & SSWITCH_SH ){
         /*
          * The inner shell correction is somewhat problematic.  It arises when
@@ -518,7 +519,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
              * See P. T. Leung, Phys. Rev. A 40 (1989) 5417, and P. T. Leung,
              * Phys. Rev. A 60 (1999) 2562.
              */
-            f2-=(5.0/3.0)*log(2.0*emass*b2/target->iadj)*(1.0e+03*target->bind/(z2*emass))-(target->iadj*target->iadj/(4.0*emass*emass*b2));
+            f2-=(5.0/3.0)*log(2.0*ELECTRONMASS*b2/target->iadj)*(1.0e+03*target->bind/(z2*ELECTRONMASS))-(target->iadj*target->iadj/(4.0*ELECTRONMASS*ELECTRONMASS*b2));
         }
     }
     f6=2.0*log(g)-b2;
@@ -631,7 +632,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
      * Compute restricted energy loss.  REL is activated by setting rel0 >0.
      */
     if(rel0 > 0.0) {
-        f7=log(2.0*emass*b2*g*g/rel0)+b2*(rel0/(2.0*emass*b2*g*g)-1.0);
+        f7=log(2.0*ELECTRONMASS*b2*g*g/rel0)+b2*(rel0/(2.0*ELECTRONMASS*b2*g*g)-1.0);
         REL=f1*(f2*f4+f3+f6-delt/2.0 - 0.5*f7 +f8);
         return(REL);
     } else {
@@ -1227,13 +1228,22 @@ double qrange( double e, double z1, double a1, short sswitch, tdata *target )
  * \param target A pointer to a ::TDATA structure.
  *
  * \return Projectile range in g cm<sup>-2</sup>.
+ *
+ * \note The array join[4] demarcates three energy regions represented by
+ * the three sets of coefficients in amn[3][4][4]. The demarcation is variable
+ * in order to minimize discontinuities at the boundary.  The coefficients
+ * in cjoin[2][7], which is used to initialize join[4], are inherited from
+ * legacy code; I have not found them in the non-obscure literature.
+ * Approximately, the three regions are \em E \< 1 A MeV, 1 \< \em E \< 7 A MeV
+ * and \em E \> 7 A MeV.  I can find no reason why join[4] has 4 elements and
+ * not two.
  */
 double benton( double e, double z1, double a1, tdata *target )
 {
     int l,m,n;
     double g,b,bzz,x;
     double term,logt,logi,loglambda;
-    double cr = 938.2723/931.4943;
+    double cr = PROTONMASS/ATOMICMASSUNIT;
     double prnglo[3];
     double cz[4],join[4];
     static double amn[3][4][4] = {
@@ -1273,14 +1283,6 @@ double benton( double e, double z1, double a1, tdata *target )
         join[l] = cjoin[l][m=6];
         while (m > 0) join[l] = 0.001*target->iadj*join[l] + cjoin[l][--m];
     }
-    /*
-     * join[l] demarcates the three energy regions represented by the
-     * three sets of coefficients in amn.  The demarcation is variable
-     * in order to minimize discontinuities at the boundary.  The
-     * coefficients in cjoin are inhereted from legacy code; I have not found
-     * them in the non-obscure literature.  Approximately, the three
-     * regions are E < 1 A MeV, 1 < E < 7 A MeV, and E > 7 A MeV.
-     */
     for (l = 0; l < 3; l++) {
         loglambda=0.0;
         for (m = 3; m >= 0; m-- ) {
@@ -1294,7 +1296,7 @@ double benton( double e, double z1, double a1, tdata *target )
         prnglo[l]=exp(loglambda);
         if (l == 1) prnglo[l]*=1.0e-03;
     }
-    g=1.0 + e/931.4943;
+    g=1.0 + e/ATOMICMASSUNIT;
     b=sqrt(1.0 -1.0/(g*g));
     x=137.0*b/z1;
     for (m = 0; m < 4; m++) {
