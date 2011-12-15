@@ -456,8 +456,8 @@ double djdx( double e1, double z0, double I0, double f0, double K, short sswitch
  * \brief Computes dE/dx.
  *
  * This is the core of the whole package, the dE/dx calculator.  I have
- * based this largely on the work of M. H. Salamon, L.B.L. Report #10446
- * (1980).  Values of certain physical constants have been updated,
+ * based this largely on the work of Salamon, \cite tech:mhs.
+ * Values of certain physical constants have been updated,
  * as well as some of the corrections to the basic stopping power formula.
  *
  * \param e1 The projectile kinetic energy in A MeV.
