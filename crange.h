@@ -85,15 +85,13 @@
  */
 struct TDATA {
     /**
-     * \defgroup group1 Material name
-     * The name of the material.
+     * \name Material name
      * @{
      */
     char name[NAMEWIDTH+1]; /**< The name of the material. */
     /** @} */
     /**
-     * \defgroup group2 General parameters
-     * General parameters.
+     * \name General parameters
      * @{
      */
     double z2;   /**< The mean nuclear charge. */
@@ -105,8 +103,7 @@ struct TDATA {
     double bind; /**< The total electronic binding energy [eV]. */
     /** @} */
     /**
-     * \defgroup group3 Density effect parameters
-     * Density effect parameters.
+     * \name Density effect parameters
      * @{
      */
     double X0; /**< Value of \f$ \log_{10} \beta\gamma \f$ at which the density effect turns on. */
