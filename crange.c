@@ -417,7 +417,7 @@ double effective_charge( double z0, double e1, double z2, short sswitch )
  * \brief Computes primary ionization.
  *
  * This computes the primary ionization, the number of delta-rays produced
- * per unit length.  The formula is based on H. Bethe \cite art:hb,
+ * per unit length.  The formula is based on Bethe \cite art:hb,
  * as well as Fleischer <em>et al.</em>, \cite art:rlf.
  *
  * \param e1 The projectile kinetic energy in A MeV.

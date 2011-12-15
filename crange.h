@@ -85,15 +85,17 @@
  */
 struct TDATA {
     /**
-     * \name Material name
+     * \defgroup group1 Material name
+     * The name of the material.
+     * @{
      */
-    /* @{ */
     char name[NAMEWIDTH+1]; /**< The name of the material. */
-    /* @} */
+    /** @} */
     /**
-     * \name General parameters.
+     * \defgroup group2 General parameters
+     * General parameters.
+     * @{
      */
-    /* @{ */
     double z2;   /**< The mean nuclear charge. */
     double a2;   /**< The mean atomic mass number. */
     double iadj; /**< The logarithmic mean ionization potential [eV]. */
@@ -101,17 +103,18 @@ struct TDATA {
     double pla;  /**< The plasma frequency [eV]. */
     double etad; /**< The ratio of density to density at STP for gaseous targets. Should be set to zero for non-gaseous materials. */
     double bind; /**< The total electronic binding energy [eV]. */
-    /* @} */
+    /** @} */
     /**
-     * \name Density effect parameters.
+     * \defgroup group3 Density effect parameters
+     * Density effect parameters.
+     * @{
      */
-    /* @{ */
     double X0; /**< Value of \f$ \log_{10} \beta\gamma \f$ at which the density effect turns on. */
     double X1; /**< Value of \f$ \log_{10} \beta\gamma \f$ above which the high-energy form of the density effect may be used. */
     double a;  /**< Parameter used to interpolate the density effect between the values of X0 and X1. */
     double m;  /**< Parameter used to interpolate the density effect between the values of X0 and X1. */
     double d0; /**< Low-energy density effect parameter, only non-zero for conducting materials. */
-    /* @} */
+    /** @} */
 };
 /**
  * \brief Define tdata.
