@@ -466,7 +466,7 @@ double djdx( double e1, double z0, double I0, double f0, double K, short sswitch
  * switches encoded in a bit field.  Below we describe each bit field and the
  * effect it controls.
  *
- *  - #SSWITCH_ND : Desity effect version. If this bit is set (which it is
+ *  - #SSWITCH_ND : Density effect version. If this bit is set (which it is
  *    by default), a newer version of the density effect is used.  See
  *    delta() and olddelta() for details.
  *  - #SSWITCH_SH : Inner shell correction. The inner shell correction is
