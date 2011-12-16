@@ -498,11 +498,10 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
         /*
          * The inner shell correction is somewhat problematic.  It arises when
          * the projectile velocity is comparable to the velocity of inner shell
-         * electrons in the target medium.  This is discussed by U. Fano, Ann. Rev
-         * Nucl. Sci. 13 (1963) 1. The shell correction can be included explicitly
-         * using this formula from W. H. Barkas and M. J. Berger, Studies of
-         * Penetration of Charged Particles in Matter, Natl. Acad. Sci. Pub. 1133
-         * (1964).  Alternatively, the shell correction can be "hidden" in
+         * electrons in the target medium.  This is discussed by Fano, \cite art:uf.
+         * The shell correction can be included explicitly
+         * using this formula from Barkas \& Berger, \cite coll:whb.
+         * Alternatively, the shell correction can be "hidden" in
          * the logarithmic mean ionization potential.  Much more work is required
          * before this topic can be fully understood.
          */
@@ -516,8 +515,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
             /*
              * The Leung, or relativistic shell correction is a small effect which
              * is due to relativistic inner shell electrons in very heavy targets.
-             * See P. T. Leung, Phys. Rev. A 40 (1989) 5417, and P. T. Leung,
-             * Phys. Rev. A 60 (1999) 2562.
+             * See Leung, \cite art:ptl1, and Leung, \cite art:ptl2.
              */
             f2-=(5.0/3.0)*log(2.0*ELECTRONMASS*b2/target->iadj)*(1.0e+03*target->bind/(z2*ELECTRONMASS))-(target->iadj*target->iadj/(4.0*ELECTRONMASS*ELECTRONMASS*b2));
         }
@@ -536,7 +534,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
     if( sswitch & SSWITCH_KI ){
         /*
          * This an estimate of the ultrarelativistic kinematic correction from
-         * S. P. Ahlen, Rev. Mod. Phys. 52 (1980) 121. It corrects to the
+         * Ahlen, \cite art:spa2. It corrects to the
          * finite mass (as opposed to size) of the nucleus in relativistic
          * electron-nucleus collisions.
          */
@@ -544,10 +542,10 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
     }
     if( sswitch & SSWITCH_RA ){
         /*
-         * This is the radiative correction discussed in S. P. Ahlen,
-         * Rev. Mod. Phys. 52 (1980) 121.  It arises from bremsstrahlung
+         * This is the radiative correction discussed in Ahlen, \cite art:spa2.
+         * It arises from bremsstrahlung
          * of scattered electrons in ultrarelativistic collisions.  The
-         * form here is that of V. Z. Jankus, Phys. Rev. 90 (1953) 4.
+         * form here is that of Jankus, \cite art:vzj.
          * The parameter Q from that paper is here set equal to the geometric
          * mean between the the electron rest energy and 2 m_e c^2 gamma.
          */
@@ -561,11 +559,7 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
         /*
          * Slowing due to pair production.  This value and the value for
          * the bremsstrahlung correction below are based on the work of
-         * A. H. Sorensen, "Stopping of relativistic heavy ions; the pair
-         * production and bremsstrahlung channels", J. L. Duggan & I. L. Morgan
-         * (Eds.), 17th Intl. Conf. on Application of Accelerators in Research
-         * and Industry, Denton TX, Nov. 2002, AIP Conf. Proceedings No. 680,
-         * pp 102-105.
+         * Sørensen, \cite coll:ahs.
          */
         dpa=1.0/sqrt(g);
         ldpa=log(dpa);
@@ -586,15 +580,15 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
     }
     if( sswitch & SSWITCH_BA ){
         /*
-         * This is the Barkas correction as calculated in J. D. Jackson and
-         * R. L. McCarthy, Phys. Rev. B 6 (1972) 4131.  It is multiplied
-         * by a factor of two to bring it into agreement with J. Lindhard,
-         * Nucl. Inst. Meth. 132 (1976) 1.  It is not, however, equal to the
+         * This is the Barkas correction as calculated in Jackson \&
+         * McCarthy, \cite art:jdj.  It is multiplied
+         * by a factor of two to bring it into agreement with Lindhard, \cite art:jl1.
+         * It is not, however, equal to the
          * results of Lindhard, and more work is needed to decide which, if any,
          * form is correct.  The recommended value seems to be the Jackson
-         * & McCarthy result multiplied by two.  Jackson and McCarthy do not
-         * have reliable values of F(V) for V < 0.8.  For the purposes of the
-         * computation, the cut-off is placed at v=1.0.  I have followed the
+         * \& McCarthy result multiplied by two.  Jackson \& McCarthy do not
+         * have reliable values of \f$ F(V) \f$ for \f$ V < 0.8 \f$ .  For the purposes of the
+         * computation, the cut-off is placed at \f$ V=1.0 \f$ .  I have followed the
          * convention of Salamon in having the Barkas correction multiply just
          * the "Bethe" portion of the stopping logarithm rather than the whole
          * stopping logarithm.  As there is considerable disagreement in the
@@ -602,8 +596,8 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
          * the convention makes makes a difference of less than 1 A MeV even
          * in calculating the energy of stopping uranium, I have chosen to
          * leave it where it is.  Furthermore, I have found that a simple
-         * power law v^-2 is adequate to model Jackson and McCarthy's function
-         * for v > 1.0, so I have used this instead of the numbers found by
+         * power law \f$ V^{-2} \f$ is adequate to model Jackson \& McCarthy's function
+         * for \f$ V > 1.0 \f$ , so I have used this instead of the numbers found by
          * reading off one of Jackson and McCarthy's figures.
          */
         v=b*g/(ALPHA*sqrt(z2));
@@ -623,9 +617,6 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
         } else {
             f4=1.0;
         }
-        /*
-        printf("%f %f\n",v,f4);
-        */
     }
     S=f1*(f2*f4+f3+f6-(delt/2.0)+f8+f9) + Sbr + Spa;
     /*
@@ -733,9 +724,6 @@ double olddelta( double g, tdata *target )
 /**
  * \brief Computes the Bloch, Mott and Ahlen corrections.
  *
- * This function is provided for historical reasons and implements the
- * Bloch, Mott \& Ahlen corrections described below.
- *
  * This function computes the Mott correction of Ahlen, \cite art:spa1,
  * the Bloch correction of F. Bloch, \cite art:fb1,
  * and the Ahlen correction of Ahlen, \cite art:spa3.
@@ -753,7 +741,7 @@ double olddelta( double g, tdata *target )
  * \note The variables lambda and theta0 are
  * free parameters in the Ahlen correction.  Theta0 also appears in
  * the Mott correction.  Here I have used Ahlen's recommended values.
- * An alternative formula, \f$ \theta_0 = \sqrt{\alpha/(\beta*\gamma*\lambda)} \f$ , is
+ * An alternative formula, \f$ \theta_0 = \sqrt{\alpha/(\beta \gamma \lambda)} \f$ , is
  * suggested by Waddington, Freier \& Fixsen, \cite art:cjw1.
  *
  * \warning The Mott correction has a severely
