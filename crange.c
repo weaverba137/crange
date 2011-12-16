@@ -736,11 +736,34 @@ double olddelta( double g, tdata *target )
  * This function is provided for historical reasons and implements the
  * Bloch, Mott \& Ahlen corrections described below.
  *
+ * This function computes the Mott correction of Ahlen, \cite art:spa1,
+ * the Bloch correction of F. Bloch, \cite art:fb1,
+ * and the Ahlen correction of Ahlen, \cite art:spa3.
+ * All three of these corrections are
+ * rendered obsolete by the Lindhard-Sørensen correction, and are
+ * included here for historical interest and comparison with older
+ * calculations.
+ *
  * \param z1 The projectile charge.
  * \param b The projectile velocity in units of the speed of light
  * (\em i.e. \f$ \beta = v/c \f$).
  *
  * \return The sum of the Bloch, Mott and Ahlen corrections.
+ *
+ * \note The variables lambda and theta0 are
+ * free parameters in the Ahlen correction.  Theta0 also appears in
+ * the Mott correction.  Here I have used Ahlen's recommended values.
+ * An alternative formula, \f$ \theta_0 = \sqrt{\alpha/(\beta*\gamma*\lambda)} \f$ , is
+ * suggested by Waddington, Freier \& Fixsen, \cite art:cjw1.
+ *
+ * \warning The Mott correction has a severely
+ * limited range of validity, especially for high charges.  It's so
+ * bad it can render the calculation not just inaccurate, but
+ * unphysical (dE/dx \< 0) below about 10 A MeV for uranium.  Ahlen
+ * recommends turning the Mott correction off for \f$ Z/\beta > 100 \f$.
+ * Here for \f$ Z/\beta > 100 \f$ the Mott correction is given the value at
+ * \f$ Z/\beta = 100 \f$. This prescription is given by Waddington,
+ * Freier \& Fixsen, \cite art:cjw1.
  *
  * \bug Currently, this function is not called by anything.
  */
@@ -752,20 +775,7 @@ double bma( double z1, double b )
     gsl_complex Cz1,Cz2;
     /* End declarations */
     /*
-     * This section includes the Mott correction of S. P. Ahlen, Phys. Rev.
-     * A 17 (1978) 1236, the Bloch correction of F. Bloch, Ann. Phys.
-     * (Leipzig) 16 (1933) 285, and the Ahlen correction of S. P. Ahlen,
-     * Phys. Rev. A 25 (1982) 1856.  All three of these corrections are
-     * rendered obsolete by the Lindhard-Sorensen correction, and are
-     * included here for historical interest and comparison with older
-     * calculations.  Note also that the Mott correction has a severely
-     * limited range of validity, especially for high charges.  It's so
-     * bad it can render the calculation not just inaccurate, but
-     * unphysical (dE/dx < 0) below about 10 A MeV for uranium.  Ahlen
-     * recommends turning the Mott correction off for Z/beta > 100.
-     * Here for Z/beta > 100 the Mott correction is given the value at
-     * Z/beta = 100. This prescription is given by C. J. Waddington,
-     * P. S. Freier, and D. J. Fixsen, Phys. Rev. A 28 (1983) 464.
+     * Compute a sum needed by the Bloch Correction
      */
     y=z1*ALPHA/b;
     y2=y*y;
@@ -777,12 +787,7 @@ double bma( double z1, double b )
         sumr+=(1.0/(fn2+y2) - 1.0/fn2)/fn;
     }
     /*
-     * Bloch and Ahlen corrections. The variables lambda and theta0 are
-     * free parameters in the Ahlen correction.  Theta0 also appears in
-     * the Mott correction.  Here I have used Ahlen's recommended values.
-     * An alternative formula, theta0=sqrt(ALPHA/(b*g*lambda)), is
-     * suggested by C. J. Waddington, P. S. Freier, and D. J. Fixsen,
-     * Phys. Rev. A 28 (1983) 464.
+     * Compute the Bloch and Ahlen Corrections
      */
     lambda=1.0;
     theta0=0.1;
@@ -1235,7 +1240,7 @@ double qrange( double e, double z1, double a1, short sswitch, tdata *target )
  * in cjoin[2][7], which is used to initialize join[4], are inherited from
  * legacy code; I have not found them in the non-obscure literature.
  * Approximately, the three regions are \em E \< 1 A MeV, 1 \< \em E \< 7 A MeV
- * and \em E \> 7 A MeV.  I can find no reason why join[4] has 4 elements and
+ * and \em E \> 7 A MeV.  I can find no reason why join[4] has four elements and
  * not two.
  */
 double benton( double e, double z1, double a1, tdata *target )
