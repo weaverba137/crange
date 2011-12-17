@@ -501,10 +501,13 @@ double djdx( double e1, double z0, double I0, double f0, double K, short sswitch
  *  - #SSWITCH_PA : Slowing due to pair production. This value and the value for
  *    the bremsstrahlung correction below are based on the work of
  *    Sørensen, \cite coll:ahs.
- *  - #SSWITCH_BR : Slowing due to projectile bremsstrahlung.  <em>Use with
- *    extreme caution</em>.  Sørensen, \cite coll:ahs, has shown that this effect
- *    is likely much smaller than the value in this code.  This is due to the
- *    treatment (in this code) of the projectile and target nuclei as a point particles.
+ *  - #SSWITCH_BR : Slowing due to projectile bremsstrahlung.  This version is
+ *    that of Sørensen, \cite coll:ahs, who has shown that this effect
+ *    is much smaller than the version suggested by Weaver \& Westphal,
+ *    \cite art:baw6..  This is due to their treatment of the projectile and
+ *    target nuclei as a point particles.  That version appeared in some
+ *    much older versions of this code, but has been replaced with
+ *    Sørensen's version.
  *  - #SSWITCH_BA : Barkas effect.
  *    This is the Barkas correction as calculated in Jackson \&
  *    McCarthy, \cite art:jdj.  It is multiplied
@@ -1019,7 +1022,10 @@ double lindhard( double zz, double aa, double bb, short sswitch )
 /**
  * \brief Compute a mathematical function related to bremsstrahlung.
  *
- * A mathematical function.
+ * This function is used in an obsolete version of projectile slowing
+ * due to nuclear-nuclear bremsstrahlung.  It appears in Heitler's treatment
+ * of bremsstrahlung, \cite book:wh, which was adapted by
+ * Weaver \& Westphal, \cite art:baw6.
  *
  * \param x The input parameter.
  *
