@@ -482,6 +482,7 @@ DX_ARG_ABLE(ps, [generate doxygen PostScript documentation],
             [DX_CLEAR_DEPEND(doc, 1)],
             [DX_REQUIRE_PROG([DX_LATEX], latex)
              DX_REQUIRE_PROG([DX_MAKEINDEX], makeindex)
+             DX_REQUIRE_PROG([DX_BIBTEX], bibtex)
              DX_REQUIRE_PROG([DX_DVIPS], dvips)
              DX_REQUIRE_PROG([DX_EGREP], egrep)])
 
@@ -491,6 +492,7 @@ DX_ARG_ABLE(pdf, [generate doxygen PDF documentation],
             [DX_CLEAR_DEPEND(doc, 1)],
             [DX_REQUIRE_PROG([DX_PDFLATEX], pdflatex)
              DX_REQUIRE_PROG([DX_MAKEINDEX], makeindex)
+             DX_REQUIRE_PROG([DX_BIBTEX], bibtex)
              DX_REQUIRE_PROG([DX_EGREP], egrep)])
 
 # LaTeX generation for PS and/or PDF:
