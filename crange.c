@@ -77,7 +77,7 @@
  *
  * The target.ini file included with the source distribution lists the
  * targets that are compiled in to the program by default.  Most of the target
- * data is taken from Sternheimer, Berger \& Seltzer, \cite art:rms1.
+ * data is taken from Sternheimer, Berger \& Seltzer, \cite art_rms1.
  * The definitions of the material properties are in the target.ini file.
  * The user may add additional targets or orverride existing target values
  * by supplying a different target.ini file (with the same format!) on
@@ -345,11 +345,11 @@ gsl_complex complex_lngamma( gsl_complex z )
  * \brief Computes effective projectile charge.
  *
  * This is the modification of projectile charge due to electron
- * capture.  Hubert, Bimbot \& Gauvin, \cite art:fh2, give an
+ * capture.  Hubert, Bimbot \& Gauvin, \cite art_fh2, give an
  * empirically determined function which depends on the target material.
  * This version is used if #SSWITCH_EC is set.
- * Two older versions, from Anthony \& Landford, \cite art:jma,
- * and Pierce \& Blann, \cite art:tep are also available.
+ * Two older versions, from Anthony \& Landford, \cite art_jma,
+ * and Pierce \& Blann, \cite art_tep are also available.
  *
  * \param z0 The bare projectile charge.
  * \param e1 The projectile kinetic energy in A MeV.
@@ -417,8 +417,8 @@ double effective_charge( double z0, double e1, double z2, short sswitch )
  * \brief Computes primary ionization.
  *
  * This computes the primary ionization, the number of delta-rays produced
- * per unit length.  The formula is based on Bethe \cite art:hb,
- * as well as Fleischer <em>et al.</em>, \cite art:rlf.
+ * per unit length.  The formula is based on Bethe \cite art_hb,
+ * as well as Fleischer <em>et al.</em>, \cite art_rlf.
  *
  * \param e1 The projectile kinetic energy in A MeV.
  * \param z0 The projectile charge.
@@ -455,7 +455,7 @@ double djdx( double e1, double z0, double I0, double f0, double K, short sswitch
  * \brief Computes dE/dx.
  *
  * This is the core of the whole package, the dE/dx calculator.  I have
- * based this largely on the work of Salamon, \cite tech:mhs.
+ * based this largely on the work of Salamon, \cite tech_mhs.
  * Values of certain physical constants have been updated,
  * as well as some of the corrections to the basic stopping power formula.
  *
@@ -472,15 +472,15 @@ double djdx( double e1, double z0, double I0, double f0, double K, short sswitch
  *  - #SSWITCH_SH : Inner shell correction. The inner shell correction is
  *    somewhat problematic.  It arises when the projectile velocity is
  *    comparable to the velocity of inner shell electrons in the target medium.
- *    This is discussed by Fano, \cite art:uf. The shell correction can be
- *    included explicitly using this formula from Barkas \& Berger, \cite coll:whb.
+ *    This is discussed by Fano, \cite art_uf. The shell correction can be
+ *    included explicitly using this formula from Barkas \& Berger, \cite coll_whb.
  *    Alternatively, the shell correction can be "hidden" in the logarithmic
  *    mean ionization potential.  Much more work is required before this topic
  *    can be fully understood.
  *  - #SSWITCH_LE : Relativistic shell correction.  The Leung, or
  *    relativistic shell correction is a small effect which is due to
  *    relativistic inner shell electrons in very heavy targets.
- *    See Leung, \cite art:ptl1, and Leung, \cite art:ptl2.  #SSWITCH_LE
+ *    See Leung, \cite art_ptl1, and Leung, \cite art_ptl2.  #SSWITCH_LE
  *    has no effect unless #SSWITCH_SH is also turned on.
  *  - The Lindhard-Sørensen effect (see lindhard()) is turned on by default.
  *    The Bloch, Mott \& Ahlen effects are included for historical interestest.
@@ -488,30 +488,30 @@ double djdx( double e1, double z0, double I0, double f0, double K, short sswitch
  *    of the code.
  *  - #SSWITCH_KI : Ultrarelativistic kinematic correction.
  *    This an estimate of the ultrarelativistic kinematic correction from
- *    Ahlen, \cite art:spa2. It corrects to the
+ *    Ahlen, \cite art_spa2. It corrects to the
  *    finite mass (as opposed to size) of the nucleus in relativistic
  *    electron-nucleus collisions.
  *  - #SSWITCH_RA : Radiative correction.
- *    This is the radiative correction discussed in Ahlen, \cite art:spa2.
+ *    This is the radiative correction discussed in Ahlen, \cite art_spa2.
  *    It arises from bremsstrahlung
  *    of scattered electrons in ultrarelativistic collisions.  The
- *    form here is that of Jankus, \cite art:vzj.
+ *    form here is that of Jankus, \cite art_vzj.
  *    The parameter Q from that paper is here set equal to the geometric
  *    mean between the the electron rest energy and \f$ 2 m_e c^2 \gamma \f$.
  *  - #SSWITCH_PA : Slowing due to pair production. This value and the value for
  *    the bremsstrahlung correction below are based on the work of
- *    Sørensen, \cite coll:ahs.
+ *    Sørensen, \cite coll_ahs.
  *  - #SSWITCH_BR : Slowing due to projectile bremsstrahlung.  This version is
- *    that of Sørensen, \cite coll:ahs, who has shown that this effect
+ *    that of Sørensen, \cite coll_ahs, who has shown that this effect
  *    is much smaller than the version suggested by Weaver \& Westphal,
- *    \cite art:baw6..  This is due to their treatment of the projectile and
+ *    \cite art_baw6..  This is due to their treatment of the projectile and
  *    target nuclei as a point particles.  That version appeared in some
  *    much older versions of this code, but has been replaced with
  *    Sørensen's version.
  *  - #SSWITCH_BA : Barkas effect.
  *    This is the Barkas correction as calculated in Jackson \&
- *    McCarthy, \cite art:jdj.  It is multiplied
- *    by a factor of two to bring it into agreement with Lindhard, \cite art:jl1.
+ *    McCarthy, \cite art_jdj.  It is multiplied
+ *    by a factor of two to bring it into agreement with Lindhard, \cite art_jl1.
  *    It is not, however, equal to the
  *    results of Lindhard, and more work is needed to decide which, if any,
  *    form is correct.  The recommended value seems to be the Jackson
@@ -640,8 +640,8 @@ double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata 
  * \brief Computes the density effect.
  *
  * This function implements the density effect correction as formulated
- * in Sternheimer \& Peierls, \cite art:rms2 and as
- * extended in Sternheimer, Berger \& Seltzer, \cite art:rms1.
+ * in Sternheimer \& Peierls, \cite art_rms2 and as
+ * extended in Sternheimer, Berger \& Seltzer, \cite art_rms1.
  * This version can distinguish between solids and gasses, and between
  * metals and insulators.  For conducting materials, there is a
  * low-energy density effect.
@@ -677,7 +677,7 @@ double delta( double g, tdata *target )
  * \brief Computes an obsolete version of the density effect.
  *
  * This function implements the density effect correction as originally
- * formulated in Sternheimer \& Peierls, \cite art:rms2.
+ * formulated in Sternheimer \& Peierls, \cite art_rms2.
  * Although it is now obsolete, I have included it here for
  * compatibility with earlier codes.
  *
@@ -730,9 +730,9 @@ double olddelta( double g, tdata *target )
 /**
  * \brief Computes the Bloch, Mott and Ahlen corrections.
  *
- * This function computes the Mott correction of Ahlen, \cite art:spa1,
- * the Bloch correction of F. Bloch, \cite art:fb1,
- * and the Ahlen correction of Ahlen, \cite art:spa3.
+ * This function computes the Mott correction of Ahlen, \cite art_spa1,
+ * the Bloch correction of F. Bloch, \cite art_fb1,
+ * and the Ahlen correction of Ahlen, \cite art_spa3.
  * All three of these corrections are
  * rendered obsolete by the Lindhard-Sørensen correction, and are
  * included here for historical interest and comparison with older
@@ -749,7 +749,7 @@ double olddelta( double g, tdata *target )
  * the Mott correction.  Here I have used Ahlen's recommended values,
  * lambda = 1, theta0 = 0.1.
  * An alternative formula, \f$ \theta_0 = \sqrt{\alpha/(\beta \gamma \lambda)} \f$ , is
- * suggested by Waddington, Freier \& Fixsen, \cite art:cjw1.
+ * suggested by Waddington, Freier \& Fixsen, \cite art_cjw1.
  *
  * \warning The Mott correction has a severely
  * limited range of validity, especially for high charges.  It's so
@@ -758,7 +758,7 @@ double olddelta( double g, tdata *target )
  * recommends turning the Mott correction off for \f$ Z/\beta > 100 \f$.
  * Here for \f$ Z/\beta > 100 \f$ the Mott correction is given the value at
  * \f$ Z/\beta = 100 \f$. This prescription is given by Waddington,
- * Freier \& Fixsen, \cite art:cjw1.
+ * Freier \& Fixsen, \cite art_cjw1.
  *
  * \bug Currently, this function is not called by anything.
  */
@@ -821,7 +821,7 @@ double bma( double z1, double b )
  * \brief Compute the relativistic Bloch correction.
  *
  * This is the relativistic Bloch (or Ahlen) correction of Ahlen,
- * \cite art:spa3.  The evaluation of this correction has
+ * \cite art_spa3.  The evaluation of this correction has
  * been enormously simplified by the use of fully complex arithmetic.
  *
  * \param z12 The projectile charge.
@@ -874,12 +874,12 @@ double relbloch( double z12, double b1, double lambda, double theta0 )
  * \brief Compute the Lindhard-Sørensen correction.
  *
  * This is the Lindhard-Sørensen correction including finite nuclear
- * size effects as described in Lindhard \& Sørensen, \cite art:jl2.
+ * size effects as described in Lindhard \& Sørensen, \cite art_jl2.
  * The defined variable #SSWITCH_NS will turn off the
  * nuclear size effect if it is set to zero.  For values of the Lorentz
  * factor above 10/R, where R is the nuclear size divided by the electron
  * Compton wavelength, the correction is set to its asymptotic value
- * which is described by Sørensen, \cite proc:ahs. This also avoids some
+ * which is described by Sørensen, \cite proc_ahs. This also avoids some
  * difficulties with the evaluation of the confluent hypergeometric function
  * (A. H. Sørensen, private communication).
  *
@@ -1024,8 +1024,8 @@ double lindhard( double zz, double aa, double bb, short sswitch )
  *
  * This function is used in an obsolete version of projectile slowing
  * due to nuclear-nuclear bremsstrahlung.  It appears in Heitler's treatment
- * of bremsstrahlung, \cite book:wh, which was adapted by
- * Weaver \& Westphal, \cite art:baw6.
+ * of bremsstrahlung, \cite book_wh, which was adapted by
+ * Weaver \& Westphal, \cite art_baw6.
  *
  * \param x The input parameter.
  *
@@ -1220,9 +1220,9 @@ double qrange( double e, double z1, double a1, short sswitch, tdata *target )
  *
  * This function is the result of empirical fits to very low energy
  * 1 A MeV \< E \< 8 A MeV ion ranges.  It follows the methods of
- * Barkas \& Berger, \cite coll:whb. A simplified
+ * Barkas \& Berger, \cite coll_whb. A simplified
  * discussion, with a more complicated formula is given in
- * Benton \& Henke, \cite art:evb1.
+ * Benton \& Henke, \cite art_evb1.
  * As yet I know of no nicer way to deal with these low energies.
  *
  * \param e Projectile kinetic energy in A MeV.
