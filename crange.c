@@ -418,7 +418,7 @@ double effective_charge( double z0, double e1, double z2, short sswitch )
  *
  * This computes the primary ionization, the number of delta-rays produced
  * per unit length.  The formula is based on Bethe \cite art_hb,
- * as well as Fleischer <em>et al.</em>, \cite art_rlf.
+ * as well as Fleischer <em>et al.</em>, \cite art_rlf3.
  *
  * \param e1 The projectile kinetic energy in A MeV.
  * \param z0 The projectile charge.
@@ -504,7 +504,7 @@ double djdx( double e1, double z0, double I0, double f0, double K, short sswitch
  *  - #SSWITCH_BR : Slowing due to projectile bremsstrahlung.  This version is
  *    that of Sørensen, \cite coll_ahs, who has shown that this effect
  *    is much smaller than the version suggested by Weaver \& Westphal,
- *    \cite art_baw6..  This is due to their treatment of the projectile and
+ *    \cite art_baw3..  This is due to their treatment of the projectile and
  *    target nuclei as a point particles.  That version appeared in some
  *    much older versions of this code, but has been replaced with
  *    Sørensen's version.
@@ -1025,7 +1025,7 @@ double lindhard( double zz, double aa, double bb, short sswitch )
  * This function is used in an obsolete version of projectile slowing
  * due to nuclear-nuclear bremsstrahlung.  It appears in Heitler's treatment
  * of bremsstrahlung, \cite book_wh, which was adapted by
- * Weaver \& Westphal, \cite art_baw6.
+ * Weaver \& Westphal, \cite art_baw3.
  *
  * \param x The input parameter.
  *
