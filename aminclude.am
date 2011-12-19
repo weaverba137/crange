@@ -104,15 +104,16 @@ doxygen-ps: @DX_DOCDIR@/@PACKAGE@.ps
 
 @DX_DOCDIR@/@PACKAGE@.ps: @DX_DOCDIR@/@PACKAGE@.tag
 	cd @DX_DOCDIR@/latex; \
-	rm -f *.aux *.toc *.idx *.ind *.ilg *.log *.out; \
-	$(DX_LATEX) refman.tex; \
-	$(MAKEINDEX_PATH) refman.idx; \
-	$(DX_LATEX) refman.tex; \
+	$(MAKE) clean; \
+	$(DX_LATEX) refman; \
+	$(DX_MAKEINDEX) refman; \
+	$(DX_BIBTEX) refman; \
+	$(DX_LATEX) refman; \
 	countdown=5; \
-	while $(DX_EGREP) 'Rerun (LaTeX|to get cross-references right)' \
+	while $(DX_EGREP) 'Rerun (LaTeX|to get cross-references right|to get citations correct)' \
 			  refman.log > /dev/null 2>&1 \
 	   && test $$countdown -gt 0; do \
-	    $(DX_LATEX) refman.tex; \
+	    $(DX_LATEX) refman; \
 	    countdown=`expr $$countdown - 1`; \
 	done; \
 	$(DX_DVIPS) -o ../@PACKAGE@.ps refman.dvi
@@ -139,7 +140,7 @@ doxygen-pdf: @DX_DOCDIR@/@PACKAGE@.pdf
 	$(DX_BIBTEX) refman; \
 	$(DX_PDFLATEX) refman; \
 	countdown=5; \
-	while $(DX_EGREP) 'Rerun (LaTeX|to get cross-references right)' \
+	while $(DX_EGREP) 'Rerun (LaTeX|to get cross-references right|to get citations correct)' \
 			  refman.log > /dev/null 2>&1 \
 	   && test $$countdown -gt 0; do \
 	    $(DX_PDFLATEX) refman.tex; \
