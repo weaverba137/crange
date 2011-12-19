@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.63])
 AC_INIT([Berkeley Range-Energy Calculator],
-        m4_esyscmd([./crange_version]),
+        m4_esyscmd([./version.pl]),
         [benjamin.weaver@nyu.edu],
         [crange],
         [http://cosmo.nyu.edu/~bw55/dedx/])
