@@ -1,7 +1,7 @@
 /**
  * \mainpage crange - The Berkeley Range-Energy Calculator
  * \author Benjamin Weaver <benjamin.weaver@nyu.edu>
- * \version 1.6
+ * \version 1.6.1
  *
  * \copyright (C) 2001-2011 Benjamin Weaver, LGPL
  *
@@ -89,7 +89,8 @@
  *
  * \section sec-history History
  *
- *  - 1.6.0:   Make crange compatible with GNU autotools and GNU Scientific Library.
+ *  - 1.6.1: Fix version strings.
+ *  - 1.6.0: Make crange compatible with GNU autotools and GNU Scientific Library.
  *  - 1.5.3: Simplified calculation switching and added a crange.h file
  *  - 1.5.2: Increased value of MAXAB to acommodate a larger target data file
  *  - 1.5.1: Fixed typo in one of the parameters of the electron capture corection

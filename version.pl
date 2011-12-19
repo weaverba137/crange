@@ -6,7 +6,7 @@
 #
 use warnings;
 use strict;
-my $svnURL = '$HeadURL: svn+ssh://bw55@howdy.physics.nyu.edu/usr/local/svn/crange/branches/1.6/version.pl$';
+my $svnURL = '$HeadURL$';
 if ($svnURL =~ m{/trunk/}) {
     my $svnVersion = qx{svnversion};
     chomp $svnVersion;
