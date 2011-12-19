@@ -96,7 +96,7 @@ endif DX_COND_xml
 
 if DX_COND_ps
 
-DX_CLEAN_PS = @DX_DOCDIR@/@PACKAGE@.ps
+DX_CLEAN_PS = @DX_DOCDIR@/@PACKAGE@.ps @DX_DOCDIR@/bib
 
 DX_PS_GOAL = doxygen-ps
 
@@ -126,7 +126,7 @@ endif DX_COND_ps
 
 if DX_COND_pdf
 
-DX_CLEAN_PDF = @DX_DOCDIR@/@PACKAGE@.pdf
+DX_CLEAN_PDF = @DX_DOCDIR@/@PACKAGE@.pdf @DX_DOCDIR@/bib
 
 DX_PDF_GOAL = doxygen-pdf
 
