@@ -133,15 +133,11 @@ doxygen-pdf: @DX_DOCDIR@/@PACKAGE@.pdf
 
 @DX_DOCDIR@/@PACKAGE@.pdf: @DX_DOCDIR@/@PACKAGE@.tag
 	cd @DX_DOCDIR@/latex; \
-#	rm -f *.aux *.toc *.idx *.ind *.ilg *.log *.out; \
 	$(MAKE) clean; \
 	$(DX_PDFLATEX) refman; \
 	$(DX_MAKEINDEX) refman; \
 	$(DX_BIBTEX) refman; \
-	$(DX_PDFLATEX) refman;
-#	$(DX_PDFLATEX) refman.tex; \
-#	$(DX_MAKEINDEX) refman.idx; \
-#	$(DX_PDFLATEX) refman.tex; \
+	$(DX_PDFLATEX) refman; \
 	countdown=5; \
 	while $(DX_EGREP) 'Rerun (LaTeX|to get cross-references right)' \
 			  refman.log > /dev/null 2>&1 \
