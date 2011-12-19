@@ -1,32 +1,10 @@
-/*
- * This is version 1.5.3 of the Berkeley Range-Energy Calculator
+/**
+ * \file crange.h
+ * \brief Header file for crange.
  *
- * Benjamin Weaver, weaver@SSL.Berkeley.EDU
- * Space Sciences Laboratory
- * University of California
- * Berkeley, CA 94720-7450
- * http://ultraman.ssl.berkeley.edu/~weaver/dedx/
- *
- * Copyright (C) 2001-2003 Benjamin Weaver
- *
- *
- * This program is free software which I release under the GNU Lesser 
- * General Public License. You may redistribute and/or modify this program
- * under the terms of that license as published by the Free Software
- * Foundation; either version 2.1 of the License, or (at your option) any
- * later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * To get a copy of the GNU Lesser General Puplic License, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA  02111-1307  USA
- *
+ * This header file collects all the other header files needed to compile
+ * crange, as well as all defines, function declarations, etc.
  */
-
 /*
  * Standard includes here to keep crange.c clean
  */
@@ -34,113 +12,180 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-
+#include <unistd.h> /* to get getopt() */
+#include <errno.h>
+#include <time.h>
 /*
  * Include headers for various complex arithmetic functions.
  */
-#include "complex.h"
-
+#include <gsl/gsl_complex.h>
+#include <gsl/gsl_complex_math.h>
 /*
- * Define working directory.  This is the directory in which the 
- * binary lives as well as the data files.
- * IMPORTANT:  Change this to your own working directory!
+ * Include config.h
  */
-#ifdef DEDX
-#undef DEDX
-#endif
-#ifndef DEDX
-#define DEDX "/home/weaver/dedx"
-#endif
-
-/* 
- * MAXE sets the number of energies in the range-energy tables.
- */
-#define MAXE 200
-
-/* 
- * MAXAB sets the number of different target media which can be stored
- * in the range-energy tables.  It is suggested that MAXAB > number of
- * target media in the target.dat file.
- */
-#define MAXAB 50
-
+#include <config.h>
 /*
- * Miscellaneous defines. The ifdefs should insure that we get the
- * values listed here.
+ * Include header for parsing ini files.
  */
-#ifdef PI
-#undef PI
+#ifdef HAVE_INIPARSER_H
+#include <iniparser.h>
 #endif
-#ifndef PI
-#define PI 3.14159265359
+/*
+ * These values define the range-energy tables
+ */
+#define LOGTENEMIN 0.0 /**< \f$ \log_{10} E_{\mathrm{min}} \f$ Minimum energy in units of A MeV. */
+#define LOGTENEMAX 6.0 /**< \f$ \log_{10} E_{\mathrm{max}} \f$ Maximum energy in units of A MeV. */
+#define MAXE 200 /**< The number of energies in the range-energy tables. */
+#define MAXAB 50 /**< The number of range tables.  Arbitrary, but should be larger than the number of targets. */
+/*
+ * M_PI, M_PI_2 and M_LN10 should be defined in math.h.
+ */
+#ifndef M_PI
+#define M_PI 3.14159265358979323846264338327950288 /**< The value of pi, in case it is not defined in math.h. */
 #endif
+#ifndef M_PI_2
+#define M_PI_2 1.57079632679489661923132169163975144 /**< The value of pi/2, in case it is not defined in math.h. */
+#endif
+#ifndef M_LN10
+#define M_LN10 2.30258509299404568402 /**< The value of \f$ \ln 10 \f$ in case it is not defined in math.h */
+#endif
+/*
+ * Physical constants.
+ */
 #ifdef ALPHA
 #undef ALPHA
 #endif
 #ifndef ALPHA
-#define ALPHA 7.29735301383e-3
+#define ALPHA 7.29735301383e-3 /**< The fine structure constant. */
 #endif
-
-#define FBA  0x001 /* Barkas effect */
-#define FSH  0x002 /* Shell effect */
-#define FLE  0x004 /* Leung effect */
-#define FD   0x008 /* Density effect switcher */
-#define FE   0x010 /* Electron capture switcher */
-#define FNS  0x020 /* Finite Nuclear Size effect */
-#define FKIN 0x040 /* Kinetic effect */
-#define FRAD 0x080 /* Radiative correction effect */
-#define FPA  0x100 /* Pair Production energy loss */
-#define FBR  0x200 /* Projectile Bremsstrahlung */
-
+#ifdef ATOMICMASSUNIT
+#undef ATOMICMASSUNIT
+#endif
+#ifndef ATOMICMASSUNIT
+#define ATOMICMASSUNIT 931.4943 /**< 1 amu in units of MeV/c<sup>2</sup>. */
+#endif
+#ifdef PROTONMASS
+#undef PROTONMASS
+#endif
+#ifndef PROTONMASS
+#define PROTONMASS 938.2723 /**< Proton mass in units of MeV/c<sup>2</sup>. */
+#endif
+#ifdef ELECTRONMASS
+#undef ELECTRONMASS
+#endif
+#ifndef ELECTRONMASS
+#define ELECTRONMASS 0.511003e+6 /**< Electron mass in units of eV/c<sup>2</sup>. */
+#endif
 /*
- * External variable for holding calculation switches.
+ * These define the values in the switch bit field.
  */
-short sswitch;
-
+#define SSWITCH_BA  0x001 /**< Barkas effect bit. */
+#define SSWITCH_SH  0x002 /**< Shell effect bit. */
+#define SSWITCH_LE  0x004 /**< Leung effect bit. */
+#define SSWITCH_ND  0x008 /**< Density effect switcher bit. */
+#define SSWITCH_EC  0x010 /**< Electron capture switcher bit. */
+#define SSWITCH_NS  0x020 /**< Finite Nuclear Size effect bit. */
+#define SSWITCH_KI  0x040 /**< Kinetic effect bit. */
+#define SSWITCH_RA  0x080 /**< Radiative correction effect bit. */
+#define SSWITCH_PA  0x100 /**< Pair Production energy loss bit. */
+#define SSWITCH_BR  0x200 /**< Projectile Bremsstrahlung bit. */
+#define SSWITCH_DEFAULT (SSWITCH_ND | SSWITCH_NS) /**< Default bits set density effect and finite nuclear size. */
 /*
- * These external variables contain the range-energy tables.
+ *
  */
-double trange[MAXE][MAXAB];
-double tenerg[MAXE];
-
+#define NAMEWIDTH 8 /**< The maximum number of characters in a target name. */
 /*
- * This structure holds the data on the targest read from the target.dat
- * file.
- * z2:     target material mean nuclear charge
- * a2:     target material mean atomic number
- * iadj:   target material logarithmic mean ionization potential (eV)
- * rho:    target material density in g cm^-3
- * pla:    target material plasma frequency in eV
- * etad:   target material ratio of density to density at STP (for gasses)
- *           target materials which are not gasses should have etad = 0
- * bind:   target material total electronic binding energy in eV
- * X0,X1,a,m,d0:  parameters for the density effect calculation
- * tname:   names of target materials
+ *
  */
-typedef struct TDATA {
-  double z2,a2,iadj,rho,pla,X0,X1,a,m,d0,etad,bind;
-  char tname[9];
-} tdata;
-
-/*
- * Declare an external array of structures
+/**
+ * \brief Structure containing target data.
+ *
+ * This structure contains all the data related to target materials.
  */
-tdata t[MAXAB];
-
+struct TDATA {
+    /**
+     * \name Material name
+     * @{
+     */
+    char name[NAMEWIDTH+1]; /**< The name of the material. */
+    /** @} */
+    /**
+     * \name General parameters
+     * @{
+     */
+    double z2;   /**< The mean nuclear charge. */
+    double a2;   /**< The mean atomic mass number. */
+    double iadj; /**< The logarithmic mean ionization potential [eV]. */
+    double rho;  /**< The density [g cm<sup>-3</sup>]. */
+    double pla;  /**< The plasma frequency [eV]. */
+    double etad; /**< The ratio of density to density at STP for gaseous targets. Should be set to zero for non-gaseous materials. */
+    double bind; /**< The total electronic binding energy [eV]. */
+    /** @} */
+    /**
+     * \name Density effect parameters
+     * @{
+     */
+    double X0; /**< Value of \f$ \log_{10} \beta\gamma \f$ at which the density effect turns on. */
+    double X1; /**< Value of \f$ \log_{10} \beta\gamma \f$ above which the high-energy form of the density effect may be used. */
+    double a;  /**< Parameter used to interpolate the density effect between the values of X0 and X1. */
+    double m;  /**< Parameter used to interpolate the density effect between the values of X0 and X1. */
+    double d0; /**< Low-energy density effect parameter, only non-zero for conducting materials. */
+    /** @} */
+};
+/**
+ * \brief Define tdata.
+ *
+ * Define a tdata variable for convenience.
+ *
+ */
+typedef struct TDATA tdata;
+/**
+ * \brief Structure to store range tables.
+ *
+ * This structure contains a range table and its associated metadata.
+ */
+struct RANGE_TABLE {
+    double z1;          /**< The projectile charge. */
+    double a1;          /**< The projectile mass. */
+    short sswitch;      /**< The switch bit field. */
+    tdata *target;      /**< A pointer to the ::TDATA structure used in constructing the table. */
+    time_t timestamp;   /**< The time at which the table was created. */
+    double range[MAXE]; /**< The actual table of range values. */
+};
+/**
+ * \brief Define range_table.
+ *
+ * Define a range_table variable for convenience.
+ */
+typedef struct RANGE_TABLE range_table;
+/**
+ * \brief The range-energy table.
+ *
+ * This external variable contains the range-energy tables.
+ */
+range_table trange[MAXAB];
 /*
  * Delcare all the functions in crange.c
  */
-double dedx( double e1, double rel0, double z0, double a1, int tno );
-double delta( double g, int tno );
-double olddelta( double g, int tno );
+gsl_complex complex_hyperg( gsl_complex a, gsl_complex b, gsl_complex z );
+gsl_complex complex_lngamma( gsl_complex z );
+double effective_charge( double z0, double e1, double z2, short sswitch );
+double djdx( double e1, double z0, double I0, double f0, double K, short sswitch, tdata *target);
+double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata *target );
+double delta( double g, tdata *target );
+double olddelta( double g, tdata *target );
 double bma( double z1, double b );
 double relbloch( double z12, double b1, double lambda, double theta0 );
-double lindhard( double zz, double aa, double bb );
+double lindhard( double zz, double aa, double bb, short sswitch );
 double Fbrems( double x );
-double range( double e, double z1, double a1, int tno );
-double qrange( double e, double z1, double a1, int tno );
-double benton( double e, double z1, double a1, int tno );
-double renergy( double e, double r0, double z1, double a1, int tno );
-void run_range( FILE *finput, FILE *foutput );
-void init_tables( int *initstat );
-
+double range( double e, double z1, double a1, short sswitch, tdata *target, int *tno );
+double qrange( double e, double z1, double a1, short sswitch, tdata *target );
+double benton( double e, double z1, double a1, tdata *target );
+double renergy( double e, double r0, double z1, double a1, short sswitch, tdata *target );
+void run_range( FILE *finput, FILE *foutput, short sswitch, tdata *extratargets );
+short init_switch( char *switchfile);
+tdata *init_target( char *targetfile );
+void init_table(void);
+double energy_table( int i );
+tdata *find_target( char *target, tdata *extratargets );
+void print_target( tdata *target );

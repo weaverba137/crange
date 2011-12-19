@@ -1,0 +1,8 @@
+Allow additional sections of the ini file to specify additional
+parameters such as the size of the range table and the minimum
+and maximum energy.  Sections of the ini file that do not define
+switches or other configuration may be interpreted as additional
+entries for the absorber table.
+
+The pair production and bremsstrahlung computations should be updated
+to reflect Sørensen's 2010 paper (see art_ahs1 in the crange.bib file).
