@@ -133,20 +133,23 @@ doxygen-pdf: @DX_DOCDIR@/@PACKAGE@.pdf
 
 @DX_DOCDIR@/@PACKAGE@.pdf: @DX_DOCDIR@/@PACKAGE@.tag
 	cd @DX_DOCDIR@/latex; \
-	$(MAKE) ; \
-	mv refman.pdf ../@PACKAGE@.pdf
 #	rm -f *.aux *.toc *.idx *.ind *.ilg *.log *.out; \
+	$(MAKE) clean; \
+	$(DX_PDFLATEX) refman; \
+	$(DX_MAKEINDEX) refman; \
+	$(DX_BIBTEX) refman; \
+	$(DX_PDFLATEX) refman;
 #	$(DX_PDFLATEX) refman.tex; \
 #	$(DX_MAKEINDEX) refman.idx; \
 #	$(DX_PDFLATEX) refman.tex; \
-#	countdown=5; \
-#	while $(DX_EGREP) 'Rerun (LaTeX|to get cross-references right)' \
-#	                  refman.log > /dev/null 2>&1 \
-#	   && test $$countdown -gt 0; do \
-#	    $(DX_PDFLATEX) refman.tex; \
-#	    countdown=`expr $$countdown - 1`; \
-#	done; \
-#	mv refman.pdf ../@PACKAGE@.pdf
+	countdown=5; \
+	while $(DX_EGREP) 'Rerun (LaTeX|to get cross-references right)' \
+			  refman.log > /dev/null 2>&1 \
+	   && test $$countdown -gt 0; do \
+	    $(DX_PDFLATEX) refman.tex; \
+	    countdown=`expr $$countdown - 1`; \
+	done; \
+	mv refman.pdf ../@PACKAGE@.pdf
 
 endif DX_COND_pdf
 
