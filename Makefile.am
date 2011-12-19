@@ -24,4 +24,4 @@ install-data-hook:
 	test -z "$(docdir)" || cp -Rv doc/html "$(DESTDIR)$(docdir)"
 
 uninstall-local:
-	cd "$(DESTDIR)$(docdir)" && rm -rf html && rm -rf bib
+	cd "$(DESTDIR)$(docdir)" && rm -rf html bib
