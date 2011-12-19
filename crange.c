@@ -507,7 +507,8 @@ double djdx( double e1, double z0, double I0, double f0, double K, short sswitch
  *    \cite art_baw3..  This is due to their treatment of the projectile and
  *    target nuclei as a point particles.  That version appeared in some
  *    much older versions of this code, but has been replaced with
- *    Sørensen's version.
+ *    Sørensen's version.  We have not yet updated this code to reflect
+ *    Sørensen's more recent paper \cite art_ahs1.
  *  - #SSWITCH_BA : Barkas effect.
  *    This is the Barkas correction as calculated in Jackson \&
  *    McCarthy, \cite art_jdj.  It is multiplied
