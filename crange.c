@@ -3,7 +3,7 @@
  * \author Benjamin Weaver <benjamin.weaver@nyu.edu>
  * \version 1.6.1
  *
- * \copyright (C) 2001-2011 Benjamin Weaver, LGPL
+ * \copyright (C) 2001-2013 Benjamin Weaver, LGPL
  *
  * \section sec-intro Introduction
  *
