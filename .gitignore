@@ -1,0 +1,11 @@
+# General
+*.o
+*~
+
+# Autoconf stuff
+auto4mate.cache
+autoscan.log
+aclocal.m4
+
+# Mac OSX
+.DS_Store
