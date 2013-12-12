@@ -12,3 +12,5 @@ available in PDF or HTML form.  It will be installed in
 $prefix/share/doc/crange, where $prefix is /usr/local or the value
 passed to the configure script with --prefix.
 
+The source code of this package is hosted on GitHub,
+https://github.com/weaverba137/crange .

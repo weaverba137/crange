@@ -1,4 +1,4 @@
-If you are exporting from svn to create a distribution:
+If you are exporting from git to create a distribution:
 1. ./autogen.sh
 2. ./configure
 3. make doxygen-doc

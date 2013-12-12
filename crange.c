@@ -1,7 +1,7 @@
 /**
  * \mainpage crange - The Berkeley Range-Energy Calculator
  * \author Benjamin Weaver <benjamin.weaver@nyu.edu>
- * \version 1.6.1
+ * \version 1.6.2
  *
  * \copyright (C) 2001-2013 Benjamin Weaver, LGPL
  *
@@ -85,10 +85,11 @@
  *
  * \section sec-updates Updates
  *
- * Visit http://sdss.physics.nyu.edu/~bw55/dedx/ .
+ * Visit http://cosmo.nyu.edu/~bw55/dedx/ .
  *
  * \section sec-history History
  *
+ *  - 1.6.2: Minor changes relating to GitHub migration.
  *  - 1.6.1: Fix version strings.
  *  - 1.6.0: Make crange compatible with GNU autotools and GNU Scientific Library.
  *  - 1.5.3: Simplified calculation switching and added a crange.h file
