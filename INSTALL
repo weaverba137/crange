@@ -8,3 +8,6 @@ If you are installing from a distribution:
 1. ./configure
 2. make
 3. make install
+
+If you have installed iniparser in a non-standard location:
+./configure CFLAGS=-I${INIPARSER_DIR}/include LDFLAGS=-L${INIPARSER_DIR}/lib
