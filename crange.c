@@ -1684,7 +1684,7 @@ void print_target( tdata *target )
     printf("rho  = %10.4e ; Density [g cm^-3]\n", target->rho);
     printf("pla  = %10.4e ; Plasma frequency [eV]\n", target->pla);
     printf("etad = %10.1f ; Ratio of density to density at STP for gasses (zero for everything else)\n", target->etad);
-    printf("bind = %10.4e ; Total electronic binding energy [eV]\n", target->bind);
+    printf("bind = %10.4e ; Total electronic binding energy [keV]\n", target->bind);
     printf("X0   = %10.4f ; Density effect turn-on value\n", target->X0);
     printf("X1   = %10.4f ; Density effect asymptotic bound\n", target->X1);
     printf("a    = %10.5f ; Density effect interpolation parameter\n", target->a);

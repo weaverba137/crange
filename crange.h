@@ -119,7 +119,7 @@ struct TDATA {
     double rho;  /**< The density [g cm<sup>-3</sup>]. */
     double pla;  /**< The plasma frequency [eV]. */
     double etad; /**< The ratio of density to density at STP for gaseous targets. Should be set to zero for non-gaseous materials. */
-    double bind; /**< The total electronic binding energy [eV]. */
+    double bind; /**< The total electronic binding energy [keV]. */
     /** @} */
     /**
      * \name Density effect parameters
