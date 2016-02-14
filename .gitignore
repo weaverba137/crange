@@ -5,13 +5,21 @@
 *~
 
 # Cmake stuff
-Makefile
+CMakeFiles/*
+cmake_install.cmake
+CMakeCache.txt
 config.h
+crange
 doxygen.cfg
 crange
-crange-*/*
-crange-*.tar.gz
-doc
+# crange-*/*
+# crange-*.tar.gz
+# doc
+Makefile
+
+# Doxygen stuff
+html/*
+latex/*
 
 # Mac OSX
 .DS_Store

@@ -36,7 +36,7 @@
 ///
 /// \section sec-install Installation
 ///
-/// See the INSTALL file.
+/// See the README.md file.
 ///
 /// \section sec-running Running
 ///
