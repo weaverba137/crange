@@ -162,10 +162,9 @@ typedef struct RANGE_TABLE range_table;
 ///
 range_table trange[MAXAB];
 //
-// Declare all the functions in crange.c.
+// Declare all the functions in crange.cpp.
 //
-gsl_complex complex_hyperg( gsl_complex a, gsl_complex b, gsl_complex z );
-gsl_complex complex_lngamma( gsl_complex z );
+void usage( char* executable );
 double effective_charge( double z0, double e1, double z2, short sswitch );
 double djdx( double e1, double z0, double I0, double f0, double K, short sswitch, tdata *target);
 double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata *target );
@@ -239,7 +238,6 @@ template<typename T> std::complex<T> complex_lngamma( const std::complex<T> &z )
     }
     return(result);
 }
-
 ///
 /// \brief Confluent hypergeometric function.
 ///
