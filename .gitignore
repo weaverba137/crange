@@ -3,7 +3,6 @@
 *.so
 *.dylib
 *~
-tutorial.*
 
 # Cmake stuff
 Makefile

@@ -82,7 +82,7 @@
 #define SSWITCH_BR  0x200 ///< Projectile Bremsstrahlung bit.
 #define SSWITCH_DEFAULT (SSWITCH_ND | SSWITCH_NS) ///< Default bits set density effect and finite nuclear size.
 ///
-/// \namespace Tutorial
+/// \namespace CRange
 /// \brief Container for most functions and classes.
 ///
 namespace CRange
