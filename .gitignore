@@ -2,27 +2,14 @@
 *.o
 *~
 
-# Autoconf stuff
-.deps
+# Cmake stuff
 Makefile
-Makefile.in
-aclocal.m4
-autoscan.log
-autom4te.cache/*
-compile
 config.h
-config.h.in
-config.log
-config.status
-configure
+doxygen.cfg
 crange
 crange-*/*
 crange-*.tar.gz
-depcomp
 doc
-install-sh
-missing
-stamp-h1
 
 # Mac OSX
 .DS_Store
