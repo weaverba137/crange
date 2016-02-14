@@ -1,9 +1,9 @@
 ///
-/// \file TutorialConfig.h
-/// \brief The configured options and settings for Tutorial.
+/// \file config.h
+/// \brief The configured options and settings for crange.
 ///
 /// This file contains setting that will be configured by cmake.
 ///
-#define Tutorial_VERSION_MAJOR @Tutorial_VERSION_MAJOR@ ///< Major version
-#define Tutorial_VERSION_MINOR @Tutorial_VERSION_MINOR@ ///< Minor version
-#define Tutorial_VERSION_PATCH @Tutorial_VERSION_PATCH@ ///< Patch version
+#define crange_VERSION_MAJOR @crange_VERSION_MAJOR@ ///< Major version
+#define crange_VERSION_MINOR @crange_VERSION_MINOR@ ///< Minor version
+#define crange_VERSION_PATCH @crange_VERSION_PATCH@ ///< Patch version

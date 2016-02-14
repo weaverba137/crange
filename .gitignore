@@ -1,5 +1,7 @@
 # General
 *.o
+*.so
+*.dylib
 *~
 
 # Cmake stuff
