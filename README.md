@@ -7,19 +7,16 @@ Email:  benjamin.weaver@nyu.edu
 Homepage: http://cosmo.nyu.edu/~bw55/dedx/
 Source: https://github.com/weaverba137/crange
 
-Copyright (c) 2001-2013 by Benjamin Weaver.  This program is free software
-which I release under the GNU Lesser General Public License.
-Read the COPYRIGHT file for more info.  Read the INSTALL file for installation
-instructions.
-
 ## Install
 
 If you are exporting from git to create a distribution:
+
 1. cmake .
 2. make
 3. make doc
 
 If you are installing from a distribution:
+
 1. make
 2. make doc
 3. make install
