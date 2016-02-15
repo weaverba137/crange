@@ -322,17 +322,34 @@ void CRange::version(char *executable)
 std::vector<std::string> CRange::run_range( std::vector<std::string> &commands, short sswitch, std::vector<CRange::Tdata> &targets )
 {
     std::vector<std::string> results;
+    std::string bad_value("-9999.0");
+    std::string good_value("137.0");
     if (commands.size() == 0) return results;
     for (std::vector<std::string>::iterator it=commands.begin(); it != commands.end(); ++it) {
-        results.push_back(*it);
+        std::istringstream c(*it);
+        std::string task, targname;
+        double red1, red2, z1, a1;
+        // Need some error checking here!
+        c >> task >> red1 >> red2 >> z1 >> a1 >> targname;
+        CRange::Tdata target = CRange::find_target(targname, targets);
+        // std::cout << task << red1 << red2 << z1 << a1 << targ << std::endl;
+        // std::cout << target << std::endl;
+        if (target.name() == "Unknown") {
+            results.push_back(bad_value);
+        } else {
+            if (task == "r") {
+                results.push_back(good_value);
+            } else if (task == "e") {
+                results.push_back(good_value);
+            } else if (task == "d") {
+                results.push_back(good_value);
+            } else if (task == "j") {
+                results.push_back(good_value);
+            } else {
+                results.push_back(bad_value);
+            }
+        }
     }
-    // tdata *target;
-    // char task[2];
-    // char abs[NAMEWIDTH+1];
-    // double red1,red2,z1,a1;
-    // double out=0.0;
-    // int icols=6;
-    // int k=0;
     // int tno=0;
     // for(;;){
     //     icols=fscanf(finput,"%s %lf %lf %lf %lf %s\n",
