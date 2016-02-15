@@ -72,6 +72,29 @@ void CRange::Tdata::print( std::ostream *o ) const
     }
 }
 ///
+/// \brief Empty constructor.
+///
+CRange::RangeTable::RangeTable(void)
+{
+    z1 = a1 = 0.0;
+    sswitch = 0;
+    target = CRangeTdata();
+    timestamp = time(NULL);
+    for (int i=0; i<MAXE; i++) range[i] = 0.0;
+}
+///
+/// \brief Standard constructor.
+///
+CRange::RangeTable::RangeTable(double z, double a, short s, Crange::Tdata &t)
+{
+    z1 = z;
+    a1 = a;
+    sswitch = s;
+    target = t;
+    // Compute the table in the constructor.
+    for (int i=0; i<MAXE; i++) range[i] = 0.0;
+}
+///
 /// \brief Computes effective projectile charge.
 ///
 /// This is the modification of projectile charge due to electron
@@ -310,19 +333,22 @@ void CRange::version(char *executable)
 /// The task letter should be followed by the energy (or range) at which to
 /// compute range (or energy), the charge and mass of the particle, and the
 /// name of the target material.  Names of target materials can be found in the
-/// target.ini file.  Target material names may be up to #NAMEWIDTH
-/// characters in length and should contain no whitespace.
+/// target.ini file.  Target material names should contain no whitespace.
 ///
 /// \param commands A set of commands to execute
 /// \param sswitch The switch bit field.
 /// \param targets A vector of CRange::Tdata.
 ///
+/// \return A vector of numerical results, ready for output.
+///
 /// \bug The primary ionization parameters are currently hard-coded.
+/// \bug The numerical format and precision are currently hard-coded.
 ///
 std::vector<std::string> CRange::run_range( std::vector<std::string> &commands, short sswitch, std::vector<CRange::Tdata> &targets )
 {
     std::vector<std::string> results;
     if (commands.size() == 0) return results;
+    int tno = 0;
     for (std::vector<std::string>::iterator it=commands.begin(); it != commands.end(); ++it) {
         std::istringstream c(*it);
         std::ostringstream r;
@@ -340,10 +366,13 @@ std::vector<std::string> CRange::run_range( std::vector<std::string> &commands, 
                 std::cerr << "Invalid target detected in command: " << *it << std::endl;
             } else {
                 if (task == "r") {
+                    // out = CRange::range(red1,z1,a1,sswitch,target,&tno);
                     out = 137.0;
                 } else if (task == "e") {
+                    // out = CRange::renergy(red1,red2,z1,a1,sswitch,target);
                     out = 137.0;
                 } else if (task == "d") {
+                    // out = CRange::dedx(red1,red2,z1,a1,sswitch,target);
                     out = 137.0;
                 } else if (task == "j") {
                     out = CRange::djdx(red1, z1, 2.0, 0.05, 3.04, sswitch, target);
@@ -357,26 +386,6 @@ std::vector<std::string> CRange::run_range( std::vector<std::string> &commands, 
         r << std::setprecision(5) << std::scientific << out;
         results.push_back(r.str());
     }
-    // int tno=0;
-    // for(;;){
-    //     icols=fscanf(finput,"%s %lf %lf %lf %lf %s\n",
-    //         task,&red1,&red2,&z1,&a1,abs);
-    //     if(icols < 6) break;
-    //     target = find_target(abs,extratargets);
-    //     out=0.0;
-    //     if(icols==6 && strncmp( target->name, "Unknown", NAMEWIDTH ) != 0){
-    //         if(strncmp( task, "r", 1 )==0){
-    //             out=range(red1,z1,a1,sswitch,target,&tno);
-    //         } else if(strncmp( task, "e", 1 )==0){
-    //             out=renergy(red1,red2,z1,a1,sswitch,target);
-    //         } else if(strncmp( task, "d", 1 )==0){
-    //             out=dedx(red1,red2,z1,a1,sswitch,target);
-    //         } else if(strncmp( task, "j", 1 )==0){
-    //             out=djdx(red1,z1,2.0,0.05,3.04,sswitch,target);
-    //         }
-    //     }
-    //     fprintf(foutput,"%f\n",out);
-    // }
     return results;
 }
 ///

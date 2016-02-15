@@ -97,13 +97,13 @@ namespace CRange
     ///
     class Tdata {
         private:
-            static const int Ndata = 12;
-            static const std::string dnames[Ndata];
-            static const std::string comment[Ndata];
-            static const int precision[Ndata];
-            static const bool fixed[Ndata];
-            std::string _name;
-            double data[Ndata];
+            static const int Ndata = 12; ///< Length of data array.
+            static const std::string dnames[Ndata];  ///< Names of the data array entries.
+            static const std::string comment[Ndata]; ///< Comments to be inserted when serializing.
+            static const int precision[Ndata]; ///< Precision to be used when serializing.
+            static const bool fixed[Ndata]; ///< Fixed or scientific notation when serializing.
+            std::string _name; ///< Name of the target.
+            double data[Ndata];  ///< The data.
         public:
             Tdata();
             Tdata( const Tdata &t );
@@ -162,18 +162,22 @@ namespace CRange
         true, true, true, false, false, true,
         false, true, true, true, true, true};
     ///
-    /// \brief Structure to store range tables.
+    /// \brief Class to store range tables.
     ///
-    /// This structure contains a range table and its associated metadata.
+    /// This class contains a range table and its associated metadata.
     ///
-    // struct RangeTable {
-    //     double z1;          ///< The projectile charge.
-    //     double a1;          ///< The projectile mass.
-    //     short sswitch;      ///< The switch bit field.
-    //     tdata *target;      ///< A pointer to the Tdata structure used in constructing the table.
-    //     time_t timestamp;   ///< The time at which the table was created.
-    //     double range[MAXE]; ///< The actual table of range values.
-    // };
+    class RangeTable {
+        private:
+            double z1;          ///< The projectile charge.
+            double a1;          ///< The projectile mass.
+            short sswitch;      ///< The switch bit field.
+            Tdata target;       ///< The Tdata class used in constructing the table.
+            time_t timestamp;   ///< The time at which the table was created.
+            double range[MAXE]; ///< The actual table of range values.
+        public:
+            RangeTable();
+            RangeTable(double z, double a, short s, Tdata &t);
+    };
     ///
     /// \brief The range-energy table.
     ///
@@ -206,10 +210,19 @@ namespace CRange
     // double qrange( double e, double z1, double a1, short sswitch, tdata *target );
     // double benton( double e, double z1, double a1, tdata *target );
     // double renergy( double e, double r0, double z1, double a1, short sswitch, tdata *target );
-    // void run_range( FILE *finput, FILE *foutput, short sswitch, tdata *extratargets );
-    // short init_switch( char *switchfile);
-    // void init_table(void);
-    // double energy_table( int i );
+    ///
+    /// \brief Returns the energy corresponding to a value in a range table.
+    ///
+    /// This utility returns an energy value from a (virtual) vector containing
+    /// A logarithmically uniform distribution of energies between a minimum
+    /// and maximum energy (defined by #LOGTENEMIN and #LOGTENEMAX),
+    /// with a number of entries given by #MAXE.
+    ///
+    /// \param i The index of the vector.
+    ///
+    /// \return The \em i th energy in A MeV.
+    ///
+    inline double energy_table( int i ) { return exp(M_LN10*(LOGTENEMIN + ((double)i)*(LOGTENEMAX-LOGTENEMIN)/(MAXE - 1.0))); }
     ///
     /// \brief Complex logarithm of the Gamma function.
     ///
