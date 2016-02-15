@@ -185,11 +185,20 @@ int main(int argc, char *argv[])
         std::cerr << "No task file specified!" << std::endl;
         return 2;
     }
-    // CRange::Tdata foo = CRange::find_target("Hosta",targets);
-    // std::cout << foo << std::endl;
-    // std::cout << CRange::effective_charge(92.0, 950.0, foo.z2(), sswitch) << std::endl;
-    for (std::vector<std::string>::iterator it=commands.begin(); it != commands.end(); ++it) {
-        std::cout << *it << std::endl;
+    //
+    // Pass commands to the processor.
+    //
+    std::vector<std::string> results = CRange::run_range(commands, sswitch, targets);
+    //
+    // Output results.
+    //
+    bool hasOutputFile = outputfile.length() > 0;
+    std::ofstream foutput;
+    if (hasOutputFile) foutput.open(outputfile);
+    std::ostream &fout = (hasOutputFile ? foutput : std::cout);
+    for (std::vector<std::string>::iterator it=results.begin(); it != results.end(); ++it) {
+        fout << *it << std::endl;
     }
+    if (hasOutputFile) foutput.close();
     return 0;
 }

@@ -297,6 +297,65 @@ void CRange::version(char *executable)
               << crange_VERSION_PATCH << "." << std::endl;
 }
 ///
+/// \brief Parses and executes the task list.
+///
+/// This utility function steps through the range, energy and dE/dx tasks
+/// specified in the input data file.
+/// The tasks are denoted by a single letter:
+///     - \em r compute ranges
+///     - \em e compute energies
+///     - \em d compute dE/dx
+///     - \em j compute dJ/dx (primary ionization)
+///
+/// The task letter should be followed by the energy (or range) at which to
+/// compute range (or energy), the charge and mass of the particle, and the
+/// name of the target material.  Names of target materials can be found in the
+/// target.ini file.  Target material names may be up to #NAMEWIDTH
+/// characters in length and should contain no whitespace.
+///
+/// \param commands A set of commands to execute
+/// \param sswitch The switch bit field.
+/// \param targets A vector of CRange::Tdata.
+///
+/// \bug The primary ionization parameters are currently hard-coded.
+///
+std::vector<std::string> CRange::run_range( std::vector<std::string> &commands, short sswitch, std::vector<CRange::Tdata> &targets )
+{
+    std::vector<std::string> results;
+    if (commands.size() == 0) return results;
+    for (std::vector<std::string>::iterator it=commands.begin(); it != commands.end(); ++it) {
+        results.push_back(*it);
+    }
+    // tdata *target;
+    // char task[2];
+    // char abs[NAMEWIDTH+1];
+    // double red1,red2,z1,a1;
+    // double out=0.0;
+    // int icols=6;
+    // int k=0;
+    // int tno=0;
+    // for(;;){
+    //     icols=fscanf(finput,"%s %lf %lf %lf %lf %s\n",
+    //         task,&red1,&red2,&z1,&a1,abs);
+    //     if(icols < 6) break;
+    //     target = find_target(abs,extratargets);
+    //     out=0.0;
+    //     if(icols==6 && strncmp( target->name, "Unknown", NAMEWIDTH ) != 0){
+    //         if(strncmp( task, "r", 1 )==0){
+    //             out=range(red1,z1,a1,sswitch,target,&tno);
+    //         } else if(strncmp( task, "e", 1 )==0){
+    //             out=renergy(red1,red2,z1,a1,sswitch,target);
+    //         } else if(strncmp( task, "d", 1 )==0){
+    //             out=dedx(red1,red2,z1,a1,sswitch,target);
+    //         } else if(strncmp( task, "j", 1 )==0){
+    //             out=djdx(red1,z1,2.0,0.05,3.04,sswitch,target);
+    //         }
+    //     }
+    //     fprintf(foutput,"%f\n",out);
+    // }
+    return results;
+}
+///
 /// \brief Initializes the value of of the switch bit field.
 ///
 /// This utility reads an INI-type file and sets the switch bit field

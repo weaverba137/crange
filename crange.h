@@ -190,6 +190,7 @@ namespace CRange
     double olddelta( double g, Tdata &target );
     void usage( char* executable );
     void version( char* executable );
+    std::vector<std::string> run_range( std::vector<std::string> &commands, short sswitch, std::vector<Tdata> &targets );
     short init_switch( const std::string &switchfile );
     short init_switch( const char *switchfile );
     std::vector<Tdata> init_target( const char *targetfile );
