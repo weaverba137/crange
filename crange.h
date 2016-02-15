@@ -19,6 +19,7 @@
 #include <ctime>
 #include <vector>
 #include <complex>
+#include <unistd.h> ///< Provides getopt(), access().
 #include "config.h" ///< Provides version information.
 #include "iniparser.h"
 //
@@ -180,16 +181,19 @@ namespace CRange
     //
     // Declare all the functions in crange.cpp.
     //
+    double effective_charge( double z0, double e1, double z2, short sswitch );
+    double djdx( double e1, double z0, double I0, double f0, double K, short sswitch, Tdata &target);
+    // double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata *target );
+    double delta( double g, Tdata &target );
+    double olddelta( double g, Tdata &target );
     void usage( char* executable );
     void version( char* executable );
+    short init_switch( const char *switchfile );
+    short init_switch( const std::string &switchfile );
     std::vector<Tdata> init_target( const char *targetfile );
+    std::vector<Tdata> init_target( const std::string &targetfile );
     Tdata find_target(const char *name, std::vector<Tdata> &targets);
     Tdata find_target(const std::string &name, std::vector<Tdata> &targets);
-    // double effective_charge( double z0, double e1, double z2, short sswitch );
-    // double djdx( double e1, double z0, double I0, double f0, double K, short sswitch, tdata *target);
-    // double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata *target );
-    // double delta( double g, tdata *target );
-    // double olddelta( double g, tdata *target );
     // double bma( double z1, double b );
     // double relbloch( double z12, double b1, double lambda, double theta0 );
     // double lindhard( double zz, double aa, double bb, short sswitch );
@@ -202,7 +206,6 @@ namespace CRange
     // short init_switch( char *switchfile);
     // void init_table(void);
     // double energy_table( int i );
-    // void print_target( tdata *target );
     ///
     /// \brief Complex logarithm of the Gamma function.
     ///

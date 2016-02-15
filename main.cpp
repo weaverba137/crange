@@ -103,7 +103,6 @@
 /// \file main.cpp
 /// \brief Source code for main() function.
 ///
-#include <unistd.h> ///< Provides getopt().
 #include "crange.h"
 ///
 /// \brief Main program.
@@ -117,27 +116,85 @@
 ///
 int main(int argc, char *argv[])
 {
+    bool listflag = false;
+    std::string command, outputfile;
+    std::string targetfile = "target.ini";
+    std::string switchfile = "switch.ini";
     int c;
-    while ((c = getopt(argc, argv, ":hV")) != -1) {
+    while ((c = getopt(argc, argv, ":c:hlo:s:t:V")) != -1) {
         switch (c) {
+            case 'c':
+                // Interpret the value of optarg as a command to the crange engine.
+                command = optarg;
+                break;
             case 'h':
+                // Print help and exit.
                 CRange::usage(argv[0]);
                 return 0;
+            case 'l':
+                // Print the built-in target table.  Still needed?
+                listflag = true;
+                break;
+            case 'o':
+                // Print output to a file.
+                outputfile = optarg;
+                break;
+            case 's':
+                // Use filename as a switch file.
+                switchfile = optarg;
+                break;
+            case 't':
+                // Use filename as a target file.
+                targetfile = optarg;
+                break;
             case 'V':
+                // Print version string and exit.
                 CRange::version(argv[0]);
                 return 0;
             case '?':
+                // Unknown!
                 std::cerr << "Unrecognised option: -" << (char)optopt << std::endl;
                 CRange::usage(argv[0]);
                 return 1;
         }
     }
-    std::vector<CRange::Tdata> targets = CRange::init_target("target.ini");
+    std::vector<CRange::Tdata> targets = CRange::init_target(targetfile);
+    short sswitch = CRange::init_switch(switchfile);
+    if (listflag) {
+        for (std::vector<CRange::Tdata>::iterator it=targets.begin(); it!=targets.end(); ++it) std::cout << *it << std::endl;
+        return 0;
+    }
+    if (argc-optind >= 1) {
+        std::string taskfile = argv[optind];
+        // finput=fopen(inputname, "r");
+        // if (finput==NULL) {
+        //     fprintf(stderr,"Error opening task file!\n");
+        //     return(2);
+        // }
+    } else if (command.length() > 0) {
+        //
+        // Create a temporary file to hold the command.
+        //
+        // strcpy(tempfilename, "/tmp/cr.XXXXXX");
+        // if ((fd = mkstemp(tempfilename)) == -1 || (finput = fdopen(fd, "w+")) == NULL) {
+        //     if (fd != -1) {
+        //         close(fd);
+        //         unlink(tempfilename);
+        //     }
+        //     fprintf(stderr, "%s: %s\n", tempfilename, strerror(errno));
+        //     return(2);
+        // }
+        //
+        // Write the command to the temporary file.
+        //
+        // fprintf(finput,"%s\n",command);
+        // rewind(finput);
+    } else {
+        std::cerr << "No task file specified!" << std::endl;
+        return 2;
+    }
     CRange::Tdata foo = CRange::find_target("Hosta",targets);
-    std::cout << foo << std::endl;
-    foo = CRange::find_target("Foobar",targets);
-    std::cout << foo << std::endl;
-    // for (std::vector<CRange::Tdata>::iterator it=tmap.begin(); it!=tmap.end(); ++it)
-    //     std::cout << *it << std::endl;
+    // std::cout << foo << std::endl;
+    std::cout << CRange::effective_charge(92.0, 950.0, foo.z2(), sswitch) << std::endl;
     return 0;
 }
