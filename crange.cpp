@@ -306,15 +306,16 @@ void CRange::version(char *executable)
 ///
 /// \return The switch bit field.
 ///
-/// \warning If the iniparser library is not found, this function will only
+/// \warning If the file is not found, this function will only
 /// return the default value #SSWITCH_DEFAULT.
 ///
-short CRange::init_switch( const char *switchfile )
+short CRange::init_switch( const std::string &switchfile )
 {
     short sswitch = SSWITCH_DEFAULT;
-    if (access(switchfile,R_OK) == 0) {
+    if (switchfile.length() == 0) return sswitch;
+    if (access(switchfile.c_str(), R_OK) == 0) {
         sswitch = 0;
-        dictionary *d = iniparser_load( switchfile );
+        dictionary *d = iniparser_load( switchfile.c_str() );
         if (iniparser_getboolean(d,"switch:barkas",0)) sswitch |= SSWITCH_BA;
         if (iniparser_getboolean(d,"switch:shell",0))  sswitch |= SSWITCH_SH;
         if (iniparser_getboolean(d,"switch:leung",0))  sswitch |= SSWITCH_LE;
@@ -342,56 +343,64 @@ short CRange::init_switch( const char *switchfile )
 ///
 /// \return The switch bit field.
 ///
-/// \warning If the iniparser library is not found, this function will only
+/// \warning  If the file is not found, this function will only
 /// return the default value #SSWITCH_DEFAULT.
 ///
-short CRange::init_switch( const std::string &switchfile )
+short CRange::init_switch( const char *switchfile )
 {
-    return CRange::init_switch(switchfile.c_str());
+    const std::string switchstring = switchfile;
+    return CRange::init_switch(switchstring);
 }
 ///
 /// \brief Read optional target data file.
 ///
-/// This utility reads an INI-type file and returns an array of pointers to
-/// CRange::Tdata structures.
+/// This utility reads an INI-type file and returns a vector of pointers to
+/// CRange::Tdata objects.
 ///
 /// \param targetfile the name of an INI-type file containing target data.
 ///
-/// \return A pointer to an array of CRange::Tdata structures.  This pointer must
-/// be free()d!
+/// \return A vector of CRange::Tdata objects.
+///
+/// \warning If the file is not found, the vector will be empty.
+///
+std::vector<CRange::Tdata> CRange::init_target( const std::string &targetfile )
+{
+    std::vector<CRange::Tdata> target_list;
+    if (targetfile.length() > 0) {
+        if (access(targetfile.c_str(), R_OK) == 0) {
+            dictionary *d = iniparser_load(targetfile.c_str());
+            int nsec = iniparser_getnsec(d);
+            for (int i = 0; i < nsec; i++) {
+                const char *sec = iniparser_getsecname(d, i);
+                CRange::Tdata t(sec, d);
+                target_list.push_back(t);
+            }
+            iniparser_freedict(d);
+        } else {
+            std::cerr << "Could not read target file: " << targetfile
+                      << ". Using default target data." << std::endl;
+        }
+    }
+    target_list = CRange::default_target(target_list);
+    return target_list;
+}
+///
+/// \brief Read optional target data file.
+///
+/// This utility reads an INI-type file and returns a vector of pointers to
+/// CRange::Tdata objects.
+///
+/// \param targetfile the name of an INI-type file containing target data.
+///
+/// \return A vector of CRange::Tdata objects.
 ///
 /// \warning If the iniparser library is not found, this function will only
 /// return a NULL pointer.
 ///
 std::vector<CRange::Tdata> CRange::init_target( const char *targetfile )
 {
-    std::vector<CRange::Tdata> target_list;
-    dictionary *ini = iniparser_load(targetfile);
-    int nsec = iniparser_getnsec(ini);
-    for (int i = 0; i < nsec; i++) {
-        const char *sec = iniparser_getsecname(ini, i);
-        CRange::Tdata t(sec, ini);
-        target_list.push_back(t);
-    }
-    return target_list;
-}
-///
-/// \brief Read optional target data file.
-///
-/// This utility reads an INI-type file and returns an array of pointers to
-/// CRange::Tdata structures.
-///
-/// \param targetfile the name of an INI-type file containing target data.
-///
-/// \return A pointer to an array of CRange::Tdata structures.  This pointer must
-/// be free()d!
-///
-/// \warning If the iniparser library is not found, this function will only
-/// return a NULL pointer.
-///
-std::vector<CRange::Tdata> CRange::init_target( const std::string &targetfile )
-{
-    return CRange::init_target(targetfile.c_str());
+    const std::string targetstring = targetfile;
+    return CRange::init_target(targetstring);
 }
 ///
 /// \brief Find a target by name.
@@ -412,6 +421,81 @@ CRange::Tdata CRange::find_target(const std::string &name, std::vector<CRange::T
         }
     }
     return CRange::Tdata();
+}
+///
+/// \brief Load the default target data.
+///
+/// This function returns a vector of CRange::Tdata containing the default
+/// target data. The default data may be added to or overridden by supplying an
+/// INI-type file on the command line.  This is accomplished by loading the
+/// extra target data into the vector first, then loading the default data.
+///
+/// \param extratargets The targets already loaded.
+///
+/// \return A vector of CRange::Tdata.
+///
+std::vector<CRange::Tdata> CRange::default_target(std::vector<CRange::Tdata> &extratargets)
+{
+    const std::string tnames[] = {"H", "He", "C", "N", "O", "Na", "Al", "Si", "P",
+        "Ar", "Fe", "Ni", "Cu", "Ge", "Ag", "Ba", "Os", "Pt", "Au", "Pb", "U",
+        "Air", "ArCO2", "BC-408", "BP-1", "CH2", "CO2", "CR-39", "CsI", "Halo",
+        "Hosta", "ISM", "Kapton", "Kevlar", "Lexan", "LH2", "Mesh", "Mylar",
+        "SiO2", "Teflon", "Water", "Unknown"};
+    const double targets[][12] = {
+        //    z2,      a2,  iadj,        rho,        pla,etad,       bind,      X0,     X1,       a,      m,   d0
+        {  1.000,   1.008,  19.2, 8.3748e-05, 2.6300e-01, 1.0, 1.3606e-02,  1.8639, 3.2718, 0.14092, 5.7273, 0.00 },
+        {  2.000,   4.003,  41.8, 1.6632e-04, 2.6300e-01, 1.0, 7.7872e-02,  2.2017, 3.6122, 0.13443, 5.8347, 0.00 },
+        {  6.000,  12.011,  78.0, 2.0000e+00, 2.8803e+01, 0.0, 1.0251e+00, -0.0351, 2.4860, 0.20240, 3.0036, 0.10 },
+        {  7.000,  14.007,  82.0, 1.1653e-03, 6.9500e-01, 1.0, 1.4782e+00,  1.7378, 4.1323, 0.15349, 3.2125, 0.00 },
+        {  8.000,  15.999,  95.0, 1.3315e-03, 7.4400e-01, 0.0, 2.0359e+00,  1.7541, 4.3213, 0.11778, 3.2913, 0.00 },
+        { 11.000,  22.990, 149.0, 9.7100e-01, 1.9641e+01, 0.0, 4.4097e+00,  0.2880, 3.1962, 0.07772, 3.6452, 0.08 },
+        { 13.000,  26.980, 166.0, 2.6989e+00, 3.2860e+01, 0.0, 6.5929e+00,  0.1708, 3.0127, 0.08024, 3.6345, 0.12 },
+        { 14.000,  28.090, 173.0, 2.3300e+00, 3.1055e+01, 0.0, 7.8751e+00,  0.2014, 2.8715, 0.14921, 3.2546, 0.14 },
+        { 15.000,  30.974, 173.0, 2.2000e+00, 2.9743e+01, 0.0, 9.2905e+00,  0.1696, 2.7815, 0.23610, 2.9158, 0.14 },
+        { 18.000,  39.948, 188.0, 1.6620e-03, 7.8900e-01, 1.0, 1.4382e+01,  1.7635, 4.4855, 0.19714, 2.9618, 0.00 },
+        { 26.000,  55.847, 286.0, 7.8740e+00, 5.5172e+01, 0.0, 3.4582e+01, -0.0012, 3.1531, 0.14680, 2.9632, 0.12 },
+        { 28.000,  58.690, 311.0, 8.9020e+00, 5.9385e+01, 0.0, 4.1324e+01, -0.0566, 3.1851, 0.16496, 2.8430, 0.10 },
+        { 29.000,  63.550, 323.0, 8.9600e+00, 5.8270e+01, 0.0, 4.4973e+01, -0.0254, 3.2792, 0.14339, 2.9044, 0.08 },
+        { 32.000,  72.610, 350.0, 5.3230e+00, 4.4141e+01, 0.0, 5.7047e+01,  0.3376, 3.6096, 0.07188, 3.3306, 0.14 },
+        { 47.000, 107.870, 470.0, 1.0500e+01, 6.1635e+01, 0.0, 1.4451e+02,  0.0657, 3.1074, 0.24585, 2.6899, 0.14 },
+        { 56.000, 137.330, 491.0, 3.5000e+00, 3.4425e+01, 0.0, 2.2118e+02,  0.4190, 3.4547, 0.18268, 2.8906, 0.14 },
+        { 76.000, 190.200, 746.0, 2.2570e+01, 8.6537e+01, 0.0, 4.6939e+02,  0.0891, 3.5414, 0.12751, 2.9608, 0.10 },
+        { 78.000, 195.090, 790.0, 2.1450e+01, 8.4389e+01, 0.0, 5.0101e+02,  0.1484, 3.6212, 0.11128, 3.0417, 0.12 },
+        { 79.000, 196.970, 790.0, 1.9320e+01, 8.0215e+01, 0.0, 5.1732e+02,  0.2021, 3.6979, 0.09756, 3.1101, 0.14 },
+        { 82.000, 207.200, 823.0, 1.1350e+01, 6.1072e+01, 0.0, 5.6834e+02,  0.3776, 3.8073, 0.09359, 3.1608, 0.14 },
+        { 92.000, 238.030, 890.0, 1.5370e+01, 7.7986e+01, 0.0, 7.6220e+02,  0.2260, 3.3721, 0.19677, 2.8171, 0.14 },
+        {  7.312,  14.667,  85.4, 1.2048e-03, 7.0700e-01, 1.0, 1.7150e+00,  1.7418, 4.2759, 0.10914, 3.3994, 0.00 },
+        { 15.867,  34.892, 174.7, 1.7000e-03, 8.0120e-01, 1.0, 1.7150e+00,  1.7418, 4.2759, 0.10914, 3.3994, 0.00 },
+        {  3.381,   6.248,  62.8, 1.0320e+00, 2.1534e+01, 1.0, 4.9530e-01,  0.1769, 2.6747, 0.11442, 3.3762, 0.00 },
+        { 14.795,  32.575, 242.5, 3.0000e+00, 3.3636e+01, 0.0, 2.7489e+01,  0.0843, 3.6297, 0.06445, 3.3655, 0.00 },
+        {  2.667,   4.676,  57.4, 9.4000e-01, 2.1099e+01, 0.0, 3.5078e-01,  0.1370, 2.5177, 0.12108, 3.4292, 0.00 },
+        {  7.333,  14.670,  85.0, 1.8421e-03, 8.7400e-01, 1.0, 1.6990e+00,  1.6294, 4.1825, 0.11768, 3.3227, 0.00 },
+        {  3.946,   7.413,  73.1, 1.4000e+00, 2.4780e+01, 0.0, 7.2426e-01,  0.1562, 2.6507, 0.12679, 3.3076, 0.00 },
+        { 54.000, 129.905, 553.1, 4.5100e+00, 3.9455e+01, 0.0, 2.0258e+02,  0.0395, 3.3353, 0.25381, 2.6657, 0.00 },
+        {  1.077,   1.238,  19.2, 4.0880e-24, 5.4342e-11, 1.0, 1.8554e-02,  2.0000, 3.5000, 0.13500, 5.7500, 0.00 },
+        {  4.250,   8.091,  72.3, 1.4000e+00, 2.4722e-01, 0.0, 7.7212e-01,  0.1606, 2.6255, 0.12860, 3.3288, 0.00 },
+        {  1.077,   1.238,  19.2, 2.0440e-24, 3.8426e-11, 1.0, 1.8554e-02,  2.0000, 3.5000, 0.13500, 5.7500, 0.00 },
+        {  5.026,   9.803,  75.9, 1.4200e+00, 2.4586e+01, 0.0, 9.1859e-01,  0.1509, 2.5631, 0.15972, 3.1912, 0.00 },
+        {  4.000,   7.567,  71.7, 1.4500e+00, 2.5229e+01, 0.0, 9.1859e-01,  0.1509, 2.5631, 0.15972, 3.1912, 0.00 },
+        {  4.061,   7.706,  73.1, 1.2040e+00, 2.2915e+01, 0.0, 6.8789e-01,  0.1606, 2.6255, 0.12860, 3.3288, 0.00 },
+        {  1.000,   1.008,  21.8, 6.0000e-02, 7.0310e+00, 0.0, 1.3606e-02,  0.4759, 1.9215, 0.13483, 5.6249, 0.00 },
+        { 21.400,  44.200, 223.0, 2.1500e+00, 2.9400e+01, 0.0, 3.4582e+01, -0.0012, 3.1531, 0.14680, 2.9632, 0.12 },
+        {  4.456,   8.735,  78.7, 1.4000e+00, 2.4595e+01, 0.0, 8.4108e-01,  0.1562, 2.6507, 0.12679, 3.3067, 0.00 },
+        { 10.000,  20.029, 139.2, 2.3200e+00, 3.1014e+01, 0.0, 3.9822e+00,  0.1385, 3.0025, 0.08408, 3.5064, 0.00 },
+        {  8.000,  16.669,  99.1, 2.2000e+00, 2.9609e+01, 0.0, 2.1465e+00,  0.1648, 2.7404, 0.10606, 3.4046, 0.00 },
+        {  3.333,   6.005,  75.0, 1.0000e+00, 2.1469e+01, 0.0, 6.8770e-01,  0.2400, 2.8004, 0.09116, 3.4773, 0.00 },
+        // THIS MUST BE THE LAST STRUCTURE DEFINITION!
+        {  0.000,   0.000,   0.0, 0.0000e+00, 0.0000e+00, 0.0, 0.0000e+00,  0.0000, 0.0000, 0.00000, 0.0000, 0.00 }
+    };
+    int k=0;
+    do {
+        CRange::Tdata t(tnames[k], targets[k]);
+        extratargets.push_back(t);
+        k++;
+    } while (tnames[k] != "Unknown");
+    CRange::Tdata t(tnames[k], targets[k]); // Add "Unknown" to the end.
+    extratargets.push_back(t);
+    return extratargets;
 }
 ///
 /// \brief Allow printing.

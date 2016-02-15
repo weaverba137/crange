@@ -12,6 +12,8 @@
 //
 #include <iostream>
 #include <iomanip>
+#include <fstream>
+// #include <sstream>
 #include <cstdlib>
 #include <cmath>
 #include <cstring>
@@ -188,12 +190,13 @@ namespace CRange
     double olddelta( double g, Tdata &target );
     void usage( char* executable );
     void version( char* executable );
-    short init_switch( const char *switchfile );
     short init_switch( const std::string &switchfile );
+    short init_switch( const char *switchfile );
     std::vector<Tdata> init_target( const char *targetfile );
     std::vector<Tdata> init_target( const std::string &targetfile );
     Tdata find_target(const char *name, std::vector<Tdata> &targets);
     Tdata find_target(const std::string &name, std::vector<Tdata> &targets);
+    std::vector<Tdata> default_target(std::vector<Tdata> &extratargets);
     // double bma( double z1, double b );
     // double relbloch( double z12, double b1, double lambda, double theta0 );
     // double lindhard( double zz, double aa, double bb, short sswitch );

@@ -117,9 +117,7 @@
 int main(int argc, char *argv[])
 {
     bool listflag = false;
-    std::string command, outputfile;
-    std::string targetfile = "target.ini";
-    std::string switchfile = "switch.ini";
+    std::string command, outputfile, targetfile, switchfile;
     int c;
     while ((c = getopt(argc, argv, ":c:hlo:s:t:V")) != -1) {
         switch (c) {
@@ -164,37 +162,34 @@ int main(int argc, char *argv[])
         for (std::vector<CRange::Tdata>::iterator it=targets.begin(); it!=targets.end(); ++it) std::cout << *it << std::endl;
         return 0;
     }
+    std::vector<std::string> commands;
     if (argc-optind >= 1) {
         std::string taskfile = argv[optind];
-        // finput=fopen(inputname, "r");
-        // if (finput==NULL) {
-        //     fprintf(stderr,"Error opening task file!\n");
-        //     return(2);
-        // }
+        std::ifstream finput;
+        finput.open(taskfile);
+        if (!finput.is_open()) {
+            std::cerr << "Error opening task file: " << taskfile << std::endl;
+            return 2;
+        }
+        std::string line;
+        while ( std::getline(finput, line) ) {
+            commands.push_back(line);
+        }
+        finput.close();
     } else if (command.length() > 0) {
         //
-        // Create a temporary file to hold the command.
+        // Create a stream to hold the command.
         //
-        // strcpy(tempfilename, "/tmp/cr.XXXXXX");
-        // if ((fd = mkstemp(tempfilename)) == -1 || (finput = fdopen(fd, "w+")) == NULL) {
-        //     if (fd != -1) {
-        //         close(fd);
-        //         unlink(tempfilename);
-        //     }
-        //     fprintf(stderr, "%s: %s\n", tempfilename, strerror(errno));
-        //     return(2);
-        // }
-        //
-        // Write the command to the temporary file.
-        //
-        // fprintf(finput,"%s\n",command);
-        // rewind(finput);
+        commands.push_back(command);
     } else {
         std::cerr << "No task file specified!" << std::endl;
         return 2;
     }
-    CRange::Tdata foo = CRange::find_target("Hosta",targets);
+    // CRange::Tdata foo = CRange::find_target("Hosta",targets);
     // std::cout << foo << std::endl;
-    std::cout << CRange::effective_charge(92.0, 950.0, foo.z2(), sswitch) << std::endl;
+    // std::cout << CRange::effective_charge(92.0, 950.0, foo.z2(), sswitch) << std::endl;
+    for (std::vector<std::string>::iterator it=commands.begin(); it != commands.end(); ++it) {
+        std::cout << *it << std::endl;
+    }
     return 0;
 }
