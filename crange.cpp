@@ -19,6 +19,10 @@ CRange::Tdata::Tdata(void)
 ///
 /// \brief Copy constructor.
 ///
+/// Create a copy of a CRange::Tdata.
+///
+/// \param t The original CRange::Tdata object.
+///
 CRange::Tdata::Tdata( const CRange::Tdata &t )
 {
     _name = t._name;
@@ -27,13 +31,23 @@ CRange::Tdata::Tdata( const CRange::Tdata &t )
 ///
 /// \brief Standard constructor.
 ///
+/// Initialize with a name and an array of data.
+///
+/// \param n Target name.
+/// \param d Data array.
+///
 CRange::Tdata::Tdata( const std::string &n, const double d[] )
 {
     _name = n;
     for (int i=0; i < Ndata; i++) data[i] = d[i];
 }
 ///
-/// \brief Slightly different constructor.
+/// \brief Standard constructor.
+///
+/// Initialize with a name and an array of data.
+///
+/// \param n Target name.
+/// \param d Data array.
 ///
 CRange::Tdata::Tdata( const char *n, const double d[] )
 {
@@ -41,7 +55,12 @@ CRange::Tdata::Tdata( const char *n, const double d[] )
     for (int i=0; i < Ndata; i++) data[i] = d[i];
 }
 ///
-/// \brief INI based constructor.
+/// \brief INI-based constructor.
+///
+/// Initialize a CRange::Tdata object with a section from an INI file.
+///
+/// \param n Target name; also a section of the INI file.
+/// \param ini Pointer to an object representing the INI file.
 ///
 CRange::Tdata::Tdata( const char *n, dictionary *ini )
 {
@@ -54,10 +73,13 @@ CRange::Tdata::Tdata( const char *n, dictionary *ini )
 ///
 /// \brief Print.
 ///
+/// This serializes a CRange::Tdata object onto an output stream.
+///
+/// \param o Pointer to output stream.
+///
 void CRange::Tdata::print( std::ostream *o ) const
 {
     *o << "[" << _name << "]" << std::endl;
-
     *o << "name = " << std::setw(10) << _name << " ; Target name" << std::endl;
     for (int i=0; i < Ndata; i++) {
         std::string n4 = dnames[i];
@@ -78,21 +100,52 @@ CRange::RangeTable::RangeTable(void)
 {
     z1 = a1 = 0.0;
     sswitch = 0;
-    target = CRangeTdata();
-    timestamp = time(NULL);
+    target = CRange::Tdata();
     for (int i=0; i<MAXE; i++) range[i] = 0.0;
 }
 ///
 /// \brief Standard constructor.
 ///
-CRange::RangeTable::RangeTable(double z, double a, short s, Crange::Tdata &t)
+/// \param z Projectile charge.
+/// \param a Projective mass number.
+/// \param s Switches used.
+/// \param t CRange::Tdata object representing the target material.
+///
+CRange::RangeTable::RangeTable(double z, double a, short s, CRange::Tdata &t)
 {
     z1 = z;
     a1 = a;
     sswitch = s;
     target = t;
-    // Compute the table in the constructor.
-    for (int i=0; i<MAXE; i++) range[i] = 0.0;
+    int i = 0;
+    double rel = 0.0;
+    while (CRange::energy_table(i) < 8.0) {
+        double e1 = CRange::energy_table(i);
+        range[i] = CRange::benton(e1, z1, a1, target);
+        i++;
+    }
+    while (i < MAXE) {
+        range[i] = range[i-1] + CRange::integrate_dedx(i, z1, a1, sswitch, target);
+        i++;
+    }
+}
+///
+/// \brief Perform interpolation on an existing CRange::RangeTable.
+///
+/// \param e Initial projectile kinetic energy in A MeV.
+///
+/// \return Projectile range in g cm<sup>-2</sup>.
+///
+double CRange::RangeTable::interpolate_range( double e )
+{
+    if( e > CRange::energy_table(0)) {
+        int i = 1;
+        while ( e > CRange::energy_table(i) ) i++;
+        return ( range[i-1] + ( e - CRange::energy_table(i-1) ) *
+            (range[i]-range[i-1])/(CRange::energy_table(i)-CRange::energy_table(i-1)) );
+    } else {
+        return( e*range[0]/CRange::energy_table(0) );
+    }
 }
 ///
 /// \brief Computes effective projectile charge.
@@ -287,6 +340,238 @@ double CRange::olddelta( double g, CRange::Tdata &target )
     }
 }
 ///
+/// \brief Numerically integrate dedx() over one step.
+///
+/// To compute range, we integrate the reciprocal of dedx().  This
+/// handles one step in the integration.
+///
+/// \param i Index into the range table.
+/// \param z Projectile charge.
+/// \param a Projective mass number.
+/// \param s Switches used.
+/// \param t CRange::Tdata object representing the target material.
+///
+/// \return Projectile range in g cm<sup>-2</sup>.
+///
+double CRange::integrate_dedx( int i, double z, double a, short s, CRange::Tdata &t)
+{
+    double rel = 0.0;
+    double e0 = CRange::energy_table(i-1);
+    double de2 = (CRange::energy_table(i) - e0)/2.0;
+    double e1 = e0 + 1.33998104*de2;
+    double dedx1 = 10.0;
+    // double dedx1 = CRange::dedx(e1,rel,z1,a1,sswitch,target);
+    double e2 = e0 + 1.86113631*de2;
+    double dedx2 = 11.0;
+    // double dedx2 = CRange::dedx(e2,rel,z1,a1,sswitch,target);
+    double e3 = e0 + 0.13886369*de2;
+    double dedx3 = 10.5;
+    // double dedx3 = CRange::dedx(e3,rel,z1,a1,sswitch,target);
+    double e4 = e0 + 0.66001869*de2;
+    double dedx4 = 11.0;
+    // double dedx4 = CRange::dedx(e4,rel,z1,a1,sswitch,target);
+    double dr = de2 * (0.65214515/dedx1 +
+                       0.34785485/dedx2 +
+                       0.34785485/dedx3 +
+                       0.65214515/dedx4);
+    return dr;
+}
+///
+/// \brief Computes total range given initial energy.
+///
+/// This function computes total range given initial energy.  The technique
+/// is quite clever, in that if from one call to the next, the projectile
+/// and target material parameters do not change, the calculation of
+/// range is performed by table interpolation rather than direct integration.
+/// The savings in calculation time can be enormous.  However, the
+/// range of valid energies is limited by the size of the table.  The
+/// function dE/dx is evaluated at most of the energies defined by the function
+/// energy_table().  Results are stored in a vector of CRange::RangeTable objects.
+///
+/// \param e Initial projectile kinetic energy in A MeV.
+/// \param z1 Projectile charge.
+/// \param a1 Projectile atomic mass.
+/// \param sswitch The switch bit field.
+/// \param target A CRange::Tdata object.
+/// \param rt A vector containing previously computed range tables.
+///
+/// \return Projectile range in g cm<sup>-2</sup>.
+///
+double CRange::range( double e, double z1, double a1, short sswitch, CRange::Tdata &target, std::vector<CRange::RangeTable> &rt )
+{
+    //
+    // Search the range table for existing data
+    //
+    for (std::vector<CRange::RangeTable>::iterator it=rt.begin(); it != rt.end(); ++it) {
+        if ((z1 == it->z1) && (a1 == it->a1) && (sswitch == it->sswitch) &&
+            (target.name() == it->target.name())) {
+                return it->interpolate_range(e);
+        }
+    }
+    //
+    // If we didn't exit, we need to create a new table.
+    //
+    CRange::RangeTable table(z1, a1, sswitch, target);
+    rt.push_back(table);
+    return table.interpolate_range(e);
+}
+///
+/// \brief Computes total range by direct integration of dE/dx.
+///
+/// This function computes total range by direct integration of the
+/// dedx() function.  It does not create a range table or do table
+/// interpolation.
+///
+/// \param e Initial energy in A MeV.
+/// \param z1 Projectile charge.
+/// \param a1 Projectile mass.
+/// \param sswitch The switch bit field.
+/// \param target A CRange::Tdata object.
+///
+/// \return Total range in g cm<sup>-2</sup>.
+///
+/// \bug The interpolation in the low-energy regime needs more attention.
+/// \bug Currently, this function isn't called by anything.
+///
+double qrange( double e, double z1, double a1, short sswitch, CRange::Tdata &target )
+{
+    double ei = 8.0, en = 1.0;
+    double ra[MAXE];
+    if(e > ei){
+        ra[0] = CRange::benton(ei,z1,a1,target);
+        int i = 1;
+        do {
+            ra[i] = ra[i-1] + CRange::integrate_dedx(i, z1, a1, sswitch, target);
+            i++;
+        } while(en < e);
+        return ra[i-1];
+    } else if (e > 1.0 && e <= ei) {
+        return CRange::benton(e,z1,a1,target);
+    } else {
+        return e*CRange::benton(en,z1,a1,target)/en;
+    }
+}
+///
+/// \brief Computes ranges at low energies.
+///
+/// This function is the result of empirical fits to very low energy
+/// 1 A MeV \< E \< 8 A MeV ion ranges.  It follows the methods of
+/// Barkas \& Berger, \cite coll_whb. A simplified
+/// discussion, with a more complicated formula is given in
+/// Benton \& Henke, \cite art_evb1.
+/// As yet I know of no nicer way to deal with these low energies.
+///
+/// \param e Projectile kinetic energy in A MeV.
+/// \param z1 Projectile charge.
+/// \param a1 Projectile atomic mass.
+/// \param target A CRange::Tdata object.
+///
+/// \return Projectile range in g cm<sup>-2</sup>.
+///
+/// \note The array join[4] demarcates three energy regions represented by
+/// the three sets of coefficients in amn[3][4][4]. The demarcation is variable
+/// in order to minimize discontinuities at the boundary.  The coefficients
+/// in cjoin[2][7], which is used to initialize join[4], are inherited from
+/// legacy code; I have not found them in the non-obscure literature.
+/// Approximately, the three regions are \em E \< 1 A MeV, 1 \< \em E \< 7 A MeV
+/// and \em E \> 7 A MeV.  I can find no reason why join[4] has four elements and
+/// not two.
+///
+double CRange::benton( double e, double z1, double a1, CRange::Tdata &target )
+{
+    const static double amn[3][4][4] = {
+        {
+            {-8.72500,  1.88000,  0.741900,  0.752000},
+            { 0.83090,  0.11140, -0.528800, -0.555890},
+            {-0.13396, -0.06481,  0.126423,  0.128431},
+            { 0.01262,  0.00540, -0.009341, -0.009306}
+        },
+        {
+            {-7.6604e-01,  2.5398e+00, -2.4598e-01,  0.0000e+00},
+            { 7.3736e-02, -3.1200e-01,  1.1548e-01,  0.0000e+00},
+            { 4.0556e-02,  1.8664e-02, -9.9661e-03,  0.0000e+00},
+            { 0.0000e+00,  0.0000e+00,  0.0000e+00,  0.0000e+00}
+        },
+        {
+            {-8.0155e+00,  1.8371e+00,  4.5233e-02, -5.9898e-03},
+            { 3.6916e-01, -1.4520e-02, -9.5873e-04, -5.2315e-04},
+            {-1.4307e-02, -3.0142e-02,  7.1303e-03, -3.3802e-04},
+            { 3.4718e-03,  2.3603e-03, -6.8538e-04,  3.9405e-05}
+        }
+    };
+    const static double czmn[4][4] = {
+        {-6.000e-05,  5.252e-02,  1.285e-01,  0.000e+00},
+        {-1.850e-03,  7.355e-02,  7.171e-02, -2.723e-02},
+        {-7.930e-02,  3.323e-01, -1.234e-01,  1.530e-02},
+        { 2.200e-01,  0.000e+00,  0.000e+00,  0.000e+00}
+    };
+    const static double cjoin[2][7] = {
+        { 0.94,  20.19, -84.08,  132.98, -30.77, -102.29, 64.03},
+        {12.62, -51.96, 199.14, -367.09, 327.06, -108.57,  0.00}
+    };
+    const double cr = PROTONMASS/ATOMICMASSUNIT;
+    //
+    // Compute join[4].
+    //
+    double join[4];
+    for (int l = 0; l < 2; l++) {
+        int m = 6;
+        join[l] = cjoin[l][m];
+        while (m > 0) join[l] = 0.001*target.iadj()*join[l] + cjoin[l][--m];
+    }
+    //
+    // Compute prnglo[3].
+    //
+    double logt = log( e * cr );
+    double logi = log( target.iadj() );
+    double prnglo[3];
+    for (int l = 0; l < 3; l++) {
+        double loglambda=0.0;
+        for (int m = 3; m >= 0; m-- ) {
+            int n = 3;
+            double term = amn[l][m][n];
+            while (n > 0) term = term*logt + amn[l][m][--n];
+            loglambda += term;
+            loglambda *= logi;
+        }
+        loglambda /= logi;
+        loglambda += log( (target.a2())/(target.z2()) );
+        prnglo[l] = exp(loglambda);
+        if (l == 1) prnglo[l] *= 1.0e-03;
+    }
+    //
+    // Compute cz[4].
+    //
+    double g = 1.0 + e/ATOMICMASSUNIT;
+    double b = sqrt(1.0 -1.0/(g*g));
+    double x = 137.0*b/z1;
+    double cz[4];
+    for (int m = 0; m < 4; m++) {
+        cz[m]=0.0;
+        for (int n = 3; n >= 0; n--) {
+            cz[m] += czmn[m][n];
+            cz[m] *= x;
+        }
+        cz[m] /= x;
+    }
+    int l = 1;
+    if ( e < join[0]) l = 0;
+    if ( e > join[1]) l = 2;
+    int n;
+    if (x <= 0.2) {
+        n = 0;
+    } else if ( x > 0.2 && x <= 2.0 ) {
+        n = 1;
+    } else if ( x > 2.0 && x <= 3.0 ) {
+        n = 2;
+    } else if ( x > 3.0 ) {
+        n = 3;
+    }
+    double bzz=(31.8+3.86*exp((5.0/8.0)*logi))
+        *( (target.a2())/(target.z2()) )*1.0e-06*exp((8.0/3.0)*log( z1 ));
+    return(( (a1/cr)/(z1*z1) )*(prnglo[l] + bzz*cz[n]));
+}
+///
 /// \brief Print usage message.
 ///
 /// Prints a usage message on STDERR.
@@ -348,7 +633,7 @@ std::vector<std::string> CRange::run_range( std::vector<std::string> &commands, 
 {
     std::vector<std::string> results;
     if (commands.size() == 0) return results;
-    int tno = 0;
+    std::vector<CRange::RangeTable> rt;
     for (std::vector<std::string>::iterator it=commands.begin(); it != commands.end(); ++it) {
         std::istringstream c(*it);
         std::ostringstream r;
@@ -366,7 +651,7 @@ std::vector<std::string> CRange::run_range( std::vector<std::string> &commands, 
                 std::cerr << "Invalid target detected in command: " << *it << std::endl;
             } else {
                 if (task == "r") {
-                    // out = CRange::range(red1,z1,a1,sswitch,target,&tno);
+                    // out = CRange::range(red1,z1,a1,sswitch,target,rt);
                     out = 137.0;
                 } else if (task == "e") {
                     // out = CRange::renergy(red1,red2,z1,a1,sswitch,target);
@@ -528,12 +813,12 @@ CRange::Tdata CRange::find_target(const std::string &name, std::vector<CRange::T
 ///
 std::vector<CRange::Tdata> CRange::default_target(std::vector<CRange::Tdata> &extratargets)
 {
-    const std::string tnames[] = {"H", "He", "C", "N", "O", "Na", "Al", "Si", "P",
+    const static std::string tnames[] = {"H", "He", "C", "N", "O", "Na", "Al", "Si", "P",
         "Ar", "Fe", "Ni", "Cu", "Ge", "Ag", "Ba", "Os", "Pt", "Au", "Pb", "U",
         "Air", "ArCO2", "BC-408", "BP-1", "CH2", "CO2", "CR-39", "CsI", "Halo",
         "Hosta", "ISM", "Kapton", "Kevlar", "Lexan", "LH2", "Mesh", "Mylar",
         "SiO2", "Teflon", "Water", "Unknown"};
-    const double targets[][12] = {
+    const static double targets[][12] = {
         //    z2,      a2,  iadj,        rho,        pla,etad,       bind,      X0,     X1,       a,      m,   d0
         {  1.000,   1.008,  19.2, 8.3748e-05, 2.6300e-01, 1.0, 1.3606e-02,  1.8639, 3.2718, 0.14092, 5.7273, 0.00 },
         {  2.000,   4.003,  41.8, 1.6632e-04, 2.6300e-01, 1.0, 7.7872e-02,  2.2017, 3.6122, 0.13443, 5.8347, 0.00 },

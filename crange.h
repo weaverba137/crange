@@ -30,7 +30,6 @@
 #define LOGTENEMIN 0.0 ///< \f$ \log_{10} E_{\mathrm{min}} \f$ Minimum energy in units of A MeV.
 #define LOGTENEMAX 6.0 ///< \f$ \log_{10} E_{\mathrm{max}} \f$ Maximum energy in units of A MeV.
 #define MAXE 200 ///< The number of energies in the range-energy tables.
-#define MAXAB 50 ///< The number of range tables.  Arbitrary, but should be larger than the number of targets.
 //
 // M_PI, M_PI_2 and M_LN10 should be defined in math.h.
 //
@@ -168,22 +167,16 @@ namespace CRange
     ///
     class RangeTable {
         private:
+            double range[MAXE]; ///< The actual table of range values.
+        public:
             double z1;          ///< The projectile charge.
             double a1;          ///< The projectile mass.
             short sswitch;      ///< The switch bit field.
             Tdata target;       ///< The Tdata class used in constructing the table.
-            time_t timestamp;   ///< The time at which the table was created.
-            double range[MAXE]; ///< The actual table of range values.
-        public:
             RangeTable();
             RangeTable(double z, double a, short s, Tdata &t);
+            double interpolate_range( double e );
     };
-    ///
-    /// \brief The range-energy table.
-    ///
-    /// This external variable contains the range-energy tables.
-    ///
-    // range_table trange[MAXAB];
     //
     // Declare all the functions in crange.cpp.
     //
@@ -192,6 +185,10 @@ namespace CRange
     // double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata *target );
     double delta( double g, Tdata &target );
     double olddelta( double g, Tdata &target );
+    double integrate_dedx( int i, double z, double a, short s, Tdata &t);
+    double range( double e, double z1, double a1, short sswitch, Tdata &target, std::vector<RangeTable> &rt );
+    double qrange( double e, double z1, double a1, short sswitch, Tdata &target );
+    double benton( double e, double z1, double a1, Tdata &target );
     void usage( char* executable );
     void version( char* executable );
     std::vector<std::string> run_range( std::vector<std::string> &commands, short sswitch, std::vector<Tdata> &targets );
@@ -206,9 +203,6 @@ namespace CRange
     // double relbloch( double z12, double b1, double lambda, double theta0 );
     // double lindhard( double zz, double aa, double bb, short sswitch );
     // double Fbrems( double x );
-    // double range( double e, double z1, double a1, short sswitch, tdata *target, int *tno );
-    // double qrange( double e, double z1, double a1, short sswitch, tdata *target );
-    // double benton( double e, double z1, double a1, tdata *target );
     // double renergy( double e, double r0, double z1, double a1, short sswitch, tdata *target );
     ///
     /// \brief Returns the energy corresponding to a value in a range table.
