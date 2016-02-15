@@ -322,33 +322,40 @@ void CRange::version(char *executable)
 std::vector<std::string> CRange::run_range( std::vector<std::string> &commands, short sswitch, std::vector<CRange::Tdata> &targets )
 {
     std::vector<std::string> results;
-    std::string bad_value("-9999.0");
-    std::string good_value("137.0");
     if (commands.size() == 0) return results;
     for (std::vector<std::string>::iterator it=commands.begin(); it != commands.end(); ++it) {
         std::istringstream c(*it);
+        std::ostringstream r;
         std::string task, targname;
         double red1, red2, z1, a1;
-        // Need some error checking here!
+        double out = -9999.0;
         c >> task >> red1 >> red2 >> z1 >> a1 >> targname;
-        CRange::Tdata target = CRange::find_target(targname, targets);
-        // std::cout << task << red1 << red2 << z1 << a1 << targ << std::endl;
-        // std::cout << target << std::endl;
-        if (target.name() == "Unknown") {
-            results.push_back(bad_value);
-        } else {
-            if (task == "r") {
-                results.push_back(good_value);
-            } else if (task == "e") {
-                results.push_back(good_value);
-            } else if (task == "d") {
-                results.push_back(good_value);
-            } else if (task == "j") {
-                results.push_back(good_value);
+        //
+        // c.good() will be false, even on a good read, because a good read
+        // will also reach the end of input, so we test eof instead.
+        //
+        if (c.eof()) {
+            CRange::Tdata target = CRange::find_target(targname, targets);
+            if (target.name() == "Unknown") {
+                std::cerr << "Invalid target detected in command: " << *it << std::endl;
             } else {
-                results.push_back(bad_value);
+                if (task == "r") {
+                    out = 137.0;
+                } else if (task == "e") {
+                    out = 137.0;
+                } else if (task == "d") {
+                    out = 137.0;
+                } else if (task == "j") {
+                    out = CRange::djdx(red1, z1, 2.0, 0.05, 3.04, sswitch, target);
+                } else {
+                    std::cerr << "Invalid task detected in command: " << *it << std::endl;
+                }
             }
+        } else {
+            std::cerr << "Invalid command detected: " << *it << std::endl;
         }
+        r << std::setprecision(5) << std::scientific << out;
+        results.push_back(r.str());
     }
     // int tno=0;
     // for(;;){
