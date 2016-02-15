@@ -176,19 +176,31 @@ namespace CRange
             RangeTable();
             RangeTable(double z, double a, short s, Tdata &t);
             double interpolate_range( double e );
+            double interpolate_energy( double e, double r0 );
     };
     //
-    // Declare all the functions in crange.cpp.
+    // These functions compute physical effects related to dE/dx.
     //
     double effective_charge( double z0, double e1, double z2, short sswitch );
     double djdx( double e1, double z0, double I0, double f0, double K, short sswitch, Tdata &target);
     // double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata *target );
     double delta( double g, Tdata &target );
     double olddelta( double g, Tdata &target );
+    // double bma( double z1, double b );
+    // double relbloch( double z12, double b1, double lambda, double theta0 );
+    // double lindhard( double zz, double aa, double bb, short sswitch );
+    double Fbrems( double x );
+    //
+    // These functions integrate dE/dx to get range or energy.
+    //
     double integrate_dedx( int i, double z, double a, short s, Tdata &t);
     double range( double e, double z1, double a1, short sswitch, Tdata &target, std::vector<RangeTable> &rt );
     double qrange( double e, double z1, double a1, short sswitch, Tdata &target );
     double benton( double e, double z1, double a1, Tdata &target );
+    double renergy( double e, double r0, double z1, double a1, short sswitch, Tdata &target, std::vector<RangeTable> &rt );
+    //
+    // Utility funtions for IO, command processing, etc.
+    //
     void usage( char* executable );
     void version( char* executable );
     std::vector<std::string> run_range( std::vector<std::string> &commands, short sswitch, std::vector<Tdata> &targets );
@@ -199,11 +211,6 @@ namespace CRange
     Tdata find_target(const char *name, std::vector<Tdata> &targets);
     Tdata find_target(const std::string &name, std::vector<Tdata> &targets);
     std::vector<Tdata> default_target(std::vector<Tdata> &extratargets);
-    // double bma( double z1, double b );
-    // double relbloch( double z12, double b1, double lambda, double theta0 );
-    // double lindhard( double zz, double aa, double bb, short sswitch );
-    // double Fbrems( double x );
-    // double renergy( double e, double r0, double z1, double a1, short sswitch, tdata *target );
     ///
     /// \brief Returns the energy corresponding to a value in a range table.
     ///

@@ -148,6 +148,37 @@ double CRange::RangeTable::interpolate_range( double e )
     }
 }
 ///
+/// \brief Perform interpolation on an existing CRange::RangeTable.
+///
+/// \param e Initial projectile kinetic energy in A MeV.
+/// \param r0 Thickness of material in g cm<sup>-2</sup>.
+///
+/// \return Final projectile kinetic energy after passing trough the material.
+///
+double CRange::RangeTable::interpolate_energy( double e, double r0 )
+{
+    double r;
+    int i,k;
+    // Not sure why energy would ever be negative.
+    if ( e > 0.0 ){
+        //
+        // Compute the expected total range at this energy.
+        //
+        double rr = interpolate_range(e);
+        r = rr - r0;
+        if (r < 0.0) return(0.0);
+    } else {
+        r = r0;
+    }
+    if (r > range[0]) {
+        int i = 1;
+        while( r > range[i] ) i++;
+        return (energy_table(i-1) + (r - range[i-1]) * (energy_table(i)-energy_table(i-1)) / (range[i]-range[i-1]));
+    } else {
+        return CRange::energy_table(0) * r / range[0];
+    }
+}
+///
 /// \brief Computes effective projectile charge.
 ///
 /// This is the modification of projectile charge due to electron
@@ -337,6 +368,42 @@ double CRange::olddelta( double g, CRange::Tdata &target )
             a=(cbar-y0)/dy3;
             return(y-cbar+a*(y1-y)*(y1-y)*(y1-y));
         }
+    }
+}
+///
+/// \brief Compute a mathematical function related to bremsstrahlung.
+///
+/// This function is used in an obsolete version of projectile slowing
+/// due to nuclear-nuclear bremsstrahlung.  It appears in Heitler's treatment
+/// of bremsstrahlung, \cite book_wh, which was adapted by
+/// Weaver \& Westphal, \cite art_baw3.
+///
+/// \param x The input parameter.
+///
+/// \return The value of the function.
+///
+/// \bug Currently, this function is unused.
+///
+double CRange::Fbrems( double x )
+{
+    int n = 1;
+    double t = 1.0, s = 0.0;
+    if (x == 1.0) {
+        return M_PI*M_PI/12.0;
+    } else if (x < 1.0) {
+        while ((fabs(t) > 0.0001) || (n < 10)) {
+            t *= -x;
+            s += t/((double)(n*n));
+            n++;
+        }
+        return -s;
+    } else {
+        while ((fabs(t) > 0.0001) || (n < 10)) {
+            t *= -1.0/x;
+            s += t/((double)(n*n));
+            n++;
+        }
+        return (M_PI*M_PI/12.0 + 0.5*log(x)*log(x) + s);
     }
 }
 ///
@@ -572,6 +639,39 @@ double CRange::benton( double e, double z1, double a1, CRange::Tdata &target )
     return(( (a1/cr)/(z1*z1) )*(prnglo[l] + bzz*cz[n]));
 }
 ///
+/// \brief Extract energies from range tables.
+///
+/// This function extracts energies from a range table by table interpolation.
+///
+/// \param e Projectile kinetic energy [A MeV].
+/// \param r0 Range [g cm<sup>-2</sup>].
+/// \param z1 Projectile charge.
+/// \param a1 Projectile atomic mass.
+/// \param sswitch The switch bit field.
+/// \param target A CRange::Tdata object.
+/// \param rt A vector containing previously computed range tables.
+///
+/// \return The final energy of the projectile.
+///
+double CRange::renergy( double e, double r0, double z1, double a1, short sswitch, CRange::Tdata &target, std::vector<CRange::RangeTable> &rt )
+{
+    //
+    // Search the range table for existing data
+    //
+    for (std::vector<CRange::RangeTable>::iterator it=rt.begin(); it != rt.end(); ++it) {
+        if ((z1 == it->z1) && (a1 == it->a1) && (sswitch == it->sswitch) &&
+            (target.name() == it->target.name())) {
+                return it->interpolate_energy(e, r0);
+        }
+    }
+    //
+    // If we didn't exit, we need to create a new table.
+    //
+    CRange::RangeTable table(z1, a1, sswitch, target);
+    rt.push_back(table);
+    return table.interpolate_energy(e, r0);
+}
+///
 /// \brief Print usage message.
 ///
 /// Prints a usage message on STDERR.
@@ -651,11 +751,9 @@ std::vector<std::string> CRange::run_range( std::vector<std::string> &commands, 
                 std::cerr << "Invalid target detected in command: " << *it << std::endl;
             } else {
                 if (task == "r") {
-                    // out = CRange::range(red1,z1,a1,sswitch,target,rt);
-                    out = 137.0;
+                    out = CRange::range(red1,z1,a1,sswitch,target,rt);
                 } else if (task == "e") {
-                    // out = CRange::renergy(red1,red2,z1,a1,sswitch,target);
-                    out = 137.0;
+                    out = CRange::renergy(red1,red2,z1,a1,sswitch,target,rt);
                 } else if (task == "d") {
                     // out = CRange::dedx(red1,red2,z1,a1,sswitch,target);
                     out = 137.0;
