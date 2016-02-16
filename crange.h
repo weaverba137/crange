@@ -314,6 +314,26 @@ namespace CRange
 //
 // Requires declaration outside the namespace!
 //
-std::ostream &operator<< (std::ostream &o, const CRange::Tdata &t);
+///
+/// \brief Allow CRange::Tdata objects in output streams.
+///
+/// This allows a CRange::Tdata object to write itself into an output stream.
+///
+/// \param o The output stream (left-hand side).
+/// \param t The CRange::Tdata object (right-hand side).
+///
+/// \return A reference to the output stream.
+///
+std::ostream &operator<< (std::ostream &o, const CRange::Tdata &t) { t.print(&o); return o; }
+///
+/// \brief Equality of two CRange::Tdata objects.
+///
+/// Allow two CRange::Tdata objects to be tested for equality.
+///
+/// \param lhs Left-hand side.
+/// \param rhs Right-hand side.
+///
+/// \return Are the objects equal?
+///
 bool operator== (const CRange::Tdata &lhs, const CRange::Tdata &rhs) { return lhs.hash() == rhs.hash(); }
 #endif // end ifndef _HAVE_CRANGE_H_

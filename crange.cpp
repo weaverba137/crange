@@ -400,7 +400,7 @@ double CRange::dedx( double e1, double rel0, double z0, double a1, short sswitch
     double z2 = target.z2();
     double a2 = target.a2();
     double iadj = target.iadj();
-    double z1 = effective_charge(z0, e1, z2, sswitch);
+    double z1 = CRange::effective_charge(z0, e1, z2, sswitch);
     double f1 = 0.3070722*z1*z1*z2/(b2*a1*a2);
     double f2 = log(2.0*ELECTRONMASS*b2/iadj);
     if( sswitch & SSWITCH_SH ){
@@ -664,7 +664,33 @@ double CRange::bma( double z1, double b )
 ///
 double CRange::relbloch( double z12, double b1, double lambda, double theta0 )
 {
-    return 0.0;
+    const static double ge = 0.5772157;
+    double nu = z12*ALPHA/b1;
+    double g = 1.0/sqrt(1.0-b1*b1);
+    double abgl=ALPHA/(b1*g*lambda);
+    std::complex<double> Cnu1(1.0, nu);
+    double sigma = CRange::complex_lngamma(Cnu1).imag();
+    std::complex<double> Ci(0.0,1.0);
+    std::complex<double> Cnu(1.0, 2.0*nu);
+    std::complex<double> Cth(theta0/2.0, 0.0);
+    std::complex<double> Cabgl(abgl, 0.0);
+    std::complex<double> Cmi(0.0,-1.0);
+    std::complex<double> Cf1 = Cmi/Cnu;
+    std::complex<double> Cf2 = std::pow(Cth, Cnu);
+    std::complex<double> Cf3 = std::pow(Cabgl, Cnu);
+    std::complex<double> Csigma2(0.0, 2.0*sigma);
+    std::complex<double> Cf4 = std::exp(Csigma2);
+    std::complex<double> Cone(1.0, 0.0);
+    std::complex<double> Cf5 = Cone/Cnu;
+    std::complex<double> Cf6 = std::log(Cth) - Cf5;
+    std::complex<double> Cabglge(log(4.0/abgl)+ge-1.0, 0.0);
+    std::complex<double> Cf7 = Cabglge + Cf5;
+    std::complex<double> Cl1 = Cf1 * (2.0*Cf2 - Cf3*Cf4);
+    std::complex<double> Cl2 = Cf1 * (2.0*Cf2*Cf6 + Cf3*Cf4*Cf7);
+    double es = (M_PI*nu)*exp(M_PI*nu)/sinh(M_PI*nu);
+    double bloch2 = (M_PI/2.0)*b1*b1*nu*es*(4.0*nu*log(2.0)*Cl1.real()
+        + (nu*M_PI-1.0)*Cl1.imag() + 2.0*nu*Cl2.real());
+    return bloch2;
 }
 ///
 /// \brief Compute the Lindhard-Sørensen correction.
@@ -1287,11 +1313,4 @@ std::vector<CRange::Tdata> CRange::default_target(std::vector<CRange::Tdata> &ex
     CRange::Tdata t(tnames[k], targets[k]); // Add "Unknown" to the end.
     extratargets.push_back(t);
     return extratargets;
-}
-///
-/// \brief Allow printing.
-///
-std::ostream &operator<< (std::ostream &o, const CRange::Tdata &t) {
-    t.print(&o);
-    return o;
 }
