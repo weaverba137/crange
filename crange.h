@@ -14,13 +14,9 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
-#include <cstdlib>
-#include <cmath>
-#include <cstring>
-#include <cerrno>
-#include <ctime>
+#include <cmath>    ///< Standard (non-complex) math functions.
 #include <vector>
-#include <complex>
+#include <complex>  ///< Math functions provided here should be prefaced with std::.
 #include <unistd.h> ///< Provides getopt(), access().
 #include "config.h" ///< Provides version information.
 #include "iniparser.h"
@@ -103,6 +99,7 @@ namespace CRange
             static const bool fixed[Ndata]; ///< Fixed or scientific notation when serializing.
             std::string _name; ///< Name of the target.
             double data[Ndata];  ///< The data.
+            double _hash; ///< Computed from the name & data, used to test for equality.
         public:
             Tdata();
             Tdata( const Tdata &t );
@@ -110,6 +107,7 @@ namespace CRange
             Tdata( const char *n, const double d[] );
             Tdata( const char *n, dictionary *ini );
             void print( std::ostream *o ) const;
+            const double hash (void) const { return _hash; }
             ///
             /// \name Material name
             /// @{
@@ -183,12 +181,12 @@ namespace CRange
     //
     double effective_charge( double z0, double e1, double z2, short sswitch );
     double djdx( double e1, double z0, double I0, double f0, double K, short sswitch, Tdata &target);
-    // double dedx( double e1, double rel0, double z0, double a1, short sswitch, tdata *target );
+    double dedx( double e1, double rel0, double z0, double a1, short sswitch, Tdata &target );
     double delta( double g, Tdata &target );
     double olddelta( double g, Tdata &target );
-    // double bma( double z1, double b );
-    // double relbloch( double z12, double b1, double lambda, double theta0 );
-    // double lindhard( double zz, double aa, double bb, short sswitch );
+    double bma( double z1, double b );
+    double relbloch( double z12, double b1, double lambda, double theta0 );
+    double lindhard( double zz, double aa, double bb, short sswitch );
     double Fbrems( double x );
     //
     // These functions integrate dE/dx to get range or energy.
@@ -317,4 +315,5 @@ namespace CRange
 // Requires declaration outside the namespace!
 //
 std::ostream &operator<< (std::ostream &o, const CRange::Tdata &t);
+bool operator== (const CRange::Tdata &lhs, const CRange::Tdata &rhs) { return lhs.hash() == rhs.hash(); }
 #endif // end ifndef _HAVE_CRANGE_H_

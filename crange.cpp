@@ -14,7 +14,12 @@
 CRange::Tdata::Tdata(void)
 {
     _name = "Unknown";
-    for (int i=0; i < Ndata; i++) data[i] = 0.0;
+    _hash = 0.0;
+    for (int i=0; i < _name.length(); i++) _hash += (double)_name[i];
+    for (int i=0; i < Ndata; i++) {
+        data[i] = 0.0;
+        _hash += data[i];
+    }
 }
 ///
 /// \brief Copy constructor.
@@ -27,6 +32,7 @@ CRange::Tdata::Tdata( const CRange::Tdata &t )
 {
     _name = t._name;
     for (int i=0; i < Ndata; i++) data[i] = t.data[i];
+    _hash = t._hash;
 }
 ///
 /// \brief Standard constructor.
@@ -39,7 +45,12 @@ CRange::Tdata::Tdata( const CRange::Tdata &t )
 CRange::Tdata::Tdata( const std::string &n, const double d[] )
 {
     _name = n;
-    for (int i=0; i < Ndata; i++) data[i] = d[i];
+    _hash = 0.0;
+    for (int i=0; i < _name.length(); i++) _hash += (double)_name[i];
+    for (int i=0; i < Ndata; i++) {
+        data[i] = d[i];
+        _hash += data[i];
+    }
 }
 ///
 /// \brief Standard constructor.
@@ -52,7 +63,12 @@ CRange::Tdata::Tdata( const std::string &n, const double d[] )
 CRange::Tdata::Tdata( const char *n, const double d[] )
 {
     _name = std::string(n);
-    for (int i=0; i < Ndata; i++) data[i] = d[i];
+    _hash = 0.0;
+    for (int i=0; i < _name.length(); i++) _hash += (double)_name[i];
+    for (int i=0; i < Ndata; i++) {
+        data[i] = d[i];
+        _hash += data[i];
+    }
 }
 ///
 /// \brief INI-based constructor.
@@ -66,8 +82,11 @@ CRange::Tdata::Tdata( const char *n, dictionary *ini )
 {
     std::string namekey = std::string(n) + ":name";
     _name = iniparser_getstring(ini, namekey.c_str(), "Unknown");
+    _hash = 0.0;
+    for (int i=0; i < _name.length(); i++) _hash += (double)_name[i];
     for (int i=0; i < Ndata; i++) {
         data[i] = iniparser_getdouble(ini, (_name + ":" + dnames[i]).c_str(), 0.0);
+        _hash += data[i];
     }
 }
 ///
@@ -282,6 +301,180 @@ double CRange::djdx(double e1, double z0, double I0, double f0, double K, short 
     return J;
 }
 ///
+/// \brief Computes dE/dx.
+///
+/// This is the core of the whole package, the dE/dx calculator.  I have
+/// based this largely on the work of Salamon, \cite tech_mhs.
+/// Values of certain physical constants have been updated,
+/// as well as some of the corrections to the basic stopping power formula.
+///
+/// If the restricted energy loss parameter \em rel0 is non-zero, dedx() computes
+/// restricted energy loss instead.
+///
+/// The dE/dx calculator includes a number of effects that are controlled by
+/// switches encoded in a bit field.  Below we describe each bit field and the
+/// effect it controls.
+///
+///  - #SSWITCH_ND : Density effect version. If this bit is set (which it is
+///    by default), a newer version of the density effect is used.  See
+///    delta() and olddelta() for details.
+///  - #SSWITCH_SH : Inner shell correction. The inner shell correction is
+///    somewhat problematic.  It arises when the projectile velocity is
+///    comparable to the velocity of inner shell electrons in the target medium.
+///    This is discussed by Fano, \cite art_uf. The shell correction can be
+///    included explicitly using this formula from Barkas \& Berger, \cite coll_whb.
+///    Alternatively, the shell correction can be "hidden" in the logarithmic
+///    mean ionization potential.  Much more work is required before this topic
+///    can be fully understood.
+///  - #SSWITCH_LE : Relativistic shell correction.  The Leung, or
+///    relativistic shell correction is a small effect which is due to
+///    relativistic inner shell electrons in very heavy targets.
+///    See Leung, \cite art_ptl1, and Leung, \cite art_ptl2.  #SSWITCH_LE
+///    has no effect unless #SSWITCH_SH is also turned on.
+///  - The Lindhard-Sørensen effect (see lindhard()) is turned on by default.
+///    The Bloch, Mott \& Ahlen effects are included for historical interestest.
+///    Right now these can be turned on by uncommenting a particular section
+///    of the code.
+///  - #SSWITCH_KI : Ultrarelativistic kinematic correction.
+///    This an estimate of the ultrarelativistic kinematic correction from
+///    Ahlen, \cite art_spa2. It corrects to the
+///    finite mass (as opposed to size) of the nucleus in relativistic
+///    electron-nucleus collisions.
+///  - #SSWITCH_RA : Radiative correction.
+///    This is the radiative correction discussed in Ahlen, \cite art_spa2.
+///    It arises from bremsstrahlung
+///    of scattered electrons in ultrarelativistic collisions.  The
+///    form here is that of Jankus, \cite art_vzj.
+///    The parameter Q from that paper is here set equal to the geometric
+///    mean between the the electron rest energy and \f$ 2 m_e c^2 \gamma \f$.
+///  - #SSWITCH_PA : Slowing due to pair production. This value and the value for
+///    the bremsstrahlung correction below are based on the work of
+///    Sørensen, \cite coll_ahs.
+///  - #SSWITCH_BR : Slowing due to projectile bremsstrahlung.  This version is
+///    that of Sørensen, \cite coll_ahs, who has shown that this effect
+///    is much smaller than the version suggested by Weaver \& Westphal,
+///    \cite art_baw3..  This is due to their treatment of the projectile and
+///    target nuclei as a point particles.  That version appeared in some
+///    much older versions of this code, but has been replaced with
+///    Sørensen's version.  We have not yet updated this code to reflect
+///    Sørensen's more recent paper \cite art_ahs1.
+///  - #SSWITCH_BA : Barkas effect.
+///    This is the Barkas correction as calculated in Jackson \&
+///    McCarthy, \cite art_jdj.  It is multiplied
+///    by a factor of two to bring it into agreement with Lindhard, \cite art_jl1.
+///    It is not, however, equal to the
+///    results of Lindhard, and more work is needed to decide which, if any,
+///    form is correct.  The recommended value seems to be the Jackson
+///    \& McCarthy result multiplied by two.  Jackson \& McCarthy do not
+///    have reliable values of \f$ F(V) \f$ for \f$ V < 0.8 \f$ .  For the purposes of the
+///    computation, the cut-off is placed at \f$ V=1.0 \f$ .  I have followed the
+///    convention of Salamon in having the Barkas correction multiply just
+///    the "Bethe" portion of the stopping logarithm rather than the whole
+///    stopping logarithm.  As there is considerable disagreement in the
+///    literature about the application of correction, and as changing
+///    the convention makes makes a difference of less than 1 A MeV even
+///    in calculating the energy of stopping uranium, I have chosen to
+///    leave it where it is.  Furthermore, I have found that a simple
+///    power law \f$ V^{-2} \f$ is adequate to model Jackson \& McCarthy's function
+///    for \f$ V > 1.0 \f$ , so I have used this instead of the numbers found by
+///    reading off one of Jackson \& McCarthy's figures (these values are stored
+///    in the array fva[10], but only the last value is used).
+///
+/// \param e1 The projectile kinetic energy in A MeV.
+/// \param rel0 Restricted energy loss parameter in eV.
+/// \param z0 The projectile charge.
+/// \param a1 The projectile atomic number.
+/// \param sswitch The switch bit field.
+/// \param target A CRange::Tdata object.
+///
+/// \return dE/dx in units of A MeV g<sup>-1</sup> cm<sup>2</sup>
+///
+double CRange::dedx( double e1, double rel0, double z0, double a1, short sswitch, CRange::Tdata &target )
+{
+    const static double fva[10] = {0.33,0.078,0.03,0.014,0.0084,
+                                   0.0053,0.0035,0.0025,0.0019,0.0014};
+    double g = 1.0 + e1/ATOMICMASSUNIT;
+    double delt = ( sswitch & SSWITCH_ND ) ? CRange::delta(g,target) : CRange::olddelta(g,target);
+    double b2 = 1.0-1.0/(g*g);
+    double b = sqrt(b2);
+    double z2 = target.z2();
+    double a2 = target.a2();
+    double iadj = target.iadj();
+    double z1 = effective_charge(z0, e1, z2, sswitch);
+    double f1 = 0.3070722*z1*z1*z2/(b2*a1*a2);
+    double f2 = log(2.0*ELECTRONMASS*b2/iadj);
+    if( sswitch & SSWITCH_SH ){
+        double etam2 = 1.0/(b*b*g*g);
+        double cadj=1.0e-6*(iadj)*(iadj)*etam2*(0.422377
+            +etam2*(0.0304043-etam2*0.00038106))
+            +1.0e-9*(iadj)*(iadj)*(iadj)*etam2*(3.858019
+            +etam2*(-0.1667989 + etam2*0.00157955));
+        f2 -= cadj/(z2);
+        if( sswitch & SSWITCH_LE ){
+            f2 -= (5.0/3.0)*log(2.0*ELECTRONMASS*b2/iadj)*(1.0e+03*target.bind()/(z2*ELECTRONMASS))-(iadj*iadj/(4.0*ELECTRONMASS*ELECTRONMASS*b2));
+        }
+    }
+    double f6 = 2.0*log(g)-b2;
+    //
+    // The Lindhard-Sorensen effect is now on by default.  The
+    // Bloch-Mott-Ahlen effects are included for historical interest and
+    // can be turned on by uncommenting the line after the next.
+    //
+    double f3 = CRange::lindhard(z1,a1,b,sswitch); // Comment out this line if uncommenting the next.
+    // double f3 = CRange::bma(z1,b);
+    double f8 = ( sswitch & SSWITCH_KI ) ?
+        0.5*(-log(1.0+2.0*((5.4858e-04)*g/a1)) - ((5.4858e-04)*g/a1)*b2/(g*g)) :
+        0.0;
+    double f9 = ( sswitch & SSWITCH_RA ) ?
+        (ALPHA/M_PI)*b2*(6.0822 + log(2.0*g)*(log(2.0*g)*(2.4167 + 0.3333*log(2.0*g))-8.0314)) :
+        0.0;
+    double Spa = 0.0;
+    if( sswitch & SSWITCH_PA ){
+        double dpa = 1.0/sqrt(g);
+        double ldpa=log(dpa);
+        double l0 = log(2.0*g);
+        double Lpa0 = (19.0/9.0)*(log(g/4.0) - 11.0/6.0);
+        double Lpa0s = (19.0/9.0)*log(183.0*exp(-1.0/3.0*log(z2))/(1.0 + 4.0*6.25470095193633*183.0*exp(-1.0/3.0*log(z2))/g));
+        double Lpa1 = dpa*(4178.0/(81*M_PI*M_PI) - 21.0/27.0 - 248.0*l0/(27.0*M_PI*M_PI)
+            +(28.0*l0/9.0 - 446.0/27.0)*2.0*ldpa/(M_PI*M_PI) + 14.0*4.0*ldpa*ldpa/(9.0*M_PI*M_PI));
+        double Lpa = Lpa0s+Lpa1;
+        Spa=4.08803936906434e-06*(z1*z1/a1)*(z2*z2/a2)*(1.0 + 1.0/z2)*g*Lpa;
+    }
+    double Sbr = 0.0;
+    if ( sswitch & SSWITCH_BR ){
+        double Bbr = log(1.0 + 2.0*g*0.179524783764566/(exp((1.0/3.0)*log(a1)) + exp((1.0/3.0)*log(a2)))/a1);
+        Sbr = 5.21721169334564e-07*(z1*z1/a1)*(z1*z1/a1)*(z2*z2/a2)*g*Bbr;
+    }
+    double f4 = 1.0;
+    if ( sswitch & SSWITCH_BA ) {
+        double v = b*g/(ALPHA*sqrt(z2));
+        if (v>1.0) {
+            //
+            // Not clear why this is commented out.
+            //
+            // if (v < 9.0){
+            //     i = 1;
+            //     while (v >= (double)i) i++;
+            //     fv = fva[i-1]+(v-(double)(i-1))*(fva[i]-fva[i-1]);
+            // } else {
+            //     fv = fva[9]*exp(-2.5*log(v/10.0));
+            // }
+            int i = 9;
+            double fv = fva[i]*exp(-2.0*log(v/10.0));  // Note how its 2.0 here and 2.5 above.
+            f4 = 1.0 + 2.0*z1*fv/(sqrt(z2));
+        }
+    }
+    //
+    // Compute restricted energy loss.  REL is activated by setting rel0 >0.
+    //
+    if (rel0 > 0.0) {
+        double f7=log(2.0*ELECTRONMASS*b2*g*g/rel0)+b2*(rel0/(2.0*ELECTRONMASS*b2*g*g)-1.0);
+        return f1*(f2*f4+f3+f6-delt/2.0 - 0.5*f7 +f8);
+    } else {
+        return f1*(f2*f4+f3+f6-(delt/2.0)+f8+f9) + Sbr + Spa;
+    }
+}
+///
 /// \brief Computes the density effect.
 ///
 /// This function implements the density effect correction as formulated
@@ -371,6 +564,134 @@ double CRange::olddelta( double g, CRange::Tdata &target )
     }
 }
 ///
+/// \brief Computes the Bloch, Mott and Ahlen corrections.
+///
+/// This function computes the Mott correction of Ahlen, \cite art_spa1,
+/// the Bloch correction of F. Bloch, \cite art_fb1,
+/// and the Ahlen correction of Ahlen, \cite art_spa3.
+/// All three of these corrections are
+/// rendered obsolete by the Lindhard-Sørensen correction, and are
+/// included here for historical interest and comparison with older
+/// calculations.
+///
+/// \param z1 The projectile charge.
+/// \param b The projectile velocity in units of the speed of light
+/// (\em i.e. \f$ \beta = v/c \f$).
+///
+/// \return The sum of the Bloch, Mott and Ahlen corrections.
+///
+/// \note The variables lambda and theta0 are
+/// free parameters in the Ahlen correction.  Theta0 also appears in
+/// the Mott correction.  Here I have used Ahlen's recommended values,
+/// lambda = 1, theta0 = 0.1.
+/// An alternative formula, \f$ \theta_0 = \sqrt{\alpha/(\beta \gamma \lambda)} \f$ , is
+/// suggested by Waddington, Freier \& Fixsen, \cite art_cjw1.
+///
+/// \warning The Mott correction has a severely
+/// limited range of validity, especially for high charges.  It's so
+/// bad it can render the calculation not just inaccurate, but
+/// unphysical (dE/dx \< 0) below about 10 A MeV for uranium.  Ahlen
+/// recommends turning the Mott correction off for \f$ Z/\beta > 100 \f$.
+/// Here for \f$ Z/\beta > 100 \f$ the Mott correction is given the value at
+/// \f$ Z/\beta = 100 \f$. This prescription is given by Waddington,
+/// Freier \& Fixsen, \cite art_cjw1.
+///
+/// \bug Currently, this function is not called by anything.
+///
+double CRange::bma( double z1, double b )
+{
+    //
+    // Compute a sum needed by the Bloch Correction
+    //
+    double y = z1*ALPHA/b;
+    double y2 = y*y;
+    int msum = (int)(10.0*y) + 1;
+    double sumr = 0.0;
+    for (int n=1; n<msum; n++) {
+        double fn=(double)n;
+        double fn2 = fn*fn;
+        sumr += (1.0/(fn2+y2) - 1.0/fn2)/fn;
+    }
+    //
+    // Compute the Bloch and Ahlen Corrections
+    //
+    double lambda = 1.0;
+    double theta0 = 0.1;
+    double f3 = -y2*(1.202+sumr) + CRange::relbloch(z1,b,lambda,theta0);
+    //
+    // The Mott term
+    //
+    std::complex<double> Cz1(0.5, -y);
+    std::complex<double> Cz2(1.0, y);
+    double cosx = cos(2.0 * (CRange::complex_lngamma(Cz1).imag() +
+                             CRange::complex_lngamma(Cz2).imag()));
+    double st = sin(theta0/2.0);
+    double b2 = b*b;
+    //
+    // f5=0.5*z1a*(b*(1.725+(0.52-2.0*st*st)*M_PI*cosx)+
+    //     z1a*(3.246-0.451*b2+z1a*(1.522*b+0.987/b+
+    //     z1a*(4.569-0.494*b2-2.696/b2+
+    //     z1a*(1.254*b+0.222/b
+    //     -1.170/b2/b)))));
+    //
+    // if( (exp(9.0*log(y))/6.0) > fabs(f5/(f2*f4+f3+f5+f6-delt/2.0)) )
+    if ( y > 100.0*ALPHA ) y = 100.0*ALPHA;
+    double f5=0.5*b2*y*((1.725+(0.52-2.0*st)*M_PI*cosx)
+        +y*((3.246-0.451*b2)
+            +y*((0.987+1.522*b2)
+                +y*((-2.696+b2*(4.569-0.494*b2))
+                    +y*(-1.170+b2*(0.222+1.254*b2))
+                    )
+                )
+            )
+        );
+    return( f3 + f5 );
+}
+///
+/// \brief Compute the relativistic Bloch correction.
+///
+/// This is the relativistic Bloch (or Ahlen) correction of Ahlen,
+/// \cite art_spa3.  The evaluation of this correction has
+/// been enormously simplified by the use of fully complex arithmetic.
+///
+/// \param z12 The projectile charge.
+/// \param b1 The projectile velocity in units of the speed of light
+/// (\em i.e. \f$ \beta = v/c \f$).
+/// \param lambda A free parameter, described in bma().
+/// \param theta0 A free parameter, described in bma().
+///
+/// \return The value of the relativistic Bloch correction.
+///
+double CRange::relbloch( double z12, double b1, double lambda, double theta0 )
+{
+    return 0.0;
+}
+///
+/// \brief Compute the Lindhard-Sørensen correction.
+///
+/// This is the Lindhard-Sørensen correction including finite nuclear
+/// size effects as described in Lindhard \& Sørensen, \cite art_jl2.
+/// The defined variable #SSWITCH_NS will turn off the
+/// nuclear size effect if it is set to zero.  For values of the Lorentz
+/// factor above 10/R, where R is the nuclear size divided by the electron
+/// Compton wavelength, the correction is set to its asymptotic value
+/// which is described by Sørensen, \cite proc_ahs. This also avoids some
+/// difficulties with the evaluation of the confluent hypergeometric function
+/// (A. H. Sørensen, private communication).
+///
+/// \param zz The projectile charge.
+/// \param aa The projectile atomic mass.
+/// \param bb The projectile velocity in units of the speed of light
+/// (\em i.e. \f$ \beta = v/c \f$).
+/// \param sswitch The switch bit field.
+///
+/// \return The value of the Lindhard-Sørensen correction.
+///
+double CRange::lindhard( double zz, double aa, double bb, short sswitch )
+{
+    return 0.0;
+}
+///
 /// \brief Compute a mathematical function related to bremsstrahlung.
 ///
 /// This function is used in an obsolete version of projectile slowing
@@ -426,17 +747,13 @@ double CRange::integrate_dedx( int i, double z, double a, short s, CRange::Tdata
     double e0 = CRange::energy_table(i-1);
     double de2 = (CRange::energy_table(i) - e0)/2.0;
     double e1 = e0 + 1.33998104*de2;
-    double dedx1 = 10.0;
-    // double dedx1 = CRange::dedx(e1,rel,z1,a1,sswitch,target);
+    double dedx1 = CRange::dedx(e1,rel,z,a,s,t);
     double e2 = e0 + 1.86113631*de2;
-    double dedx2 = 11.0;
-    // double dedx2 = CRange::dedx(e2,rel,z1,a1,sswitch,target);
+    double dedx2 = CRange::dedx(e2,rel,z,a,s,t);
     double e3 = e0 + 0.13886369*de2;
-    double dedx3 = 10.5;
-    // double dedx3 = CRange::dedx(e3,rel,z1,a1,sswitch,target);
+    double dedx3 = CRange::dedx(e3,rel,z,a,s,t);
     double e4 = e0 + 0.66001869*de2;
-    double dedx4 = 11.0;
-    // double dedx4 = CRange::dedx(e4,rel,z1,a1,sswitch,target);
+    double dedx4 = CRange::dedx(e4,rel,z,a,s,t);
     double dr = de2 * (0.65214515/dedx1 +
                        0.34785485/dedx2 +
                        0.34785485/dedx3 +
@@ -471,7 +788,7 @@ double CRange::range( double e, double z1, double a1, short sswitch, CRange::Tda
     //
     for (std::vector<CRange::RangeTable>::iterator it=rt.begin(); it != rt.end(); ++it) {
         if ((z1 == it->z1) && (a1 == it->a1) && (sswitch == it->sswitch) &&
-            (target.name() == it->target.name())) {
+            (target == it->target)) {
                 return it->interpolate_range(e);
         }
     }
@@ -660,7 +977,7 @@ double CRange::renergy( double e, double r0, double z1, double a1, short sswitch
     //
     for (std::vector<CRange::RangeTable>::iterator it=rt.begin(); it != rt.end(); ++it) {
         if ((z1 == it->z1) && (a1 == it->a1) && (sswitch == it->sswitch) &&
-            (target.name() == it->target.name())) {
+            (target == it->target)) {
                 return it->interpolate_energy(e, r0);
         }
     }
@@ -755,8 +1072,7 @@ std::vector<std::string> CRange::run_range( std::vector<std::string> &commands, 
                 } else if (task == "e") {
                     out = CRange::renergy(red1,red2,z1,a1,sswitch,target,rt);
                 } else if (task == "d") {
-                    // out = CRange::dedx(red1,red2,z1,a1,sswitch,target);
-                    out = 137.0;
+                    out = CRange::dedx(red1,red2,z1,a1,sswitch,target);
                 } else if (task == "j") {
                     out = CRange::djdx(red1, z1, 2.0, 0.05, 3.04, sswitch, target);
                 } else {
