@@ -1,6 +1,6 @@
 project (crange)
 
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 2.8)
 
 include(FeatureSummary)
 
@@ -10,6 +10,8 @@ set (crange_VERSION_MINOR 0)
 set (crange_VERSION_PATCH 0)
 set (crange_VERSION "${crange_VERSION_MAJOR}.${crange_VERSION_MINOR}.${crange_VERSION_PATCH}")
 set (crange_VERSION_STRING "${crange_VERSION}")
+
+set (CMAKE_CXX_FLAGS "-std=c++11 -Wall")
 
 # configure a header file to pass some of the CMake settings
 # to the source code

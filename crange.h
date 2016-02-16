@@ -80,6 +80,10 @@
 #define SSWITCH_BR  0x200 ///< Projectile Bremsstrahlung bit.
 #define SSWITCH_DEFAULT (SSWITCH_ND | SSWITCH_NS) ///< Default bits set density effect and finite nuclear size.
 ///
+/// \brief This type is used a lot, so good to abbreviate.
+///
+typedef std::complex<double> Cdouble;
+///
 /// \namespace CRange
 /// \brief Container for most functions and classes.
 ///
@@ -235,9 +239,9 @@ namespace CRange
     ///
     /// \warning The Gamma function has poles at all integers \<= 0.
     ///
-    template<typename T> std::complex<T> complex_lngamma( const std::complex<T> &z )
+    template<typename T> std::complex<T> lngamma( const std::complex<T> &z )
     {
-        static T coeff[6]={76.18009172947146,
+        const static T coeff[6] = {76.18009172947146,
             -86.50532032941677,
             24.01409824083091,
             -1.231739572450155,
@@ -270,8 +274,7 @@ namespace CRange
         std::complex<T> result(lterm1+lterm2+lterm3,aterm1+aterm2+aterm3);
         if(z.real() < 0){
             std::complex<T> lpi(log(M_PI), 0.0);
-            std::complex<T> zpi(z.real()*M_PI, z.imag()*M_PI);
-            result = lpi - (result + std::log(std::sin(zpi)));
+            result = lpi - (result + std::log(std::sin(M_PI*z)));
         }
         return(result);
     }
@@ -293,9 +296,9 @@ namespace CRange
     ///
     /// \warning May not be stable for large values of \f$|z|\f$.
     ///
-    template<typename T> std::complex<T> complex_hyperg(const std::complex<T> &a,
-                                                        const std::complex<T> &b,
-                                                        const std::complex<T> &z)
+    template<typename T> std::complex<T> hyperg(const std::complex<T> &a,
+                                                const std::complex<T> &b,
+                                                const std::complex<T> &z)
     {
         T dm = 0.0;
         std::complex<T> term(1.0, 0.0);

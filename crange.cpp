@@ -15,7 +15,7 @@ CRange::Tdata::Tdata(void)
 {
     _name = "Unknown";
     _hash = 0.0;
-    for (int i=0; i < _name.length(); i++) _hash += (double)_name[i];
+    for (unsigned i=0; i < _name.length(); i++) _hash += (double)_name[i];
     for (int i=0; i < Ndata; i++) {
         data[i] = 0.0;
         _hash += data[i];
@@ -46,7 +46,7 @@ CRange::Tdata::Tdata( const std::string &n, const double d[] )
 {
     _name = n;
     _hash = 0.0;
-    for (int i=0; i < _name.length(); i++) _hash += (double)_name[i];
+    for (unsigned i=0; i < _name.length(); i++) _hash += (double)_name[i];
     for (int i=0; i < Ndata; i++) {
         data[i] = d[i];
         _hash += data[i];
@@ -64,7 +64,7 @@ CRange::Tdata::Tdata( const char *n, const double d[] )
 {
     _name = std::string(n);
     _hash = 0.0;
-    for (int i=0; i < _name.length(); i++) _hash += (double)_name[i];
+    for (unsigned i=0; i < _name.length(); i++) _hash += (double)_name[i];
     for (int i=0; i < Ndata; i++) {
         data[i] = d[i];
         _hash += data[i];
@@ -83,7 +83,7 @@ CRange::Tdata::Tdata( const char *n, dictionary *ini )
     std::string namekey = std::string(n) + ":name";
     _name = iniparser_getstring(ini, namekey.c_str(), "Unknown");
     _hash = 0.0;
-    for (int i=0; i < _name.length(); i++) _hash += (double)_name[i];
+    for (unsigned i=0; i < _name.length(); i++) _hash += (double)_name[i];
     for (int i=0; i < Ndata; i++) {
         data[i] = iniparser_getdouble(ini, (_name + ":" + dnames[i]).c_str(), 0.0);
         _hash += data[i];
@@ -137,7 +137,6 @@ CRange::RangeTable::RangeTable(double z, double a, short s, CRange::Tdata &t)
     sswitch = s;
     target = t;
     int i = 0;
-    double rel = 0.0;
     while (CRange::energy_table(i) < 8.0) {
         double e1 = CRange::energy_table(i);
         range[i] = CRange::benton(e1, z1, a1, target);
@@ -177,7 +176,6 @@ double CRange::RangeTable::interpolate_range( double e )
 double CRange::RangeTable::interpolate_energy( double e, double r0 )
 {
     double r;
-    int i,k;
     // Not sure why energy would ever be negative.
     if ( e > 0.0 ){
         //
@@ -291,7 +289,7 @@ double CRange::djdx(double e1, double z0, double I0, double f0, double K, short 
     double g = 1.0+e1/ATOMICMASSUNIT;
     double delt = ( sswitch & SSWITCH_ND ) ? delta(g,target) : olddelta(g,target);
     double b2 = 1.0-1.0/(g*g);
-    double b = sqrt(b2);
+    // double b = sqrt(b2);
     double z2 = target.z2();
     double a2 = target.a2();
     double z1 = CRange::effective_charge(z0, e1, z2, sswitch);
@@ -420,6 +418,7 @@ double CRange::dedx( double e1, double rel0, double z0, double a1, short sswitch
     // Bloch-Mott-Ahlen effects are included for historical interest and
     // can be turned on by uncommenting the line after the next.
     //
+    // double f3 = 0.0;
     double f3 = CRange::lindhard(z1,a1,b,sswitch); // Comment out this line if uncommenting the next.
     // double f3 = CRange::bma(z1,b);
     double f8 = ( sswitch & SSWITCH_KI ) ?
@@ -433,7 +432,7 @@ double CRange::dedx( double e1, double rel0, double z0, double a1, short sswitch
         double dpa = 1.0/sqrt(g);
         double ldpa=log(dpa);
         double l0 = log(2.0*g);
-        double Lpa0 = (19.0/9.0)*(log(g/4.0) - 11.0/6.0);
+        // double Lpa0 = (19.0/9.0)*(log(g/4.0) - 11.0/6.0);
         double Lpa0s = (19.0/9.0)*log(183.0*exp(-1.0/3.0*log(z2))/(1.0 + 4.0*6.25470095193633*183.0*exp(-1.0/3.0*log(z2))/g));
         double Lpa1 = dpa*(4178.0/(81*M_PI*M_PI) - 21.0/27.0 - 248.0*l0/(27.0*M_PI*M_PI)
             +(28.0*l0/9.0 - 446.0/27.0)*2.0*ldpa/(M_PI*M_PI) + 14.0*4.0*ldpa*ldpa/(9.0*M_PI*M_PI));
@@ -621,10 +620,10 @@ double CRange::bma( double z1, double b )
     //
     // The Mott term
     //
-    std::complex<double> Cz1(0.5, -y);
-    std::complex<double> Cz2(1.0, y);
-    double cosx = cos(2.0 * (CRange::complex_lngamma(Cz1).imag() +
-                             CRange::complex_lngamma(Cz2).imag()));
+    Cdouble Cz1(0.5, -y);
+    Cdouble Cz2(1.0, y);
+    double cosx = cos(2.0 * (CRange::lngamma(Cz1).imag() +
+                             CRange::lngamma(Cz2).imag()));
     double st = sin(theta0/2.0);
     double b2 = b*b;
     //
@@ -668,25 +667,25 @@ double CRange::relbloch( double z12, double b1, double lambda, double theta0 )
     double nu = z12*ALPHA/b1;
     double g = 1.0/sqrt(1.0-b1*b1);
     double abgl=ALPHA/(b1*g*lambda);
-    std::complex<double> Cnu1(1.0, nu);
-    double sigma = CRange::complex_lngamma(Cnu1).imag();
-    std::complex<double> Ci(0.0,1.0);
-    std::complex<double> Cnu(1.0, 2.0*nu);
-    std::complex<double> Cth(theta0/2.0, 0.0);
-    std::complex<double> Cabgl(abgl, 0.0);
-    std::complex<double> Cmi(0.0,-1.0);
-    std::complex<double> Cf1 = Cmi/Cnu;
-    std::complex<double> Cf2 = std::pow(Cth, Cnu);
-    std::complex<double> Cf3 = std::pow(Cabgl, Cnu);
-    std::complex<double> Csigma2(0.0, 2.0*sigma);
-    std::complex<double> Cf4 = std::exp(Csigma2);
-    std::complex<double> Cone(1.0, 0.0);
-    std::complex<double> Cf5 = Cone/Cnu;
-    std::complex<double> Cf6 = std::log(Cth) - Cf5;
-    std::complex<double> Cabglge(log(4.0/abgl)+ge-1.0, 0.0);
-    std::complex<double> Cf7 = Cabglge + Cf5;
-    std::complex<double> Cl1 = Cf1 * (2.0*Cf2 - Cf3*Cf4);
-    std::complex<double> Cl2 = Cf1 * (2.0*Cf2*Cf6 + Cf3*Cf4*Cf7);
+    Cdouble Cnu1(1.0, nu);
+    double sigma = CRange::lngamma(Cnu1).imag();
+    Cdouble Ci(0.0,1.0);
+    Cdouble Cnu(1.0, 2.0*nu);
+    Cdouble Cth(theta0/2.0, 0.0);
+    Cdouble Cabgl(abgl, 0.0);
+    Cdouble Cmi(0.0,-1.0);
+    Cdouble Cf1 = Cmi/Cnu;
+    Cdouble Cf2 = std::pow(Cth, Cnu);
+    Cdouble Cf3 = std::pow(Cabgl, Cnu);
+    Cdouble Csigma2(0.0, 2.0*sigma);
+    Cdouble Cf4 = std::exp(Csigma2);
+    Cdouble Cone(1.0, 0.0);
+    Cdouble Cf5 = Cone/Cnu;
+    Cdouble Cf6 = std::log(Cth) - Cf5;
+    Cdouble Cabglge(log(4.0/abgl)+ge-1.0, 0.0);
+    Cdouble Cf7 = Cabglge + Cf5;
+    Cdouble Cl1 = Cf1 * (2.0*Cf2 - Cf3*Cf4);
+    Cdouble Cl2 = Cf1 * (2.0*Cf2*Cf6 + Cf3*Cf4*Cf7);
     double es = (M_PI*nu)*exp(M_PI*nu)/sinh(M_PI*nu);
     double bloch2 = (M_PI/2.0)*b1*b1*nu*es*(4.0*nu*log(2.0)*Cl1.real()
         + (nu*M_PI-1.0)*Cl1.imag() + 2.0*nu*Cl2.real());
@@ -716,8 +715,8 @@ double CRange::relbloch( double z12, double b1, double lambda, double theta0 )
 double CRange::lindhard( double zz, double aa, double bb, short sswitch )
 {
     const static double compton=3.05573356675e-3; // 1.18 fm / Compton wavelength
-    // std::complex<double> Cpi(M_PI, 0.0);
-    // std::complex<double> Cone(1.0, 0.0);
+    // Cdouble Cpi(M_PI, 0.0);
+    // Cdouble Cone(1.0, 0.0);
     double a3 = exp(log(aa)/3.0);
     double eta = zz*ALPHA/bb;
     double gg = 1.0/sqrt(1.0 - bb*bb);
@@ -728,12 +727,17 @@ double CRange::lindhard( double zz, double aa, double bb, short sswitch )
     double term1 = 0.0;
     double term3 = 1.0;
     double term2 = 0.0;
-    double pct = 1.0;
+    // double pct = 1.0;
+    //
+    // Compute this section if the Lorentz factor is less than a certain
+    // value OR if the Nuclear size switch is turned off (in which case
+    // the Lorentz factor doesn't matter).
+    //
     if ((gg < 10.0/rho) || !(sswitch & SSWITCH_NS)) {
-        // while(fabs(pct) > 0.01) {
         double dk[3];
         double dmk = 0.0;
         double dkm1 = 0.0;
+        // while(fabs(pct) > 0.01) {
         while ( n < 100 ) {
             double k0 = (double)n;
             int max = n == 1 ? 3 : 2;
@@ -745,33 +749,34 @@ double CRange::lindhard( double zz, double aa, double bb, short sswitch )
                 double signk = k/fabs(k);
                 double sk = sqrt(k*k - ALPHA*ALPHA*zz*zz);
                 double l = (k>0) ? k : -k-1.0;
-                std::complex<double> Cske(sk+1.0, eta);
-                std::complex<double> Cketag(k, -eta/gg);
-                std::complex<double> Cskmeta(sk, -eta);
-                std::complex<double> Cexir = std::sqrt(Cketag/Cskmeta);
-                std::complex<double> Cpiske(0.0,(M_PI/2.0)*(l-sk) - CRange::complex_lngamma(Cske).imag());
-                std::complex<double> Cedr = Cexir*std::exp(Cpiske);
+                Cdouble Cske(sk+1.0, eta);
+                Cdouble Cketag(k, -eta/gg);
+                Cdouble Cskmeta(sk, -eta);
+                Cdouble Cexir = std::sqrt(Cketag/Cskmeta);
+                Cdouble Cpiske(0.0,(M_PI/2.0)*(l-sk) - CRange::lngamma(Cske).imag());
+                // Cdouble Cpiske(0.0,(M_PI/2.0)*(l-sk));
+                Cdouble Cedr = Cexir*std::exp(Cpiske);
                 double H = 0.0;
-                std::complex<double> Ceds(0.0, 0.0);
+                Cdouble Ceds(0.0, 0.0);
                 if ( sswitch & SSWITCH_NS ) {
-                    std::complex<double> Cmske(-sk+1.0, eta);
-                    std::complex<double> Cmskmeta(-sk, -eta);
-                    std::complex<double> Cexis = std::sqrt(Cketag/Cmskmeta);
-                    std::complex<double> Cpimske(0.0,(M_PI/2.0)*(l+sk) - CRange::complex_lngamma(Cske).imag());
+                    Cdouble Cmske(-sk+1.0, eta);
+                    Cdouble Cmskmeta(-sk, -eta);
+                    Cdouble Cexis = std::sqrt(Cketag/Cmskmeta);
+                    Cdouble Cpimske(0.0,(M_PI/2.0)*(l+sk) - CRange::lngamma(Cmske).imag());
                     Ceds = Cexis*std::exp(Cpimske);
-                    std::complex<double> Caar = Cske;
-                    std::complex<double> Caas = Cmske;
-                    std::complex<double> Cbbr(2.0*sk + 1.0,0.0);
-                    std::complex<double> Cbbs(-2.0*sk + 1.0,0.0);
-                    std::complex<double> Czzr(0.0,2.0*prh);
-                    std::complex<double> Cmprh(0.0,-prh);
-                    std::complex<double> Clamr = Cexir*std::exp(Cmprh)*CRange::complex_hyperg(Caar,Cbbr,Czzr);
-                    std::complex<double> Clams = Cexis*std::exp(Cmprh)*CRange::complex_hyperg(Caas,Cbbs,Czzr);
+                    Cdouble Caar = Cske;
+                    Cdouble Caas = Cmske;
+                    Cdouble Cbbr(2.0*sk + 1.0,0.0);
+                    Cdouble Cbbs(-2.0*sk + 1.0,0.0);
+                    Cdouble Czzr(0.0,2.0*prh);
+                    Cdouble Cmprh(0.0,-prh);
+                    Cdouble Clamr = Cexir*std::exp(Cmprh)*CRange::hyperg(Caar,Cbbr,Czzr);
+                    Cdouble Clams = Cexis*std::exp(Cmprh)*CRange::hyperg(Caas,Cbbs,Czzr);
                     double grgs = Clamr.imag()/Clams.imag();
-                    std::complex<double> Cgrgs = CRange::complex_lngamma(Cbbs);
-                    grgs *= exp( CRange::complex_lngamma(Cske).real() -
-                                 CRange::complex_lngamma(Cmske).real() -
-                                 CRange::complex_lngamma(Cbbr).real() +
+                    Cdouble Cgrgs = CRange::lngamma(Cbbs);
+                    grgs *= exp( CRange::lngamma(Cske).real() -
+                                 CRange::lngamma(Cmske).real() -
+                                 CRange::lngamma(Cbbr).real() +
                                  Cgrgs.real() +
                                  2.0*sk*log(2.0*prh) );
                     if (cos(Cgrgs.imag())<1.0) grgs*= -1.0;
@@ -822,7 +827,7 @@ double CRange::lindhard( double zz, double aa, double bb, short sswitch )
             n += 1;
             dkm1 = dk[0];
             dmk = dk[1];
-            pct = (term2 + term3)/sumterm;
+            // pct = (term2 + term3)/sumterm;
         }
     } else {
         sumterm = -log(prh) - 0.2; // Asymptotic value of the LS correction.
@@ -1221,7 +1226,8 @@ std::vector<std::string> CRange::run_range( std::vector<std::string> &commands, 
         } else {
             std::cerr << "Invalid command detected: " << *it << std::endl;
         }
-        r << std::setprecision(5) << std::scientific << out;
+        r << std::setprecision(6) << std::fixed << out;
+        // r << std::setprecision(5) << std::scientific << out;
         results.push_back(r.str());
     }
     return results;
