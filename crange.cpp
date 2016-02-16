@@ -715,7 +715,120 @@ double CRange::relbloch( double z12, double b1, double lambda, double theta0 )
 ///
 double CRange::lindhard( double zz, double aa, double bb, short sswitch )
 {
-    return 0.0;
+    const static double compton=3.05573356675e-3; // 1.18 fm / Compton wavelength
+    // std::complex<double> Cpi(M_PI, 0.0);
+    // std::complex<double> Cone(1.0, 0.0);
+    double a3 = exp(log(aa)/3.0);
+    double eta = zz*ALPHA/bb;
+    double gg = 1.0/sqrt(1.0 - bb*bb);
+    double rho = a3*compton;
+    double prh = bb*gg*rho;
+    int n = 1;
+    double sumterm = 0.0;
+    double term1 = 0.0;
+    double term3 = 1.0;
+    double term2 = 0.0;
+    double pct = 1.0;
+    if ((gg < 10.0/rho) || !(sswitch & SSWITCH_NS)) {
+        // while(fabs(pct) > 0.01) {
+        double dk[3];
+        double dmk = 0.0;
+        double dkm1 = 0.0;
+        while ( n < 100 ) {
+            double k0 = (double)n;
+            int max = n == 1 ? 3 : 2;
+            for (int i=0; i<max; i++) {
+                double k;
+                if (i == 0) k = k0;
+                if (i == 1) k = -k0-1.0;
+                if (i == 2) k = -k0;
+                double signk = k/fabs(k);
+                double sk = sqrt(k*k - ALPHA*ALPHA*zz*zz);
+                double l = (k>0) ? k : -k-1.0;
+                std::complex<double> Cske(sk+1.0, eta);
+                std::complex<double> Cketag(k, -eta/gg);
+                std::complex<double> Cskmeta(sk, -eta);
+                std::complex<double> Cexir = std::sqrt(Cketag/Cskmeta);
+                std::complex<double> Cpiske(0.0,(M_PI/2.0)*(l-sk) - CRange::complex_lngamma(Cske).imag());
+                std::complex<double> Cedr = Cexir*std::exp(Cpiske);
+                double H = 0.0;
+                std::complex<double> Ceds(0.0, 0.0);
+                if ( sswitch & SSWITCH_NS ) {
+                    std::complex<double> Cmske(-sk+1.0, eta);
+                    std::complex<double> Cmskmeta(-sk, -eta);
+                    std::complex<double> Cexis = std::sqrt(Cketag/Cmskmeta);
+                    std::complex<double> Cpimske(0.0,(M_PI/2.0)*(l+sk) - CRange::complex_lngamma(Cske).imag());
+                    Ceds = Cexis*std::exp(Cpimske);
+                    std::complex<double> Caar = Cske;
+                    std::complex<double> Caas = Cmske;
+                    std::complex<double> Cbbr(2.0*sk + 1.0,0.0);
+                    std::complex<double> Cbbs(-2.0*sk + 1.0,0.0);
+                    std::complex<double> Czzr(0.0,2.0*prh);
+                    std::complex<double> Cmprh(0.0,-prh);
+                    std::complex<double> Clamr = Cexir*std::exp(Cmprh)*CRange::complex_hyperg(Caar,Cbbr,Czzr);
+                    std::complex<double> Clams = Cexis*std::exp(Cmprh)*CRange::complex_hyperg(Caas,Cbbs,Czzr);
+                    double grgs = Clamr.imag()/Clams.imag();
+                    std::complex<double> Cgrgs = CRange::complex_lngamma(Cbbs);
+                    grgs *= exp( CRange::complex_lngamma(Cske).real() -
+                                 CRange::complex_lngamma(Cmske).real() -
+                                 CRange::complex_lngamma(Cbbr).real() +
+                                 Cgrgs.real() +
+                                 2.0*sk*log(2.0*prh) );
+                    if (cos(Cgrgs.imag())<1.0) grgs*= -1.0;
+                    if (fabs(grgs) > 1.0e-9) {
+                        double frgr = sqrt((gg-1.0)/(gg+1.0))*Clamr.real()/Clamr.imag();
+                        double fsgs = sqrt((gg-1.0)/(gg+1.0))*Clams.real()/Clams.imag();
+                        double gz = -1.0*signk*(rho*gg+1.5*ALPHA*zz);
+                        double z1 = -1.0*signk*zz;
+                        double b0 = 1.0;
+                        double a0 = (1.0 + 2.0*fabs(k))*b0/(rho-gz);
+                        double a1 = 0.5*(gz+rho)*b0;
+                        double an = a1;
+                        double anm1 = a0;
+                        double bnm1 = b0;
+                        double asum = a0;
+                        double bsum = b0;
+                        double nn = 1.0;
+                        do {
+                            double bn = ((rho-gz)*an + ALPHA*z1*anm1/2.0)/(2.0*nn+2.0*fabs(k)+1.0);
+                            double anp1 = ((gz+rho)*bn - ALPHA*z1*bnm1/2.0)/(2.0*nn + 2.0);
+                            asum += an;
+                            bsum += bn;
+                            nn += 1.0;
+                            anm1 = an;
+                            an = anp1;
+                            bnm1 = bn;
+                        } while(fabs(anm1/asum) > 1e-6 && fabs(bnm1/bsum) > 1e-6 );
+                        double figi= (k>0) ? asum/bsum : bsum/asum;
+                        H = ((frgr-figi)/(figi-fsgs))*grgs;
+                    } else {
+                        H = 0.0;
+                    }
+                }
+                // double r = 1.0 + H*H + 2.0*H*(Cedr.real()*Ceds.real() + Cedr.imag()*Cedr.imag());
+                dk[i] = std::arg(Cedr + Ceds*H);
+            }
+            if (n>1) dk[2] = dmk;
+            double sdm2 = sin(dk[2]-dk[1]);
+            term1 = k0*(k0+1.0)*sdm2*sdm2/(eta*eta*(2.0*k0 + 1.0));
+            if (n>1) {
+                double sd2 = sin(dk[0]-dkm1);
+                term1 += k0*(k0-1.0)*sd2*sd2/(eta*eta*(2.0*k0 - 1.0));
+            }
+            double sdd = sin(dk[0]-dk[2]);
+            term2 = k0*sdd*sdd/(eta*eta*(4.0*k0*k0 - 1.0));
+            term3 = term1 - 1.0/k0;
+            sumterm += term2 + term3;
+            n += 1;
+            dkm1 = dk[0];
+            dmk = dk[1];
+            pct = (term2 + term3)/sumterm;
+        }
+    } else {
+        sumterm = -log(prh) - 0.2; // Asymptotic value of the LS correction.
+    }
+    double lls = sumterm + 0.5*bb*bb;
+    return lls;
 }
 ///
 /// \brief Compute a mathematical function related to bremsstrahlung.
@@ -843,7 +956,7 @@ double CRange::range( double e, double z1, double a1, short sswitch, CRange::Tda
 /// \bug The interpolation in the low-energy regime needs more attention.
 /// \bug Currently, this function isn't called by anything.
 ///
-double qrange( double e, double z1, double a1, short sswitch, CRange::Tdata &target )
+double CRange::qrange( double e, double z1, double a1, short sswitch, CRange::Tdata &target )
 {
     double ei = 8.0, en = 1.0;
     double ra[MAXE];
