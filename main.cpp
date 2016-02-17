@@ -48,7 +48,7 @@
 ///
 /// The crange program executes a list of tasks from a file.  Here's an example:
 ///
-/// \verbinclude tasks.txt
+/// \verbinclude ./tasks.txt
 ///
 /// The first line tells the calculator to compute the range (in g cm<sup>-2</sup>) of
 /// uranium (Z=92,A=238) at a kinetic energy of 1200 MeV per nucleon, in an

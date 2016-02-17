@@ -113,12 +113,12 @@ namespace CRange
             Tdata( const char *n, dictionary *ini );
             void operator=( const Tdata &t );
             void print( std::ostream *o ) const;
-            double hash (void) const { return _hash; }
+            double hash (void) const { return _hash; } ///< Used in testing for equality.
             ///
             /// \name Material name
             /// @{
             ///
-            const std::string& name (void) const { return _name; }
+            const std::string& name (void) const { return _name; } ///< The target name.
             /// @}
             ///
             /// \name General parameters
