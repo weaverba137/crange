@@ -1443,7 +1443,7 @@ short init_switch( char *switchfile )
 #ifdef HAVE_INIPARSER_H
     dictionary *d;
     /* End declarations */
-    if (access(switchfile,R_OK)) {
+    if (access(switchfile,R_OK) == 0) {
         sswitch = 0;
         d = iniparser_load( switchfile );
         if (iniparser_getboolean(d,"switch:barkas",0)) sswitch |= SSWITCH_BA;
@@ -1487,7 +1487,7 @@ tdata *init_target( char *targetfile )
     char key[NAMEWIDTH+5+1];
     int i,n;
     /* End declarations */
-    if (access(targetfile,R_OK)) {
+    if (access(targetfile,R_OK) == 0) {
         d = iniparser_load( targetfile );
         n = iniparser_getnsec(d);
         table = (tdata*)calloc(n+1,sizeof(tdata));
