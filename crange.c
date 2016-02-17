@@ -1,9 +1,9 @@
 /**
  * \mainpage crange - The Berkeley Range-Energy Calculator
  * \author Benjamin Weaver <benjamin.weaver@nyu.edu>
- * \version 1.6.1
+ * \version 1.6.2
  *
- * \copyright (C) 2001-2011 Benjamin Weaver, LGPL
+ * \copyright (C) 2001-2016 Benjamin Weaver, LGPL
  *
  * \section sec-intro Introduction
  *
@@ -79,7 +79,7 @@
  * targets that are compiled in to the program by default.  Most of the target
  * data is taken from Sternheimer, Berger \& Seltzer, \cite art_rms1.
  * The definitions of the material properties are in the target.ini file.
- * The user may add additional targets or orverride existing target values
+ * The user may add additional targets or override existing target values
  * by supplying a different target.ini file (with the same format!) on
  * the command line.
  *
@@ -89,6 +89,7 @@
  *
  * \section sec-history History
  *
+ *  - 1.6.2: Fixed bug which was forbidding access to INI files. Minor changes relating to GitHub migration.
  *  - 1.6.1: Fix version strings.
  *  - 1.6.0: Make crange compatible with GNU autotools and GNU Scientific Library.
  *  - 1.5.3: Simplified calculation switching and added a crange.h file

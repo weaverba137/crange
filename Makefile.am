@@ -3,7 +3,6 @@ ACLOCAL_AMFLAGS = -I m4
 bin_PROGRAMS = crange
 crange_SOURCES = crange.h crange.c
 dist_doc_DATA = COPYRIGHT INSTALL LGPL README switch.ini target.ini tasks.txt doc/crange.pdf
-# dist_bin_SCRIPTS = version.pl
 
 include aminclude.am
 
@@ -17,7 +16,7 @@ $(dist_man1_MANS): doxygen-doc
 
 endif
 
-EXTRA_DIST = autogen.sh version.pl $(DX_CONFIG) crange.bib doc/html
+EXTRA_DIST = autogen.sh $(DX_CONFIG) crange.bib doc/html
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
 install-data-hook:
