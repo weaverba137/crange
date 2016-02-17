@@ -86,6 +86,16 @@ void CRange::Tdata::init(void)
     for (int i=0; i < Ndata; i++) _hash += data[i];
 }
 ///
+/// \brief Assignment operator.
+///
+void CRange::Tdata::operator=( CRange::Tdata &t )
+{
+    if (this == &t ) return;
+    _name = t._name;
+    for (int i=0; i < Ndata; i++) data[i] = t.data[i];
+    _hash = t._hash;
+}
+///
 /// \brief Print.
 ///
 /// This serializes a CRange::Tdata object onto an output stream.

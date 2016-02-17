@@ -111,6 +111,7 @@ namespace CRange
             Tdata( const std::string &n, const double d[] );
             Tdata( const char *n, const double d[] );
             Tdata( const char *n, dictionary *ini );
+            void operator=( Tdata &t );
             void print( std::ostream *o ) const;
             const double hash (void) const { return _hash; }
             ///
