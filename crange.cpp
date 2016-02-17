@@ -88,7 +88,7 @@ void CRange::Tdata::init(void)
 ///
 /// \brief Assignment operator.
 ///
-void CRange::Tdata::operator=( CRange::Tdata &t )
+void CRange::Tdata::operator=( const CRange::Tdata &t )
 {
     if (this == &t ) return;
     _name = t._name;
@@ -125,8 +125,31 @@ CRange::RangeTable::RangeTable(void)
 {
     z1 = a1 = 0.0;
     sswitch = 0;
-    target = CRange::Tdata();
+    CRange::Tdata t;
+    target = t;
     for (int i=0; i<MAXE; i++) range[i] = 0.0;
+}
+///
+/// \brief Copy constructor.
+///
+CRange::RangeTable::RangeTable(const CRange::RangeTable &t)
+{
+    z1 = t.z1;
+    a1 = t.a1;
+    sswitch = t.sswitch;
+    target = t.target;
+    for (int i=0; i<MAXE; i++) range[i] = t.range[i];
+}
+///
+/// \brief Assignment operator.
+///
+void CRange::RangeTable::operator=(const CRange::RangeTable &t)
+{
+    z1 = t.z1;
+    a1 = t.a1;
+    sswitch = t.sswitch;
+    target = t.target;
+    for (int i=0; i<MAXE; i++) range[i] = t.range[i];
 }
 ///
 /// \brief Standard constructor.
@@ -1362,7 +1385,8 @@ CRange::Tdata CRange::find_target(const std::string &name, std::vector<CRange::T
             return *it;
         }
     }
-    return CRange::Tdata();
+    CRange::Tdata t;
+    return t;
 }
 ///
 /// \brief Load the default target data.
@@ -1376,7 +1400,7 @@ CRange::Tdata CRange::find_target(const std::string &name, std::vector<CRange::T
 ///
 /// \return A vector of CRange::Tdata.
 ///
-std::vector<CRange::Tdata> CRange::default_target(std::vector<CRange::Tdata> &extratargets)
+std::vector<CRange::Tdata>& CRange::default_target(std::vector<CRange::Tdata> &extratargets)
 {
     const static std::string tnames[] = {"H", "He", "C", "N", "O", "Na", "Al", "Si", "P",
         "Ar", "Fe", "Ni", "Cu", "Ge", "Ag", "Ba", "Os", "Pt", "Au", "Pb", "U",

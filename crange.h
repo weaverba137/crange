@@ -111,9 +111,9 @@ namespace CRange
             Tdata( const std::string &n, const double d[] );
             Tdata( const char *n, const double d[] );
             Tdata( const char *n, dictionary *ini );
-            void operator=( Tdata &t );
+            void operator=( const Tdata &t );
             void print( std::ostream *o ) const;
-            const double hash (void) const { return _hash; }
+            double hash (void) const { return _hash; }
             ///
             /// \name Material name
             /// @{
@@ -178,6 +178,8 @@ namespace CRange
             short sswitch;      ///< The switch bit field.
             Tdata target;       ///< The Tdata class used in constructing the table.
             RangeTable();
+            RangeTable(const RangeTable &t);
+            void operator=(const RangeTable &t);
             RangeTable(double z, double a, short s, Tdata &t);
             double interpolate_range( double e );
             double interpolate_energy( double e, double r0 );
@@ -214,7 +216,7 @@ namespace CRange
     std::vector<Tdata> init_target( const std::string &targetfile );
     Tdata find_target(const char *name, std::vector<Tdata> &targets);
     Tdata find_target(const std::string &name, std::vector<Tdata> &targets);
-    std::vector<Tdata> default_target(std::vector<Tdata> &extratargets);
+    std::vector<Tdata>& default_target(std::vector<Tdata> &extratargets);
     ///
     /// \brief Returns the energy corresponding to a value in a range table.
     ///
