@@ -3,16 +3,26 @@
 *~
 
 # Autoconf stuff
+.deps
 autom4te.cache
 autoscan.log
 aclocal.m4
 compile
 config.h.in
+config.h
+config.log
+config.status
 configure
+crange-*
 depcomp
 install-sh
 Makefile.in
+Makefile
 missing
+stamp-h1
+
+# Doxygen stuff
+doc
 
 # Mac OSX
 .DS_Store
