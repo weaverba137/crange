@@ -3,9 +3,16 @@
 *~
 
 # Autoconf stuff
-auto4mate.cache
+autom4te.cache
 autoscan.log
 aclocal.m4
+compile
+config.h.in
+configure
+depcomp
+install-sh
+Makefile.in
+missing
 
 # Mac OSX
 .DS_Store
