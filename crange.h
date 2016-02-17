@@ -104,6 +104,7 @@ namespace CRange
             std::string _name; ///< Name of the target.
             double data[Ndata];  ///< The data.
             double _hash; ///< Computed from the name & data, used to test for equality.
+            void init(void);
         public:
             Tdata();
             Tdata( const Tdata &t );

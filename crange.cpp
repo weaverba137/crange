@@ -14,12 +14,8 @@
 CRange::Tdata::Tdata(void)
 {
     _name = "Unknown";
-    _hash = 0.0;
-    for (unsigned i=0; i < _name.length(); i++) _hash += (double)_name[i];
-    for (int i=0; i < Ndata; i++) {
-        data[i] = 0.0;
-        _hash += data[i];
-    }
+    for (int i=0; i < Ndata; i++) data[i] = 0.0;
+    init();
 }
 ///
 /// \brief Copy constructor.
@@ -45,12 +41,8 @@ CRange::Tdata::Tdata( const CRange::Tdata &t )
 CRange::Tdata::Tdata( const std::string &n, const double d[] )
 {
     _name = n;
-    _hash = 0.0;
-    for (unsigned i=0; i < _name.length(); i++) _hash += (double)_name[i];
-    for (int i=0; i < Ndata; i++) {
-        data[i] = d[i];
-        _hash += data[i];
-    }
+    for (int i=0; i < Ndata; i++) data[i] = d[i];
+    init();
 }
 ///
 /// \brief Standard constructor.
@@ -63,12 +55,8 @@ CRange::Tdata::Tdata( const std::string &n, const double d[] )
 CRange::Tdata::Tdata( const char *n, const double d[] )
 {
     _name = std::string(n);
-    _hash = 0.0;
-    for (unsigned i=0; i < _name.length(); i++) _hash += (double)_name[i];
-    for (int i=0; i < Ndata; i++) {
-        data[i] = d[i];
-        _hash += data[i];
-    }
+    for (int i=0; i < Ndata; i++) data[i] = d[i];
+    init();
 }
 ///
 /// \brief INI-based constructor.
@@ -82,12 +70,20 @@ CRange::Tdata::Tdata( const char *n, dictionary *ini )
 {
     std::string namekey = std::string(n) + ":name";
     _name = iniparser_getstring(ini, namekey.c_str(), "Unknown");
+    for (int i=0; i < Ndata; i++)
+        data[i] = iniparser_getdouble(ini, (_name + ":" + dnames[i]).c_str(), 0.0);
+    init();
+}
+///
+/// \brief Consolidates TData initialization code.
+///
+/// This function contains the code that is common to all constructors.
+///
+void CRange::Tdata::init(void)
+{
     _hash = 0.0;
     for (unsigned i=0; i < _name.length(); i++) _hash += (double)_name[i];
-    for (int i=0; i < Ndata; i++) {
-        data[i] = iniparser_getdouble(ini, (_name + ":" + dnames[i]).c_str(), 0.0);
-        _hash += data[i];
-    }
+    for (int i=0; i < Ndata; i++) _hash += data[i];
 }
 ///
 /// \brief Print.
@@ -1092,7 +1088,7 @@ double CRange::benton( double e, double z1, double a1, CRange::Tdata &target )
         n = 1;
     } else if ( x > 2.0 && x <= 3.0 ) {
         n = 2;
-    } else if ( x > 3.0 ) {
+    } else { // if ( x > 3.0 ) {
         n = 3;
     }
     double bzz=(31.8+3.86*exp((5.0/8.0)*logi))
