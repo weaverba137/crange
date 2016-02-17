@@ -3,36 +3,19 @@
 /// \author Benjamin Weaver <benjamin.weaver@nyu.edu>
 /// \version 2.0.0
 ///
-/// \copyright (C) 2001-2016 Benjamin Weaver, LGPL
+/// \copyright (C) 2001-2016 Benjamin Weaver, BSD.
 ///
 /// \section sec-intro Introduction
 ///
 /// Thank you for choosing the Berkeley Range-Energy Calculator.
 ///
-/// \section sec-preinstall Pre-Installation
+/// \section sec-preinstall Pre-Installation Requirements
 ///
-/// \subsection subsec-sysreq System Requirements
-///
-/// crange may require cmake to be installed, depending on how you
-/// obtained the code.
-///
-/// crange uses Doxygen for documentation processing.
-///
-/// \subsection subsec-prereq Library Prerequisites
-///
-/// \subsubsection subsubsec-gsl GNU Scientific Library
-///
-/// The GNU Scientific Library (http://www.gnu.org/s/gsl/) is required.
-/// This code was most recently tested with version 1.15, though any version
-/// with full complex variable support should work.
-///
-/// \subsubsection subsubsec-iniparser iniParser
-///
-/// The iniParser Library (http://ndevilla.free.fr/iniparser/), version 3.0 or
-/// later is strongly recommended.  The code will still compile if it is
-/// not installed, but the resulting binary will not be able to read optional
-/// target or switch information, so only compiled-in defaults will be
-/// available.
+///  - crange may require [CMake](https://cmake.org), version 2.8 or greater,
+///    to be installed, depending on how you obtained the code.
+///  - crange uses [Doxygen](http://www.doxygen.org) for documentation processing.
+///  - crange \em includes the [iniparser library](https://github.com/ndevilla/iniparser),
+///    version 4.0.  There is no need to install it.
 ///
 /// \section sec-install Installation
 ///
@@ -81,7 +64,7 @@
 /// targets that are compiled in to the program by default.  Most of the target
 /// data is taken from Sternheimer, Berger \& Seltzer, \cite art_rms1.
 /// The definitions of the material properties are in the target.ini file.
-/// The user may add additional targets or orverride existing target values
+/// The user may add additional targets or override existing target values
 /// by supplying a different target.ini file (with the same format!) on
 /// the command line.
 ///
@@ -91,7 +74,8 @@
 ///
 /// \section sec-history History
 ///
-///  - 2.0.0: Complete re-write in C++.
+///  - 2.0.0: Complete re-write in C++.  BSD License.
+///  - 1.6.3: Fixed bug which was forbidding access to INI files.
 ///  - 1.6.2: Minor changes relating to GitHub migration.
 ///  - 1.6.1: Fix version strings.
 ///  - 1.6.0: Make crange compatible with GNU autotools and GNU Scientific Library.
@@ -188,7 +172,7 @@ int main(int argc, char *argv[])
     //
     // Pass commands to the processor.
     //
-    std::vector<std::string> results = CRange::run_range(commands, sswitch, targets);
+    std::vector<std::string> results = CRange::process(commands, sswitch, targets);
     //
     // Output results.
     //

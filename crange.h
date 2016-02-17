@@ -14,11 +14,11 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
-#include <cmath>    ///< Standard (non-complex) math functions.
+#include <cmath>    // Standard (non-complex) math functions.
 #include <vector>
-#include <complex>  ///< Math functions provided here should be prefaced with std::.
-#include <unistd.h> ///< Provides getopt(), access().
-#include "config.h" ///< Provides version information.
+#include <complex>  // Math functions provided here should be prefaced with std::.
+#include <unistd.h> // Provides getopt(), access().
+#include "config.h" // Provides version information.
 #include "iniparser.h"
 //
 // These values define the range-energy tables
@@ -209,7 +209,7 @@ namespace CRange
     //
     void usage( char* executable );
     void version( char* executable );
-    std::vector<std::string> run_range( std::vector<std::string> &commands, short sswitch, std::vector<Tdata> &targets );
+    std::vector<std::string> process( std::vector<std::string> &commands, short sswitch, std::vector<Tdata> &targets );
     short init_switch( const std::string &switchfile );
     short init_switch( const char *switchfile );
     std::vector<Tdata> init_target( const char *targetfile );

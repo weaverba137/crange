@@ -42,3 +42,7 @@ to reflect Sørensen's 2010 paper (see art_ahs1 in the crange.bib file).
 ## License
 
 This code is released under a 3-clause BSD-style license. See the file `LICENSE.md`.
+
+This package includes code from the
+[iniparser library](https://github.com/ndevilla/iniparser), version 4.0,
+Copyright (c) 2000-2011 by Nicolas Devillard.  See the file `INIPARSER_LICENSE.md`.

@@ -1219,7 +1219,7 @@ void CRange::version(char *executable)
 /// \bug The primary ionization parameters are currently hard-coded.
 /// \bug The numerical format and precision are currently hard-coded.
 ///
-std::vector<std::string> CRange::run_range( std::vector<std::string> &commands, short sswitch, std::vector<CRange::Tdata> &targets )
+std::vector<std::string> CRange::process( std::vector<std::string> &commands, short sswitch, std::vector<CRange::Tdata> &targets )
 {
     std::vector<std::string> results;
     if (commands.size() == 0) return results;
