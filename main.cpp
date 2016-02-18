@@ -19,7 +19,7 @@
 ///
 /// \section sec-install Installation
 ///
-/// See the README.md file.
+/// See the README.rst file.
 ///
 /// \section sec-running Running
 ///
