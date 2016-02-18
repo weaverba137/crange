@@ -75,8 +75,7 @@
 /// \section sec-history History
 ///
 ///  - 2.0.0: Complete re-write in C++.  BSD License.
-///  - 1.6.3: Fixed bug which was forbidding access to INI files.
-///  - 1.6.2: Minor changes relating to GitHub migration.
+///  - 1.6.2: Fixed bug which was forbidding access to INI files. Minor changes relating to GitHub migration.
 ///  - 1.6.1: Fix version strings.
 ///  - 1.6.0: Make crange compatible with GNU autotools and GNU Scientific Library.
 ///  - 1.5.3: Simplified calculation switching and added a crange.h file

@@ -478,7 +478,9 @@ double CRange::dedx( double e1, double rel0, double z0, double a1, short sswitch
         double v = b*g/(ALPHA*sqrt(z2));
         if (v>1.0) {
             //
-            // Not clear why this is commented out.
+            // See the documentation for SSWITCH_BA for why this is commented
+            // out.  Also note that the extrapolated power law is set to -2.0
+            // instead of -2.5, as mentioned above.
             //
             // if (v < 9.0){
             //     i = 1;
@@ -488,7 +490,7 @@ double CRange::dedx( double e1, double rel0, double z0, double a1, short sswitch
             //     fv = fva[9]*exp(-2.5*log(v/10.0));
             // }
             int i = 9;
-            double fv = fva[i]*exp(-2.0*log(v/10.0));  // Note how its 2.0 here and 2.5 above.
+            double fv = fva[i]*exp(-2.0*log(v/10.0));
             f4 = 1.0 + 2.0*z1*fv/(sqrt(z2));
         }
     }

@@ -2,10 +2,12 @@
 
 ## Introduction
 
-Author: Benjamin Weaver
-Email:  benjamin.weaver@nyu.edu
-Homepage: http://cosmo.nyu.edu/~bw55/dedx/
-Source: https://github.com/weaverba137/crange
+<dl>
+    <dt>Author</dt><dd>Benjamin Weaver</dd>
+    <dt>Email</dt><dd>benjamin.weaver@nyu.edu</dd>
+    <dt>Homepage</dt><dd>http://cosmo.nyu.edu/~bw55/dedx/</dd>
+    <dt>Source</dl><dd>https://github.com/weaverba137/crange</dd>
+</dl>
 
 ## Install
 
@@ -30,14 +32,15 @@ passed to the configure script with --prefix.
 
 ## TODO
 
-Allow additional sections of the ini file to specify additional
-parameters such as the size of the range table and the minimum
-and maximum energy.  Sections of the ini file that do not define
-switches or other configuration may be interpreted as additional
-entries for the absorber table.
-
-The pair production and bremsstrahlung computations should be updated
-to reflect Sørensen's 2010 paper (see art_ahs1 in the crange.bib file).
+* Allow additional sections of the ini file to specify additional
+  parameters such as the size of the range table and the minimum
+  and maximum energy.  Sections of the ini file that do not define
+  switches or other configuration may be interpreted as additional
+  entries for the absorber table.
+* The pair production and bremsstrahlung computations should be updated
+  to reflect Sørensen's 2010 paper (see art_ahs1 in the crange.bib file).
+* Update instructions for creating a distribution file from GitHub;
+  Update install from distribution instructions.
 
 ## License
 
