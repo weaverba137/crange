@@ -28,8 +28,8 @@ Documentation
 -------------
 
 The main documentation for this package is processed by `Doxygen`_.  It is
-available in PDF or HTML form.  It will be installed in
-``$prefix/share/doc/CRange``, where ``$prefix`` is ``/usr/local`` or the value
+available in HTML form.  It will be installed in
+``$prefix/share/doc/CRange/html``, where ``$prefix`` is ``/usr/local`` or the value
 passed to the cmake command with ``-DCMAKE_INSTALL_PREFIX``.
 
 .. _`Doxygen`: http://www.doxygen.org
@@ -44,8 +44,6 @@ TODO
   entries for the absorber table.
 * The pair production and bremsstrahlung computations should be updated
   to reflect Sørensen's 2010 paper (see art_ahs1 in the crange.bib file).
-* Update instructions for creating a distribution file from GitHub;
-  Update install from distribution instructions.
 
 License
 -------
