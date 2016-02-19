@@ -1,4 +1,4 @@
-project (crange)
+project (CRange)
 
 cmake_minimum_required (VERSION 2.8)
 
@@ -43,7 +43,7 @@ if(DOXYGEN_FOUND)
     )
 endif(DOXYGEN_FOUND)
 
-add_library(crangeFunctions SHARED crange.cpp dictionary.c iniparser.c)
+add_library(CRange SHARED crange.cpp dictionary.c iniparser.c)
 # add the executable
 add_executable(crange main.cpp)
-target_link_libraries(crange crangeFunctions)
+target_link_libraries(crange CRange)
