@@ -113,7 +113,7 @@ namespace CRange
             Tdata( const char *n, dictionary *ini );
             void operator=( const Tdata &t );
             void print( std::ostream *o ) const;
-            double hash (void) const { return _hash; } ///< Used in testing for equality.
+            inline double hash (void) const { return _hash; } ///< Used in testing for equality.
             ///
             /// \name Material name
             /// @{
@@ -124,23 +124,23 @@ namespace CRange
             /// \name General parameters
             /// @{
             ///
-            double z2  (void) const { return data[0]; } ///< The mean nuclear charge.
-            double a2  (void) const { return data[1]; } ///< The mean atomic mass number.
-            double iadj(void) const { return data[2]; } ///< The logarithmic mean ionization potential [eV].
-            double rho (void) const { return data[3]; } ///< The density [g cm<sup>-3</sup>].
-            double pla (void) const { return data[4]; } ///< The plasma frequency [eV].
-            double etad(void) const { return data[5]; } ///< The ratio of density to density at STP for gaseous targets. Should be set to zero for non-gaseous materials.
-            double bind(void) const { return data[6]; } ///< The total electronic binding energy [keV].
+            inline double z2  (void) const { return data[0]; } ///< The mean nuclear charge.
+            inline double a2  (void) const { return data[1]; } ///< The mean atomic mass number.
+            inline double iadj(void) const { return data[2]; } ///< The logarithmic mean ionization potential [eV].
+            inline double rho (void) const { return data[3]; } ///< The density [g cm<sup>-3</sup>].
+            inline double pla (void) const { return data[4]; } ///< The plasma frequency [eV].
+            inline double etad(void) const { return data[5]; } ///< The ratio of density to density at STP for gaseous targets. Should be set to zero for non-gaseous materials.
+            inline double bind(void) const { return data[6]; } ///< The total electronic binding energy [keV].
             //// @}
             ///
             /// \name Density effect parameters
             /// @{
             ///
-            double X0  (void) const { return data[7]; } ///< Value of \f$ \log_{10} \beta\gamma \f$ at which the density effect turns on.
-            double X1  (void) const { return data[8]; } ///< Value of \f$ \log_{10} \beta\gamma \f$ above which the high-energy form of the density effect may be used.
-            double a   (void) const { return data[9]; } ///< Parameter used to interpolate the density effect between the values of X0 and X1.
-            double m   (void) const { return data[10]; } ///< Parameter used to interpolate the density effect between the values of X0 and X1.
-            double d0  (void) const { return data[11]; } ///< Low-energy density effect parameter, only non-zero for conducting materials.
+            inline double X0  (void) const { return data[7]; } ///< Value of \f$ \log_{10} \beta\gamma \f$ at which the density effect turns on.
+            inline double X1  (void) const { return data[8]; } ///< Value of \f$ \log_{10} \beta\gamma \f$ above which the high-energy form of the density effect may be used.
+            inline double a   (void) const { return data[9]; } ///< Parameter used to interpolate the density effect between the values of X0 and X1.
+            inline double m   (void) const { return data[10]; } ///< Parameter used to interpolate the density effect between the values of X0 and X1.
+            inline double d0  (void) const { return data[11]; } ///< Low-energy density effect parameter, only non-zero for conducting materials.
             /// @}
     };
     const std::string Tdata::dnames[Tdata::Ndata] = {
