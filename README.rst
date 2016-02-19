@@ -13,17 +13,16 @@ Introduction
 Install
 -------
 
-If you are exporting from git to create a distribution:
+If you're installing from the tarball (provided by GitHub or otherwise):
 
-1. cmake .
-2. make
-3. make doc
+1. ``cmake .``
+2. ``make install``
 
-If you are installing from a distribution:
+This will install everything in the ``/usr/local`` path or the equivalent,
+depending on your system.  To customize the install path, just do, *e.g.*:
 
-1. make
-2. make doc
-3. make install
+1. ``cmake -DCMAKE_INSTALL_PREFIX=$HOME/crange/2.0.0 .``
+2. ``make install``
 
 Documentation
 -------------

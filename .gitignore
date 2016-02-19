@@ -12,6 +12,7 @@ config.h
 crange
 doxygen.cfg
 crange
+install_manifest.txt
 # crange-*/*
 # crange-*.tar.gz
 # doc

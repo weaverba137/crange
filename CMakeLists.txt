@@ -1,15 +1,14 @@
-project (CRange)
+project (CRange) # VERSION 2.0.0)
 
 cmake_minimum_required (VERSION 2.8)
 
 include(FeatureSummary)
 
+set(${PROJECT_NAME}_VERSION_MAJOR 2)
+set(${PROJECT_NAME}_VERSION_MINOR 0)
+set(${PROJECT_NAME}_VERSION_PATCH 0)
+
 # The version number.
-set (crange_VERSION_MAJOR 2)
-set (crange_VERSION_MINOR 0)
-set (crange_VERSION_PATCH 0)
-set (crange_VERSION "${crange_VERSION_MAJOR}.${crange_VERSION_MINOR}.${crange_VERSION_PATCH}")
-set (crange_VERSION_STRING "${crange_VERSION}")
 
 set (CMAKE_CXX_FLAGS "-std=c++11 -Wall")
 
@@ -47,3 +46,13 @@ add_library(CRange SHARED crange.cpp dictionary.c iniparser.c)
 # add the executable
 add_executable(crange main.cpp)
 target_link_libraries(crange CRange)
+add_dependencies(crange doc)
+
+# Installation
+FILE(GLOB headers "*.h")
+FILE(GLOB readme "*.rst")
+FILE(GLOB ini "*.ini")
+install(FILES ${headers} DESTINATION include)
+install(TARGETS crange CRange RUNTIME DESTINATION bin LIBRARY DESTINATION lib)
+install(FILES ${readme} ${ini} tasks.txt DESTINATION share/doc/${PROJECT_NAME})
+install(DIRECTORY html DESTINATION share/doc/${PROJECT_NAME})
