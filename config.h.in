@@ -1,6 +1,6 @@
 ///
 /// \file config.h
-/// \brief The configured options and settings for crange.
+/// \brief The configured options and settings for CRange.
 ///
 /// This file contains setting that will be configured by cmake.
 ///

@@ -1,5 +1,5 @@
 ******
-crange
+CRange
 ******
 
 Introduction
@@ -21,7 +21,7 @@ If you're installing from the tarball (provided by GitHub or otherwise):
 This will install everything in the ``/usr/local`` path or the equivalent,
 depending on your system.  To customize the install path, just do, *e.g.*:
 
-1. ``cmake -DCMAKE_INSTALL_PREFIX=$HOME/crange/2.0.0 .``
+1. ``cmake -DCMAKE_INSTALL_PREFIX=$HOME/CRange/2.0.0 .``
 2. ``make install``
 
 Documentation
@@ -29,8 +29,8 @@ Documentation
 
 The main documentation for this package is processed by `Doxygen`_.  It is
 available in PDF or HTML form.  It will be installed in
-``$prefix/share/doc/crange``, where ``$prefix`` is ``/usr/local`` or the value
-passed to the configure script with ``--prefix``.
+``$prefix/share/doc/CRange``, where ``$prefix`` is ``/usr/local`` or the value
+passed to the cmake command with ``-DCMAKE_INSTALL_PREFIX``.
 
 .. _`Doxygen`: http://www.doxygen.org
 

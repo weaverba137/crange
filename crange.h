@@ -8,7 +8,7 @@
 #ifndef _HAVE_CRANGE_H_
 #define _HAVE_CRANGE_H_
 //
-// Standard includes here to keep crange.c clean
+// Standard includes here to keep crange.cpp clean
 //
 #include <iostream>
 #include <iomanip>

@@ -1,5 +1,5 @@
 ///
-/// \mainpage crange - The Berkeley Range-Energy Calculator
+/// \mainpage CRange - The Berkeley Range-Energy Calculator
 /// \author Benjamin Weaver <benjamin.weaver@nyu.edu>
 /// \version 2.0.0
 ///
@@ -11,10 +11,9 @@
 ///
 /// \section sec-preinstall Pre-Installation Requirements
 ///
-///  - crange may require [CMake](https://cmake.org), version 2.8 or greater,
-///    to be installed, depending on how you obtained the code.
-///  - crange uses [Doxygen](http://www.doxygen.org) for documentation processing.
-///  - crange \em includes the [iniparser library](https://github.com/ndevilla/iniparser),
+///  - CRange requires [CMake](https://cmake.org), version 2.8 or greater.
+///  - CRange requires [Doxygen](http://www.doxygen.org) for documentation processing.
+///  - CRange \em includes the [iniparser library](https://github.com/ndevilla/iniparser),
 ///    version 4.0.  There is no need to install it.
 ///
 /// \section sec-install Installation
