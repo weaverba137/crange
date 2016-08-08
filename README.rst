@@ -7,7 +7,7 @@ Introduction
 
 :Author: Benjamin Weaver
 :Email: baweaver@lbl.gov
-:Homepage: http://weaverba137.github.io/crange
+:Homepage: https://weaverba137.github.io/crange
 :Source: https://github.com/weaverba137/crange
 
 Install
