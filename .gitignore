@@ -1,28 +1,26 @@
 # General
 *.o
+*.so
+*.dylib
 *~
 
-# Autoconf stuff
-.deps
-autom4te.cache
-autoscan.log
-aclocal.m4
-compile
-config.h.in
+# Cmake stuff
+CMakeFiles/*
+cmake_install.cmake
+CMakeCache.txt
 config.h
-config.log
-config.status
-configure
-crange-*
-depcomp
-install-sh
-Makefile.in
+crange
+doxygen.cfg
+crange
+install_manifest.txt
+# crange-*/*
+# crange-*.tar.gz
+# doc
 Makefile
-missing
-stamp-h1
 
 # Doxygen stuff
-doc
+html/*
+latex/*
 
 # Mac OSX
 .DS_Store
