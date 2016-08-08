@@ -4,11 +4,12 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Ionization Energy Loss &mdash; B. A. Weaver</title>
+    <title>dE/dx Calculator &mdash; Ionization Energy Loss &mdash; B. A. Weaver</title>
     <link rel="stylesheet" type="text/css" media="screen" href="../css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="../css/public_html.css" />
     <script type="text/javascript" src="../js/jquery-2.1.4.min.js"></script>
     <script type="text/javascript" src="../js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../js/dedx.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-default navbar-static-top">
@@ -51,88 +52,59 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <h1>Ionization Energy Loss &mdash; B. A. Weaver</h1>
+            <h1>dE/dx Calculator &mdash; Ionization Energy Loss &mdash; B. A. Weaver</h1>
         </div><!-- end class="col-md-12" -->
     </div><!-- end class="row" --><div class="row">
 <div class="col-md-12">
-<h2>The Article</h2>
-<p>
-This web-page is in support of <a href="#baw">Weaver &amp; Westphal (2002)</a>
-in <em>Nuclear Instruments and Methods B</em>.  Subscribers to
-<a href="http://www.sciencedirect.com/">Science Direct</a> can download
-our article
-<a href="http://www.sciencedirect.com/science?_ob=ArticleURL&amp;_udi=B6TJN-44SKG4X-5&amp;_user=4420&amp;_coverDate=03%2F31%2F2002&amp;_rdoc=1&amp;_fmt=summary&amp;_orig=browse&amp;_srch=%23toc%235315%232002%23998129996%23317057!&amp;_cdi=5315&amp;_sort=d&amp;_docanchor=&amp;_acct=C000000152&amp;_version=1&amp;_urlVersion=0&amp;_userid=4420&amp;md5=013eb112d58231e0139384c34d97435b">here</a>.  If you do not know if you are subscribed to this
-service, please contact your university or other institutional library.
-</p>
-<p>
-One of the primary features of our code is the implementation of the
-results of <a href="#ls">Lindhard &amp; Sørensen (1996)</a>.
-This work used
-exact solutions to the Dirac equation to replace several previous corrections
-to the ionization energy loss formula.
-The code includes the ultrarelativistic limit, including finite nuclear
-size effects.  These effects cancel other terms in the energy loss formula,
-so that at high energies, ionization energy loss becomes constant
-<a href="#ultra">(Sørensen, 1998)</a>.
-</p>
-<p>
-We have also recently added estimates of energy loss due to pair production
-and projectile bremsstrahlung by <a href="#br">Sørensen (2002)</a>.
-This work has shown that bremsstrahlung energy loss is much smaller than the
-formula in our paper would suggest.  This is due to our treatment of the
-projectile and target nuclei as point particles in the derivation of these
-formulas.
-</p>
+<p class="lead">Welcome to the Stopping Power Calculator.  A
+<a href="http://www.example.com">description</a> of the Calculator is available. You
+may wish to use the <a href="absorb.php">target list</a> to find out if the
+target material is currently supported.</p>
+<p class="lead text-danger">This page only exists to test the form itself.  It does not
+actually run any calculation!</p>
 </div>
 </div>
 <div class="row">
-<div class="col-md-12">
-<h2>The Code</h2>
-<p><a href="https://github.com/weaverba137/crange">The source code is currently maintained on GitHub.</a></p>
-<p>
-The code which has been developed so far is available as a GZIPPED TAR archive
-and can be downloaded from the links below.  The code is
-fully documented, including full references, and will be updated as new effects
-are added.  The current version is released under a 3-clause BSD-style license.
-Versions prior to 2.0.0 are released under the
-<a href="http://www.fsf.org/licenses/licenses.html">Lesser GNU Public License (LGPL)</a>.
-</p>
-<p>The following versions are available:</p>
-<ul>
-    <li><a href="crange-2.0.0.tar.gz">2.0.0</a>&nbsp;<a href="crange-2.0.0.sha1sum">SHA1</a></li>
-    <li><a href="crange-1.6.2.tar.gz">1.6.2</a>&nbsp;<a href="crange-1.6.2.sha1sum">SHA1</a></li>
-    <li><a href="crange-1.5.3.tar.gz">1.5.3</a>&nbsp;<a href="crange-1.5.3.sha1sum">SHA1</a></li>
-</ul>
-<p>You can also view the <a href="absorb.php">library of absorbing media</a> used in the code.</p>
+    <div class="col-md-12">
+        <form action="recalc.php" method="post" class="well" id="recalc">
+            <fieldset><legend>Calculate</legend>
+                <div class="radio" id="div_task">
+                    <p><strong>Task</strong></p>
+                    <label class="radio-inline"><input type="radio" name="task" value="r" />Range</label>
+                    <label class="radio-inline"><input type="radio" name="task" value="e" />Energy</label>
+                    <label class="radio-inline"><input type="radio" name="task" value="d" />dE/dx</label>
+                </div>
+                <div class="form-group" id="div_re">
+                    <label class="control-label" for="RE">Energy / Range</label>
+                    <input type="text" class="form-control" aria-describedby="div_re_helpblock" name="RE" id="RE" value="" />
+                    <span id="div_re_helpblock" class="help-block">Units are A&nbsp;MeV or g&nbsp;cm<sup>-2</sup>.</span>
+                </div>
+                <div class="form-group" id="div_z">
+                    <label class="control-label" for="Z">Projectile Charge</label>
+                    <input type="text" class="form-control" aria-describedby="div_z_helpblock" name="Z" id="Z" value="" placeholder="79" />
+                    <span id="div_z_helpblock" class="help-block"></span>
+                </div>
+                <div class="form-group" id="div_a">
+                    <label class="control-label" for="Z">Projectile Mass</label>
+                    <input type="text" class="form-control" aria-describedby="div_a_helpblock" name="A" id="A" value="" placeholder="197" />
+                    <span id="div_a_helpblock" class="help-block"></span>
+                </div>
+                <div class="form-group" id="div_target">
+                    <label class="control-label" for="select_target">Target Material</label>
+                    <select class="form-control" name="target" id="select_target">
+                    </select>
+                </div>
+                <!-- Set value to "true" for output debugging -->
+                <input type="hidden" name="debug" value="true" />
+                <input type="hidden" name="previous_target" id="previous_target" value="Unknown" />
+                <button type="submit" class="btn btn-primary" name="submit" value="Engage" id="engage">Engage</button>
+                <button type="button" class="btn btn-default" onclick="document.getElementById('recalc').reset();">Reset</button>
+            </fieldset>
+        </form>
+    </div>
 </div>
-</div>
-<!--
-<div class="row-fluid">
-<div class="span12">
-<h2>Stopping Power Calculator</h2>
-<p>
-a Web-based <a href="recalc.php">stopping power calculator</a>
-is now available.  It runs the same code as is available from this site.
-</p>
-</div>
-</div>
--->
 <div class="row">
 <div class="col-md-12">
-<h2>References</h2>
-<ol>
-<li id="ls">J. Lindhard and A. H. Sørensen,<em>Phys. Rev. A</em> <strong>53</strong> (1996) 2443.</li>
-<li id="ultra">A. H. Sørensen, in <em>Photonic, Electronic and Atomic Collisions; Invited Papers XX
-Int. Conf. on the Physics of Electronic and Atomic Collisions</em>,
-eds. F. Aumayr and H. Winter (World Scientific, Singapore, 1998) 475.</li>
-<li id="br">A. H. Sørensen, in <em>Application of Accelerators in Research
-and Industry: 17th Int. Conf. on the Application of Accelerators in Research and Industry</em>,
-No. 680 in AIP Conference Proceedings,
-eds. J. L. Duggan and I. L. Morgan
-(Springer-Verlag, Berlin, 2002) 102.</li>
-<li id="baw">B. A. Weaver and A. J. Westphal,
-<em>Nucl. Inst. Meth. B</em> <strong>187</strong> (2002) 285.</li>
-</ol>
 </div>
 </div>
 
