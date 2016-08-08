@@ -1,6 +1,10 @@
-project (CRange) # VERSION 2.0.0)
+project (crange) # VERSION 2.0.0)
 
 cmake_minimum_required (VERSION 2.8)
+
+if(POLICY CMP0042)
+    cmake_policy(SET CMP0042 NEW)
+endif()
 
 include(FeatureSummary)
 
@@ -42,10 +46,11 @@ if(DOXYGEN_FOUND)
     )
 endif(DOXYGEN_FOUND)
 
-add_library(CRange SHARED crange.cpp dictionary.c iniparser.c)
+add_library(crange_shared SHARED crange.cpp dictionary.c iniparser.c)
+SET_TARGET_PROPERTIES(crange_shared PROPERTIES OUTPUT_NAME "CRange")
 # add the executable
 add_executable(crange main.cpp)
-target_link_libraries(crange CRange)
+target_link_libraries(crange crange_shared)
 add_dependencies(crange doc)
 
 # Installation
@@ -53,6 +58,6 @@ FILE(GLOB headers "*.h")
 FILE(GLOB readme "*.rst")
 FILE(GLOB ini "*.ini")
 install(FILES ${headers} DESTINATION include)
-install(TARGETS crange CRange RUNTIME DESTINATION bin LIBRARY DESTINATION lib)
+install(TARGETS crange crange_shared RUNTIME DESTINATION bin LIBRARY DESTINATION lib)
 install(FILES ${readme} ${ini} tasks.txt DESTINATION share/doc/${PROJECT_NAME})
 install(DIRECTORY html DESTINATION share/doc/${PROJECT_NAME})

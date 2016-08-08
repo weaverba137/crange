@@ -24,6 +24,10 @@ depending on your system.  To customize the install path, just do, *e.g.*:
 1. ``cmake -DCMAKE_INSTALL_PREFIX=$HOME/CRange/2.0.0 .``
 2. ``make install``
 
+Depending on your install path, you may need to set the environment variables
+``PATH`` and ``LD_LIBRARY_PATH`` (``DYLD_LIBRARY_PATH``) to point to the
+executable and the shared library, respectively.
+
 Documentation
 -------------
 

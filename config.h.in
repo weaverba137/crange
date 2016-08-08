@@ -4,6 +4,6 @@
 ///
 /// This file contains setting that will be configured by cmake.
 ///
-#define CRange_VERSION_MAJOR @CRange_VERSION_MAJOR@ ///< Major version
-#define CRange_VERSION_MINOR @CRange_VERSION_MINOR@ ///< Minor version
-#define CRange_VERSION_PATCH @CRange_VERSION_PATCH@ ///< Patch version
+#define CRANGE_VERSION_MAJOR @crange_VERSION_MAJOR@ ///< Major version
+#define CRANGE_VERSION_MINOR @crange_VERSION_MINOR@ ///< Minor version
+#define CRANGE_VERSION_PATCH @crange_VERSION_PATCH@ ///< Patch version

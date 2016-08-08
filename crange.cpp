@@ -1192,9 +1192,9 @@ void CRange::usage( char *executable )
 void CRange::version(char *executable)
 {
     std::cerr << executable << " version "
-              << CRange_VERSION_MAJOR << "."
-              << CRange_VERSION_MINOR << "."
-              << CRange_VERSION_PATCH << "." << std::endl;
+              << CRANGE_VERSION_MAJOR << "."
+              << CRANGE_VERSION_MINOR << "."
+              << CRANGE_VERSION_PATCH << "." << std::endl;
 }
 ///
 /// \brief Parses and executes the task list.
