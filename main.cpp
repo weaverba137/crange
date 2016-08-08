@@ -1,6 +1,6 @@
 ///
 /// \mainpage CRange - The Berkeley Range-Energy Calculator
-/// \author Benjamin Weaver <benjamin.weaver@nyu.edu>
+/// \author Benjamin Weaver <baweaver@lbl.gov>
 /// \version 2.0.0
 ///
 /// \copyright (C) 2001-2016 Benjamin Weaver, BSD.
@@ -69,7 +69,7 @@
 ///
 /// \section sec-updates Updates
 ///
-/// Visit http://cosmo.nyu.edu/~bw55/dedx/ .
+/// Visit https://weaverba137.github.io/crange/ .
 ///
 /// \section sec-history History
 ///
