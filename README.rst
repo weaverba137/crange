@@ -6,8 +6,8 @@ Introduction
 ------------
 
 :Author: Benjamin Weaver
-:Email: benjamin.weaver@nyu.edu
-:Homepage: http://cosmo.nyu.edu/~bw55/dedx/
+:Email: baweaver@lbl.gov
+:Homepage: http://weaverba137.github.io/crange
 :Source: https://github.com/weaverba137/crange
 
 Install
