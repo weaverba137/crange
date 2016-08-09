@@ -1,0 +1,7 @@
+#
+# List of files to exclude from rsync
+#
+*~
+.git
+.gitignore
+.DS_Store
