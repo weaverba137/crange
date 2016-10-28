@@ -25,6 +25,11 @@ MAKEFLAGS = w
 #
 SUBDIRS =
 #
+# Find all *.html files.
+#
+HTML := $(wildcard *.html)
+LAST_MODIFIED := $(shell date +"%Y-%m-%d %H:%M:%S %z (%a, %d %b %Y)")
+#
 # This should compile all code prior to it being installed
 #
 all : dedx.js
@@ -39,6 +44,16 @@ all : dedx.js
 #
 %.js : %.coffee
 	coffee -b -c $<
+#
+# Update modification times in HTML files.
+#
+last_modified.txt : $(HTML)
+	@ for f in $?; do \
+		sed -r "s|^Last modified: .*</p>|Last modified: $(LAST_MODIFIED)</p>|" $$f > $$f.new; \
+		/bin/mv -f $$f.new $$f; \
+		done
+	$(RM) $@
+	echo "$(LAST_MODIFIED)" > $@
 #
 # Install things in their proper places in $(INSTALL_DIR)
 #
