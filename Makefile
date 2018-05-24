@@ -68,12 +68,8 @@ last_modified.txt : $(HTML)
 # Install things in their proper places in $(INSTALL_DIR)
 #
 install : all
-	@ if [ -z "$(INSTALL_DIR)" ]; then \
-		echo You have not specified a destination directory >&2; \
-		exit 1; \
-	fi
-	@ echo "You will be installing in \$$INSTALL_DIR=$(INSTALL_DIR)"
-	@ echo "I'll give you 5 seconds to think about it"
+	@ echo "You will be installing in \$$INSTALL_DIR=$(INSTALL_DIR)."
+	@ echo "I'll give you 5 seconds to think about it."
 	@ echo ""
 	@ sleep 5
 	- mkdir -p $(INSTALL_DIR)
@@ -89,11 +85,7 @@ install : all
 # Test the install command but do not actually copy files.
 #
 testinstall : all
-	@ if [ -z "$(INSTALL_DIR)" ]; then \
-		echo You have not specified a destination directory >&2; \
-		exit 1; \
-	fi
-	@ echo "You will be installing in \$$INSTALL_DIR=$(INSTALL_DIR)"
+	@ echo "You will be installing in \$$INSTALL_DIR=$(INSTALL_DIR)."
 	@ echo "This test install will also show what should be deleted."
 	@ echo ""
 	- mkdir -p $(INSTALL_DIR)

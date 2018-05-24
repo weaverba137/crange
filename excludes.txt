@@ -5,3 +5,7 @@
 .git
 .gitignore
 .DS_Store
+excludes.txt
+last_modified.txt
+Makefile
+*.coffee
