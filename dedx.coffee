@@ -65,9 +65,9 @@ $ ->
     # Load the target data.
     #
     if DeDx.targets.length == 0
-        $.getJSON("target.json",{},(data) -> DeDx.targets = data).error(
+        $.getJSON("target.json",{},(data) -> DeDx.targets = data).fail(
             () -> alert("JSON error!")
-            ).complete(absorberTable)
+            ).done(absorberTable)
     #
     # Initially disable the Engage button
     #
