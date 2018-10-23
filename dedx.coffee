@@ -1,4 +1,4 @@
-$ ->
+$ () ->
     DeDx =
         targets: []
         validateDivs: [
