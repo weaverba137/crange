@@ -62,6 +62,13 @@ $ () ->
                     $("##{rowid}").prop('selected',true) if t.name == selected_target
         k
     #
+    # Calculate
+    #
+    calculate = ->
+        result = $('input[name=task]:checked').val() + ", " + $('#RE').val() + ", " + $('#Z').val() + ", " + $('#A').val() + ", " + $('#select_target').val()
+        $('#result').html(result)
+        true
+    #
     # Load the target data.
     #
     if DeDx.targets.length == 0

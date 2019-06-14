@@ -1,5 +1,5 @@
 $(function() {
-  var DeDx, absorberTable, div, i, len, ref, validateNumber;
+  var DeDx, absorberTable, calculate, div, i, len, ref, validateNumber;
   DeDx = {
     targets: [],
     validateDivs: [
@@ -109,6 +109,12 @@ $(function() {
       }
     }
     return k;
+  };
+  calculate = function() {
+    var result;
+    result = $('input[name=task]:checked').val() + ", " + $('#RE').val() + ", " + $('#Z').val() + ", " + $('#A').val() + ", " + $('#select_target').val();
+    $('#result').html(result);
+    return true;
   };
   if (DeDx.targets.length === 0) {
     $.getJSON("target.json", {}, function(data) {
