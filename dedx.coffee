@@ -62,11 +62,52 @@ $ () ->
                     $("##{rowid}").prop('selected',true) if t.name == selected_target
         k
     #
+    # Get absorber data from target name.
+    #
+    absorber = (target) ->
+        for t in DeDx.targets
+            if t.name == target
+                return t
+        t
+    #
+    # dE/dx
+    #
+    ALPHA = 7.29735301383e-3
+    ATOMICMASSUNIT = 931.4943
+    PROTONMASS = 938.2723
+    ELECTRONMASS = 0.511003e+6
+    dedx = (e1, z0, a1, t) ->
+        g = 1.0 + e1/ATOMICMASSUNIT
+        b2 = 1.0-1.0/(g*g)
+        b = math.sqrt(b2)
+        z1 = z0
+        f1 = 0.3070722*z1*z1*t.z2/(b2*a1*t.a2)
+        f2 = math.log(2.0*ELECTRONMASS*b2/t.iadj)
+        f6 = 2.0*math.log(g) - b2
+        f1*(f2 + f6)
+    #
     # Calculate
     #
-    calculate = ->
-        result = $('input[name=task]:checked').val() + ", " + $('#RE').val() + ", " + $('#Z').val() + ", " + $('#A').val() + ", " + $('#select_target').val()
-        $('#result').html(result)
+    calculate = (eventObject) ->
+        task = $('input[name=task]:checked').val()
+        re = Number $('#RE').val()
+        z0 = Number $('#Z').val()
+        a1 = Number $('#A').val()
+        target = absorber $('#select_target').val()
+        switch task
+            when 'r'
+                type = 'Range'
+                result = 1.23
+                unit = 'g&nbsp;cm<sup>-2</sup>'
+            when 'e'
+                type = 'Energy'
+                result = 950.333
+                unit = 'A&nbsp;MeV'
+            when 'd'
+                type = 'dE/dx'
+                result = dedx(re, z0, a1, target)
+                unit = 'A&nbsp;MeV&nbsp;g<sup>-1</sup>&nbsp;cm<sup>2</sup>'
+        $('#result').html("#{type}: #{result} #{unit}")
         true
     #
     # Load the target data.
@@ -87,4 +128,5 @@ $ () ->
     for div in DeDx.validateDivs
         if $("##{div.name}").length > 0
             $("##{div.name}").change(div, validateNumber).change()
+    $('#engage').click(calculate)
     true

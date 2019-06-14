@@ -1,5 +1,5 @@
 $(function() {
-  var DeDx, absorberTable, calculate, div, i, len, ref, validateNumber;
+  var ALPHA, ATOMICMASSUNIT, DeDx, ELECTRONMASS, PROTONMASS, absorber, absorberTable, calculate, dedx, div, i, len, ref, validateNumber;
   DeDx = {
     targets: [],
     validateDivs: [
@@ -110,10 +110,56 @@ $(function() {
     }
     return k;
   };
-  calculate = function() {
-    var result;
-    result = $('input[name=task]:checked').val() + ", " + $('#RE').val() + ", " + $('#Z').val() + ", " + $('#A').val() + ", " + $('#select_target').val();
-    $('#result').html(result);
+  absorber = function(target) {
+    var i, len, ref, t;
+    ref = DeDx.targets;
+    for (i = 0, len = ref.length; i < len; i++) {
+      t = ref[i];
+      if (t.name === target) {
+        return t;
+      }
+    }
+    return t;
+  };
+  ALPHA = 7.29735301383e-3;
+  ATOMICMASSUNIT = 931.4943;
+  PROTONMASS = 938.2723;
+  ELECTRONMASS = 0.511003e+6;
+  dedx = function(e1, z0, a1, t) {
+    var b, b2, f1, f2, f6, g, z1;
+    g = 1.0 + e1 / ATOMICMASSUNIT;
+    b2 = 1.0 - 1.0 / (g * g);
+    b = math.sqrt(b2);
+    z1 = z0;
+    f1 = 0.3070722 * z1 * z1 * t.z2 / (b2 * a1 * t.a2);
+    f2 = math.log(2.0 * ELECTRONMASS * b2 / t.iadj);
+    f6 = 2.0 * math.log(g) - b2;
+    return f1 * (f2 + f6);
+  };
+  calculate = function(eventObject) {
+    var a1, re, result, target, task, type, unit, z0;
+    task = $('input[name=task]:checked').val();
+    re = Number($('#RE').val());
+    z0 = Number($('#Z').val());
+    a1 = Number($('#A').val());
+    target = absorber($('#select_target').val());
+    switch (task) {
+      case 'r':
+        type = 'Range';
+        result = 1.23;
+        unit = 'g&nbsp;cm<sup>-2</sup>';
+        break;
+      case 'e':
+        type = 'Energy';
+        result = 950.333;
+        unit = 'A&nbsp;MeV';
+        break;
+      case 'd':
+        type = 'dE/dx';
+        result = dedx(re, z0, a1, target);
+        unit = 'A&nbsp;MeV&nbsp;g<sup>-1</sup>&nbsp;cm<sup>2</sup>';
+    }
+    $('#result').html(type + ": " + result + " " + unit);
     return true;
   };
   if (DeDx.targets.length === 0) {
@@ -130,5 +176,6 @@ $(function() {
       $("#" + div.name).change(div, validateNumber).change();
     }
   }
+  $('#engage').click(calculate);
   return true;
 });
