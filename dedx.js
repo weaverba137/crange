@@ -1,5 +1,5 @@
 $(function() {
-  var ALPHA, ATOMICMASSUNIT, DeDx, ELECTRONMASS, PROTONMASS, absorber, absorberTable, calculate, dedx, div, i, len, ref, validateNumber;
+  var ALPHA, ATOMICMASSUNIT, DeDx, ELECTRONMASS, PROTONMASS, absorber, absorberTable, calculate, dedx, div, effective_charge, i, len, ref, validateNumber;
   DeDx = {
     targets: [],
     validateDivs: [
@@ -75,12 +75,11 @@ $(function() {
     formvalid = validity.every(function(currentValue) {
       return currentValue;
     });
-    $('#engage').prop('disabled', !formvalid);
+    $('#calculate').prop('disabled', !formvalid);
     return eventObject.data.valid;
   };
   absorberTable = function() {
-    var body, i, j, k, l, len, len1, previous_target, ref, ref1, rowid, rowref, select, selected_target, t;
-    body = $('#atbody');
+    var i, k, len, previous_target, ref, rowid, select, selected_target, t;
     select = $('#select_target');
     previous_target = $('#previous_target');
     selected_target = previous_target.length === 1 ? previous_target.val() : 'Unknown';
@@ -91,20 +90,9 @@ $(function() {
       if (t.name !== 'Unknown') {
         rowid = 't' + k;
         k += 1;
-        if (body.length === 1) {
-          $("<tr id=\"" + rowid + "\"/>").appendTo(body);
-          rowref = $('#' + rowid);
-          ref1 = ['name', 'z2', 'a2', 'iadj', 'rho', 'pla', 'etad', 'bind', 'X1', 'X1', 'a', 'm', 'd0'];
-          for (j = 0, len1 = ref1.length; j < len1; j++) {
-            l = ref1[j];
-            $('<td/>').html(t[l]).appendTo(rowref);
-          }
-        }
-        if (select.length === 1) {
-          $("<option id=\"" + rowid + "\"/>").html(t.name).appendTo(select);
-          if (t.name === selected_target) {
-            $("#" + rowid).prop('selected', true);
-          }
+        $("<option id=\"" + rowid + "\"/>").html(t.name).appendTo(select);
+        if (t.name === selected_target) {
+          $("#" + rowid).prop('selected', true);
         }
       }
     }
@@ -125,12 +113,22 @@ $(function() {
   ATOMICMASSUNIT = 931.4943;
   PROTONMASS = 938.2723;
   ELECTRONMASS = 0.511003e+6;
+  effective_charge = function(z0, e1, z2) {
+    var b, b2, capA, capB, g, z23;
+    g = 1.0 + e1 / ATOMICMASSUNIT;
+    b2 = 1.0 - 1.0 / (g * g);
+    b = math.sqrt(b2);
+    z23 = math.exp((2.0 / 3.0) * math.log(z2));
+    capA = 1.16 - z2 * (1.91e-03 - 1.26e-05 * z2);
+    capB = (1.18 - z2 * (7.5e-03 - 4.53e-05 * z2)) / ALPHA;
+    return z0 * (1.0 - capA * math.exp(-capB * b / z23));
+  };
   dedx = function(e1, z0, a1, t) {
     var b, b2, f1, f2, f6, g, z1;
     g = 1.0 + e1 / ATOMICMASSUNIT;
     b2 = 1.0 - 1.0 / (g * g);
     b = math.sqrt(b2);
-    z1 = z0;
+    z1 = effective_charge(z0, e1, t.z2);
     f1 = 0.3070722 * z1 * z1 * t.z2 / (b2 * a1 * t.a2);
     f2 = math.log(2.0 * ELECTRONMASS * b2 / t.iadj);
     f6 = 2.0 * math.log(g) - b2;
@@ -176,6 +174,6 @@ $(function() {
       $("#" + div.name).change(div, validateNumber).change();
     }
   }
-  $('#engage').click(calculate);
+  $('#calculate').click(calculate);
   return true;
 });

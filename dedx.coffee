@@ -37,13 +37,12 @@ $ () ->
         eventObject.data.first = false
         validity = (d.valid for d in DeDx.validateDivs)
         formvalid = validity.every (currentValue) -> currentValue
-        $('#engage').prop('disabled',not formvalid)
+        $('#calculate').prop('disabled', not formvalid)
         eventObject.data.valid
     #
     # Convert target data into table.
     #
     absorberTable = ->
-        body = $('#atbody')
         select = $('#select_target')
         previous_target = $('#previous_target')
         selected_target = if previous_target.length == 1 then previous_target.val() else 'Unknown'
@@ -52,14 +51,8 @@ $ () ->
             if t.name != 'Unknown'
                 rowid = 't' + k
                 k += 1
-                if body.length == 1
-                    $("<tr id=\"#{rowid}\"/>").appendTo body
-                    rowref = $('#'+rowid)
-                    for l in ['name', 'z2', 'a2', 'iadj', 'rho', 'pla', 'etad', 'bind', 'X1', 'X1', 'a', 'm', 'd0']
-                        $('<td/>').html(t[l]).appendTo rowref
-                if select.length == 1
-                    $("<option id=\"#{rowid}\"/>").html(t.name).appendTo select
-                    $("##{rowid}").prop('selected',true) if t.name == selected_target
+                $("<option id=\"#{rowid}\"/>").html(t.name).appendTo select
+                $("##{rowid}").prop('selected',true) if t.name == selected_target
         k
     #
     # Get absorber data from target name.
@@ -76,11 +69,22 @@ $ () ->
     ATOMICMASSUNIT = 931.4943
     PROTONMASS = 938.2723
     ELECTRONMASS = 0.511003e+6
+    effective_charge = (z0, e1, z2) ->
+        g = 1.0 + e1/ATOMICMASSUNIT
+        b2 = 1.0 - 1.0/(g*g)
+        b = math.sqrt(b2)
+        z23 = math.exp((2.0/3.0)*math.log(z2))
+        capA = 1.16 - z2*(1.91e-03 - 1.26e-05*z2)
+        capB = (1.18 - z2*(7.5e-03 - 4.53e-05*z2))/ALPHA
+        z0 * (1.0 - capA*math.exp(-capB*b/z23))
+    #
+    #
+    #
     dedx = (e1, z0, a1, t) ->
         g = 1.0 + e1/ATOMICMASSUNIT
-        b2 = 1.0-1.0/(g*g)
+        b2 = 1.0 - 1.0/(g*g)
         b = math.sqrt(b2)
-        z1 = z0
+        z1 = effective_charge(z0, e1, t.z2)
         f1 = 0.3070722*z1*z1*t.z2/(b2*a1*t.a2)
         f2 = math.log(2.0*ELECTRONMASS*b2/t.iadj)
         f6 = 2.0*math.log(g) - b2
@@ -117,10 +121,10 @@ $ () ->
             () -> alert("JSON error!")
             ).done(absorberTable)
     #
-    # Initially disable the Engage button
+    # Initially disable the Calculate button
     #
-    # if $('#engage').length > 0
-    #     $('#engage').prop('disabled',true)
+    # if $('#calculate').length > 0
+    #     $('#calculate').prop('disabled',true)
     #     validateNumber {data: DeDx.validateDivs[0]}
     #
     # Bind to various changes.
@@ -128,5 +132,5 @@ $ () ->
     for div in DeDx.validateDivs
         if $("##{div.name}").length > 0
             $("##{div.name}").change(div, validateNumber).change()
-    $('#engage').click(calculate)
+    $('#calculate').click(calculate)
     true
