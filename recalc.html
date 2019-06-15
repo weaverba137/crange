@@ -101,13 +101,30 @@ target material is currently supported.</p>
                 <!-- Set value to "true" for output debugging -->
                 <input type="hidden" name="debug" value="true" />
                 <input type="hidden" name="previous_target" id="previous_target" value="Unknown" />
-                <button type="button" class="btn btn-primary" name="submit" value="Calculate" id="calculate">Calculate</button>
-                <button type="button" class="btn btn-default" onclick="document.getElementById('recalc').reset();">Reset</button>
+                <button type="button" class="btn btn-primary" id="calculate">Calculate</button>
+                <button type="button" class="btn btn-default" id="resetForm">Reset</button>
             </fieldset>
         </form>
     </div>
     <div class="col-md-6">
-        <p id="result"></p>
+        <table class="table table-bordered table-condensed">
+            <caption>Results</caption>
+            <thead>
+                <tr>
+                    <th title="Calculation Number">ID</th>
+                    <th title="Task">Task</th>
+                    <th title="Energy / Range">E/R</th>
+                    <th title="Projectile Charge">Z</th>
+                    <th title="Projectile Mass">A</th>
+                    <th title="Target Material">Target</th>
+                    <th title="Result">Result</th>
+                    <th title="Units">Units</th>
+                </tr>
+            </thead>
+            <tbody id="result">
+            </tbody>
+        </table>
+        <p><button type="button" class="btn btn-primary" id="CSV" title="Convert table to CSV.">CSV</button></p>
     </div>
 </div>
 
@@ -116,7 +133,7 @@ target material is currently supported.</p>
 <img src="../colorsep.gif" alt="Separator" style="width:100%;height:2px;" /><br />
 B. A. Weaver: <span class="back">ude.oaon@revaew</span><br />
 Created: 2001-02-07 11:51:46 -0800 (Wed, 07 Feb 2001)<br />
-Last modified: 2019-06-14 15:38:54 -0700 (Fri, 14 Jun 2019)</p>
+Last modified: 2019-06-14 17:08:20 -0700 (Fri, 14 Jun 2019)</p>
 </footer>
 </div><!-- end class="container" -->
 </body>

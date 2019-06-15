@@ -1,6 +1,11 @@
 $(function() {
-  var ALPHA, ATOMICMASSUNIT, DeDx, ELECTRONMASS, PROTONMASS, absorber, absorberTable, calculate, dedx, div, effective_charge, i, len, ref, validateNumber;
+  var DeDx, absorberTable, calculate, csv, div, i, len, ref, resetForm, validateNumber;
   DeDx = {
+    nCalc: 0,
+    ALPHA: 7.29735301383e-3,
+    ATOMICMASSUNIT: 931.4943,
+    PROTONMASS: 938.2723,
+    ELECTRONMASS: 0.511003e+6,
     targets: [],
     validateDivs: [
       {
@@ -28,7 +33,61 @@ $(function() {
         first: true,
         help: ''
       }
-    ]
+    ],
+    absorber: function(target) {
+      var i, len, ref, t;
+      ref = this.targets;
+      for (i = 0, len = ref.length; i < len; i++) {
+        t = ref[i];
+        if (t.name === target) {
+          return t;
+        }
+      }
+      return t;
+    },
+    effective_charge: function(z0, e1, z2) {
+      var b, b2, capA, capB, g, z23;
+      g = 1.0 + e1 / this.ATOMICMASSUNIT;
+      b2 = 1.0 - 1.0 / (g * g);
+      b = math.sqrt(b2);
+      z23 = math.exp((2.0 / 3.0) * math.log(z2));
+      capA = 1.16 - z2 * (1.91e-03 - 1.26e-05 * z2);
+      capB = (1.18 - z2 * (7.5e-03 - 4.53e-05 * z2)) / this.ALPHA;
+      return z0 * (1.0 - capA * math.exp(-capB * b / z23));
+    },
+    delta: function(g, t) {
+      var X, X0, X1, b, cbar;
+      X0 = t.X0;
+      X1 = t.X1;
+      cbar = 2.0 * math.log(t.iadj / t.pla) + 1.0;
+      b = math.sqrt(1.0 - 1.0 / (g * g));
+      X = math.log10(b * g);
+      if (t.etad > 0) {
+        cbar -= 2.303 * math.log10(t.etad);
+        X1 -= 0.5 * math.log10(t.etad);
+        X0 -= 0.5 * math.log10(t.etad);
+      }
+      if (X < X0) {
+        return t.d0 * math.exp(4.6052 * (X - X0));
+      }
+      if (X >= X0 && X < X1) {
+        return 4.6052 * X + math.exp(math.log(t.a) + t.m * math.log(X1 - X)) - cbar;
+      }
+      return 4.6052 * X - cbar;
+    },
+    dedx: function(e1, z0, a1, target) {
+      var b, b2, delt, f1, f2, f6, g, t, z1;
+      t = this.absorber(target);
+      g = 1.0 + e1 / this.ATOMICMASSUNIT;
+      delt = this.delta(g, t);
+      b2 = 1.0 - 1.0 / (g * g);
+      b = math.sqrt(b2);
+      z1 = this.effective_charge(z0, e1, t.z2);
+      f1 = 0.3070722 * z1 * z1 * t.z2 / (b2 * a1 * t.a2);
+      f2 = math.log(2.0 * this.ELECTRONMASS * b2 / t.iadj);
+      f6 = 2.0 * math.log(g) - b2;
+      return f1 * (f2 + f6 + (delt / 2.0));
+    }
   };
   validateNumber = function(eventObject) {
     var d, div, formvalid, input, name, patt, previous_form, validity;
@@ -98,49 +157,13 @@ $(function() {
     }
     return k;
   };
-  absorber = function(target) {
-    var i, len, ref, t;
-    ref = DeDx.targets;
-    for (i = 0, len = ref.length; i < len; i++) {
-      t = ref[i];
-      if (t.name === target) {
-        return t;
-      }
-    }
-    return t;
-  };
-  ALPHA = 7.29735301383e-3;
-  ATOMICMASSUNIT = 931.4943;
-  PROTONMASS = 938.2723;
-  ELECTRONMASS = 0.511003e+6;
-  effective_charge = function(z0, e1, z2) {
-    var b, b2, capA, capB, g, z23;
-    g = 1.0 + e1 / ATOMICMASSUNIT;
-    b2 = 1.0 - 1.0 / (g * g);
-    b = math.sqrt(b2);
-    z23 = math.exp((2.0 / 3.0) * math.log(z2));
-    capA = 1.16 - z2 * (1.91e-03 - 1.26e-05 * z2);
-    capB = (1.18 - z2 * (7.5e-03 - 4.53e-05 * z2)) / ALPHA;
-    return z0 * (1.0 - capA * math.exp(-capB * b / z23));
-  };
-  dedx = function(e1, z0, a1, t) {
-    var b, b2, f1, f2, f6, g, z1;
-    g = 1.0 + e1 / ATOMICMASSUNIT;
-    b2 = 1.0 - 1.0 / (g * g);
-    b = math.sqrt(b2);
-    z1 = effective_charge(z0, e1, t.z2);
-    f1 = 0.3070722 * z1 * z1 * t.z2 / (b2 * a1 * t.a2);
-    f2 = math.log(2.0 * ELECTRONMASS * b2 / t.iadj);
-    f6 = 2.0 * math.log(g) - b2;
-    return f1 * (f2 + f6);
-  };
   calculate = function(eventObject) {
-    var a1, re, result, target, task, type, unit, z0;
+    var a1, r, re, result, rr, target, task, type, unit, z0;
     task = $('input[name=task]:checked').val();
     re = Number($('#RE').val());
     z0 = Number($('#Z').val());
     a1 = Number($('#A').val());
-    target = absorber($('#select_target').val());
+    target = $('#select_target').val();
     switch (task) {
       case 'r':
         type = 'Range';
@@ -153,11 +176,56 @@ $(function() {
         unit = 'A&nbsp;MeV';
         break;
       case 'd':
-        type = 'dE/dx';
-        result = dedx(re, z0, a1, target);
+        type = 'd<var>E</var>/d<var>x</var>';
+        result = DeDx.dedx(re, z0, a1, target);
         unit = 'A&nbsp;MeV&nbsp;g<sup>-1</sup>&nbsp;cm<sup>2</sup>';
     }
-    $('#result').html(type + ": " + result + " " + unit);
+    DeDx.nCalc += 1;
+    r = $('#result');
+    rr = $("<tr id=\"rtr" + DeDx.nCalc + "\"/>");
+    $('<td/>').html(DeDx.nCalc).appendTo(rr);
+    $('<td/>').html(type).appendTo(rr);
+    $('<td/>').html(re).appendTo(rr);
+    $('<td/>').html(z0).appendTo(rr);
+    $('<td/>').html(a1).appendTo(rr);
+    $('<td/>').html(target).appendTo(rr);
+    $('<td/>').html(result).appendTo(rr);
+    $('<td/>').html(unit).appendTo(rr);
+    rr.appendTo(r);
+    return true;
+  };
+  csv = function(eventObject) {
+    var c, col, foo, header, i, j, len, len1, newWindow, r, ref, row, rows;
+    rows = [];
+    header = ['ID', 'Task', 'E/R', 'Z', 'A', 'Target', 'Result', 'Units'];
+    rows.push(header.join(','));
+    foo = $('#result').children();
+    if (foo.length === 0) {
+      alert('No rows!');
+      return false;
+    }
+    for (i = 0, len = foo.length; i < len; i++) {
+      row = foo[i];
+      r = [];
+      ref = row.children;
+      for (j = 0, len1 = ref.length; j < len1; j++) {
+        col = ref[j];
+        r.push(col.innerHTML.replace(/&nbsp;/g, ' '));
+      }
+      rows.push(r.join(','));
+    }
+    c = rows.join('\r\n') + '\r\n';
+    newWindow = window.open("", "", "");
+    newWindow.focus();
+    newWindow.document.open("text/csv", "replace");
+    newWindow.document.write(c);
+    newWindow.document.close();
+    return true;
+  };
+  resetForm = function(eventObject) {
+    document.getElementById('recalc').reset();
+    $('#result').empty();
+    DeDx.nCalc = 0;
     return true;
   };
   if (DeDx.targets.length === 0) {
@@ -175,5 +243,7 @@ $(function() {
     }
   }
   $('#calculate').click(calculate);
+  $('#resetForm').click(resetForm);
+  $('#CSV').click(csv);
   return true;
 });
