@@ -159,11 +159,10 @@ $ () ->
                 r.push col.innerHTML.replace(/&nbsp;/g, ' ')
             rows.push(r.join(','))
         c = rows.join('\r\n') + '\r\n'
-        newWindow = window.open("","","")
-        newWindow.focus()
-        newWindow.document.open("text/csv","replace")
-        newWindow.document.write(c)
-        newWindow.document.close()
+        download = $("<a/>", {href: 'data:text/csv;charset=utf-8,' + encodeURIComponent(c), download: "crange.csv"})
+        download.appendTo $("#downloadCSV")
+        download[0].click()
+        $("#downloadCSV").empty()
         true
     #
     # Reset the form and clear results.

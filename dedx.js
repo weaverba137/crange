@@ -195,7 +195,7 @@ $(function() {
     return true;
   };
   csv = function(eventObject) {
-    var c, col, foo, header, i, j, len, len1, newWindow, r, ref, row, rows;
+    var c, col, download, foo, header, i, j, len, len1, r, ref, row, rows;
     rows = [];
     header = ['ID', 'Task', 'E/R', 'Z', 'A', 'Target', 'Result', 'Units'];
     rows.push(header.join(','));
@@ -215,11 +215,13 @@ $(function() {
       rows.push(r.join(','));
     }
     c = rows.join('\r\n') + '\r\n';
-    newWindow = window.open("", "", "");
-    newWindow.focus();
-    newWindow.document.open("text/csv", "replace");
-    newWindow.document.write(c);
-    newWindow.document.close();
+    download = $("<a/>", {
+      href: 'data:text/csv;charset=utf-8,' + encodeURIComponent(c),
+      download: "crange.csv"
+    });
+    download.appendTo($("#downloadCSV"));
+    download[0].click();
+    $("#downloadCSV").empty();
     return true;
   };
   resetForm = function(eventObject) {
