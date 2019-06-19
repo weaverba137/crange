@@ -1,5 +1,5 @@
 $(function() {
-  var DeDx, absorberTable, calculate, csv, div, i, len, ref, resetForm, validateNumber;
+  var DeDx, absorberTable, calculate, csv, div, j, len, ref, resetForm, validateNumber;
   DeDx = {
     nCalc: 0,
     ALPHA: 7.29735301383e-3,
@@ -7,6 +7,18 @@ $(function() {
     PROTONMASS: 938.2723,
     ELECTRONMASS: 0.511003e+6,
     targets: [],
+    switches: {
+      Barkas: false,
+      Shell: false,
+      Leung: false,
+      NewDelta: true,
+      NewElectronCapture: false,
+      FiniteNuclearSize: true,
+      Kinematic: false,
+      Radiative: false,
+      Pair: false,
+      Bremsstrahlung: false
+    },
     validateDivs: [
       {
         name: 'div_task',
@@ -35,10 +47,10 @@ $(function() {
       }
     ],
     absorber: function(target) {
-      var i, len, ref, t;
+      var j, len, ref, t;
       ref = this.targets;
-      for (i = 0, len = ref.length; i < len; i++) {
-        t = ref[i];
+      for (j = 0, len = ref.length; j < len; j++) {
+        t = ref[j];
         if (t.name === target) {
           return t;
         }
@@ -46,14 +58,27 @@ $(function() {
       return t;
     },
     effective_charge: function(z0, e1, z2) {
-      var b, b2, capA, capB, g, z23;
+      var b, b2, capA, capB, f1, g, z23;
       g = 1.0 + e1 / this.ATOMICMASSUNIT;
       b2 = 1.0 - 1.0 / (g * g);
       b = math.sqrt(b2);
-      z23 = math.exp((2.0 / 3.0) * math.log(z2));
-      capA = 1.16 - z2 * (1.91e-03 - 1.26e-05 * z2);
-      capB = (1.18 - z2 * (7.5e-03 - 4.53e-05 * z2)) / this.ALPHA;
-      return z0 * (1.0 - capA * math.exp(-capB * b / z23));
+      if (this.switches.NewElectronCapture) {
+        if (z2 === 4.0) {
+          f1 = (2.045 + 2.000 * math.exp(-0.04369 * z0)) * math.exp(-7.000 * math.exp(0.2643 * math.log(e1)) * math.exp(-0.4171 * math.log(z0)));
+        } else {
+          if (z2 === 6.0) {
+            f1 = (2.584 + 1.910 * math.exp(-0.03958 * z0)) * math.exp(-6.933 * math.exp(0.2433 * math.log(e1)) * math.exp(-0.3969 * math.log(z0)));
+          } else {
+            f1 = ((1.164 + 0.2319 * math.exp(-0.004302 * z2)) + 1.658 * math.exp(-0.05170 * z0)) * math.exp(-(8.144 + 0.9876 * math.log(z2)) * math.exp((0.3140 + 0.01072 * math.log(z2)) * math.log(e1)) * math.exp(-(0.5218 + 0.02521 * math.log(z2)) * math.log(z0)));
+          }
+        }
+      } else {
+        z23 = math.exp((2.0 / 3.0) * math.log(z2));
+        capA = 1.16 - z2 * (1.91e-03 - 1.26e-05 * z2);
+        capB = (1.18 - z2 * (7.5e-03 - 4.53e-05 * z2)) / this.ALPHA;
+        f1 = capA * math.exp(-capB * b / z23);
+      }
+      return (1.0 - f1) * z0;
     },
     delta: function(g, t) {
       var X, X0, X1, b, cbar;
@@ -75,18 +100,182 @@ $(function() {
       }
       return 4.6052 * X - cbar;
     },
+    olddelta: function(g, t) {
+      var a, b, cbar, dy3, y, y0, y1;
+      if (g < 1.8) {
+        return 0.0;
+      }
+      cbar = 2.0 * math.log(t.iadj / t.pla) + 1.0;
+      b = math.sqrt(1.0 - 1.0 / (g * g));
+      y = 2.0 * math.log10(b * g);
+      if (t.etad > 0) {
+        y += math.log(etad);
+        if (cbar >= 12.25) {
+          y1 = 23.03;
+          y0 = cbar >= 13.804 ? 1.502 * cbar - 11.52 : 9.212;
+        } else {
+          y1 = 18.42;
+          if (cbar < 12.25) {
+            y0 = 9.212;
+          }
+          if (cbar < 11.5) {
+            y0 = 8.751;
+          }
+          if (cbar < 11.0) {
+            y0 = 8.291;
+          }
+          if (cbar < 10.5) {
+            y0 = 7.830;
+          }
+          if (cbar < 10.0) {
+            y0 = 7.370;
+          }
+        }
+      } else {
+        if (t.iadj >= 100.0) {
+          y1 = 13.82;
+          y0 = cbar >= 5.215 ? 1.502 * cbar - 6.909 : 0.9212;
+        } else {
+          y1 = 9.212;
+          y0 = cbar >= 3.681 ? 1.502 * cbar - 4.606 : 0.9212;
+        }
+      }
+      if (y < y0) {
+        return 0.0;
+      } else {
+        if (y > y1) {
+          return y - cbar;
+        } else {
+          dy3 = (y1 - y0) * (y1 - y0) * (y1 - y0);
+          a = (cbar - y0) / dy3;
+          return y - cbar + a * (y1 - y) * (y1 - y) * (y1 - y);
+        }
+      }
+    },
+    lngamma: function(z) {
+      var aterm1, aterm2, aterm3, c, coeff, cterm, denom, i, j, len, lpi, lterm1, lterm2, lterm3, num, r, result, x, y;
+      coeff = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+      if (z.re > 0) {
+        x = z.re - 1.0;
+        y = z.im;
+      } else {
+        x = -z.re;
+        y = -z.im;
+      }
+      r = math.sqrt((x + 5.5) * (x + 5.5) + y * y);
+      aterm1 = y * math.log(r);
+      aterm2 = (x + 0.5) * math.atan2(y, x + 5.5) - y;
+      lterm1 = (x + 0.5) * math.log(r);
+      lterm2 = -y * math.atan2(y, x + 5.5) - (x + 5.5) + 0.5 * math.log(2.0 * math.pi);
+      num = 0.0;
+      denom = 1.000000000190015;
+      for (i = j = 0, len = coeff.length; j < len; i = ++j) {
+        c = coeff[i];
+        cterm = c / ((x + i + 1) * (x + i + 1) + y * y);
+        num += cterm;
+        denom += (x + i + 1) * cterm;
+      }
+      num *= -y;
+      aterm3 = math.atan2(num, denom);
+      lterm3 = 0.5 * math.log(num * num + denom * denom);
+      result = math.complex(lterm1 + lterm2 + lterm3, aterm1 + aterm2 + aterm3);
+      if (z.re < 0) {
+        lpi = math.complex(math.log(math.pi), 0);
+        result = math.subtract(lpi, math.add(result, math.log(math.sin(math.multiply(math.pi, z)))));
+      }
+      return result;
+    },
+    lindhard: function(zz, aa, bb) {
+      var Cedr, Ceds, Cexir, Cketag, Clg, Cpiske, Cske, Cskmeta, H, a3, compton, dk, dkm1, dmk, eta, gg, i, j, k, l, max, n, prh, ref, rho, sd2, sdd, sdm2, signk, sk, sumterm, term1, term2, term3;
+      compton = 3.05573356675e-3;
+      a3 = math.exp(math.log(aa) / 3.0);
+      eta = zz * this.ALPHA / bb;
+      gg = 1.0 / math.sqrt(1.0 - bb * bb);
+      rho = a3 * compton;
+      prh = bb * gg * rho;
+      if (gg < 10.0 / rho || !this.switches.NuclearSize) {
+        dk = [0.0, 0.0, 0.0];
+        dmk = 0;
+        dkm1 = 0;
+        n = 1;
+        term1 = 0;
+        term2 = 0;
+        term3 = 1;
+        sumterm = 0.0;
+        while (n < 100) {
+          max = n === 1 ? 2 : 1;
+          for (i = j = 0, ref = max; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+            if (i === 0) {
+              k = n;
+            }
+            if (i === 1) {
+              k = -n - 1.0;
+            }
+            if (i === 2) {
+              k = -n;
+            }
+            signk = k / math.abs(k);
+            sk = math.sqrt(k * k - this.ALPHA * this.ALPHA * zz * zz);
+            l = k > 0 ? k : -k - 1.0;
+            Cske = math.complex(sk + 1.0, eta);
+            Cketag = math.complex(k, -eta / gg);
+            Cskmeta = math.complex(sk, -eta);
+            Cexir = math.sqrt(math.divide(Cketag, Cskmeta));
+            Clg = this.lngamma(Cske);
+            Cpiske = math.complex(0.0, (math.pi / 2.0) * (l - sk) - Clg.im);
+            Cedr = math.multiply(Cexir, math.exp(Cpiske));
+            H = 0.0;
+            Ceds = math.complex(0.0, 0.0);
+            dk[i] = math.arg(math.add(Cedr, math.multiply(Ceds, H)));
+          }
+          if (n > 1) {
+            dk[2] = dmk;
+          }
+          sdm2 = math.sin(dk[2] - dk[1]);
+          term1 = n * (n + 1.0) * sdm2 * sdm2 / (eta * eta * (2.0 * n + 1.0));
+          if (n > 1) {
+            sd2 = math.sin(dk[0] - dkm1);
+            term1 += n * (n - 1.0) * sd2 * sd2 / (eta * eta * (2.0 * n - 1.0));
+          }
+          sdd = math.sin(dk[0] - dk[2]);
+          term2 = n * sdd * sdd / (eta * eta * (4.0 * n * n - 1.0));
+          term3 = term1 - 1.0 / k;
+          sumterm += term2 + term3;
+          n += 1;
+          dkm1 = dk[0];
+          dmk = dk[1];
+        }
+      } else {
+        sumterm = -math.log(prh) - 0.2;
+      }
+      return sumterm + 0.5 * bb * bb;
+    },
     dedx: function(e1, z0, a1, target) {
-      var b, b2, delt, f1, f2, f6, g, t, z1;
+      var Sbr, Spa, b, b2, cadj, delt, etam2, f1, f2, f3, f4, f6, f8, f9, g, t, z1;
       t = this.absorber(target);
       g = 1.0 + e1 / this.ATOMICMASSUNIT;
-      delt = this.delta(g, t);
+      delt = this.switches.NewDelta ? this.delta(g, t) : this.olddelta(g, t);
       b2 = 1.0 - 1.0 / (g * g);
       b = math.sqrt(b2);
       z1 = this.effective_charge(z0, e1, t.z2);
       f1 = 0.3070722 * z1 * z1 * t.z2 / (b2 * a1 * t.a2);
       f2 = math.log(2.0 * this.ELECTRONMASS * b2 / t.iadj);
+      if (this.switches.Shell) {
+        etam2 = 1.0 / (b * b * g * g);
+        cadj = 1.0e-6 * t.iadj * t.iadj * etam2 * (0.422377 + etam2 * (0.0304043 - etam2 * 0.00038106)) + 1.0e-9 * t.iadj * t.iadj * t.iadj * etam2 * (3.858019 + etam2 * (-0.1667989 + etam2 * 0.00157955));
+        f2 -= cadj / t.z2;
+        if (this.switches.Leung) {
+          f2 -= (5.0 / 3.0) * math.log(2.0 * this.ELECTRONMASS * b2 / t.iadj) * (1.0e+03 * t.bind / (t.z2 * this.ELECTRONMASS)) - (t.iadj * t.iadj / (4.0 * this.ELECTRONMASS * this.ELECTRONMASS * b2));
+        }
+      }
+      f3 = this.lindhard(z1, a1, b);
+      f4 = 1.0;
       f6 = 2.0 * math.log(g) - b2;
-      return f1 * (f2 + f6 + (delt / 2.0));
+      f8 = 0.0;
+      f9 = 0.0;
+      Sbr = 0.0;
+      Spa = 0.0;
+      return f1 * (f2 * f4 + f3 + f6 + (delt / 2.0) + f8 + f9) + Sbr + Spa;
     }
   };
   validateNumber = function(eventObject) {
@@ -122,11 +311,11 @@ $(function() {
     }
     eventObject.data.first = false;
     validity = (function() {
-      var i, len, ref, results;
+      var j, len, ref, results;
       ref = DeDx.validateDivs;
       results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        d = ref[i];
+      for (j = 0, len = ref.length; j < len; j++) {
+        d = ref[j];
         results.push(d.valid);
       }
       return results;
@@ -138,14 +327,14 @@ $(function() {
     return eventObject.data.valid;
   };
   absorberTable = function() {
-    var i, k, len, previous_target, ref, rowid, select, selected_target, t;
+    var j, k, len, previous_target, ref, rowid, select, selected_target, t;
     select = $('#select_target');
     previous_target = $('#previous_target');
     selected_target = previous_target.length === 1 ? previous_target.val() : 'Unknown';
     k = 0;
     ref = DeDx.targets;
-    for (i = 0, len = ref.length; i < len; i++) {
-      t = ref[i];
+    for (j = 0, len = ref.length; j < len; j++) {
+      t = ref[j];
       if (t.name !== 'Unknown') {
         rowid = 't' + k;
         k += 1;
@@ -195,7 +384,7 @@ $(function() {
     return true;
   };
   csv = function(eventObject) {
-    var c, col, download, foo, header, i, j, len, len1, r, ref, row, rows;
+    var c, col, download, foo, header, j, len, len1, m, r, ref, row, rows;
     rows = [];
     header = ['ID', 'Task', 'E/R', 'Z', 'A', 'Target', 'Result', 'Units'];
     rows.push(header.join(','));
@@ -204,12 +393,12 @@ $(function() {
       alert('No rows!');
       return false;
     }
-    for (i = 0, len = foo.length; i < len; i++) {
-      row = foo[i];
+    for (j = 0, len = foo.length; j < len; j++) {
+      row = foo[j];
       r = [];
       ref = row.children;
-      for (j = 0, len1 = ref.length; j < len1; j++) {
-        col = ref[j];
+      for (m = 0, len1 = ref.length; m < len1; m++) {
+        col = ref[m];
         r.push(col.innerHTML.replace(/&nbsp;/g, ' '));
       }
       rows.push(r.join(','));
@@ -238,8 +427,8 @@ $(function() {
     }).done(absorberTable);
   }
   ref = DeDx.validateDivs;
-  for (i = 0, len = ref.length; i < len; i++) {
-    div = ref[i];
+  for (j = 0, len = ref.length; j < len; j++) {
+    div = ref[j];
     if ($("#" + div.name).length > 0) {
       $("#" + div.name).change(div, validateNumber).change();
     }

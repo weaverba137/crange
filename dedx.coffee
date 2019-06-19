@@ -6,6 +6,17 @@ $ () ->
         PROTONMASS: 938.2723
         ELECTRONMASS: 0.511003e+6
         targets: []
+        switches:
+            Barkas: false
+            Shell: false
+            Leung: false
+            NewDelta: true
+            NewElectronCapture: false
+            FiniteNuclearSize: true
+            Kinematic: false
+            Radiative: false
+            Pair: false
+            Bremsstrahlung: false
         validateDivs: [
             {name: 'div_task', type: 'radio', valid: false, first: true, help: ''}
             {name: 'div_re', type: 'float', valid: false, first: true, help: 'Units are A&nbsp;MeV or g&nbsp;cm<sup>-2</sup>.'}
@@ -21,16 +32,38 @@ $ () ->
                     return t
             t
         #
-        # dE/dx
+        # Effective projectile charge.
         #
         effective_charge: (z0, e1, z2) ->
             g = 1.0 + e1/@ATOMICMASSUNIT
             b2 = 1.0 - 1.0/(g*g)
             b = math.sqrt(b2)
-            z23 = math.exp((2.0/3.0)*math.log(z2))
-            capA = 1.16 - z2*(1.91e-03 - 1.26e-05*z2)
-            capB = (1.18 - z2*(7.5e-03 - 4.53e-05*z2))/@ALPHA
-            z0 * (1.0 - capA*math.exp(-capB*b/z23))
+            if @switches.NewElectronCapture
+                if z2 == 4.0
+                   f1 = (2.045 + 2.000*math.exp(-0.04369*z0))*math.exp(-7.000*math.exp(0.2643*math.log(e1))*math.exp(-0.4171*math.log(z0)))
+                else
+                    if z2 == 6.0
+                        f1 = (2.584 + 1.910*math.exp(-0.03958*z0))*math.exp(-6.933*math.exp(0.2433*math.log(e1))*math.exp(-0.3969*math.log(z0)))
+                    else
+                        f1 = ((1.164 + 0.2319*math.exp(-0.004302*z2)) + 1.658*math.exp(-0.05170*z0))*math.exp(-(8.144+0.9876*math.log(z2))*math.exp((0.3140+0.01072*math.log(z2))*math.log(e1))*math.exp(-(0.5218+0.02521*math.log(z2))*math.log(z0)))
+
+            else
+                z23 = math.exp((2.0/3.0)*math.log(z2))
+                #
+                # Anthony & Landford:
+                #
+                capA = 1.16 - z2*(1.91e-03 - 1.26e-05*z2)
+                capB = (1.18 - z2*(7.5e-03 - 4.53e-05*z2))/@ALPHA
+                #
+                # Pierce & Blann:
+                #
+                # capA = 1.0
+                # capB = 130.0
+                f1 = capA*math.exp(-capB*b/z23)
+            (1.0 - f1)*z0
+        #
+        # Density effect, Sternheimer, Berger \& Seltzer
+        #
         delta: (g, t) ->
             X0 = t.X0
             X1 = t.X1
@@ -47,19 +80,168 @@ $ () ->
                 return (4.6052*X + math.exp(math.log(t.a) + t.m*math.log(X1-X)) - cbar)
             4.6052*X - cbar
         #
+        # Obsolete density effect, Sternheimer & Peierls
         #
+        olddelta: (g, t) ->
+            if g < 1.8
+                return 0.0
+            cbar = 2.0 * math.log(t.iadj/t.pla)+ 1.0
+            b = math.sqrt(1.0 - 1.0/(g*g))
+            y = 2.0*math.log10(b*g)
+            if t.etad > 0
+                y += math.log(etad)
+                if cbar >= 12.25
+                    y1 = 23.03
+                    y0 = if  cbar >= 13.804 then 1.502*cbar-11.52 else 9.212
+                else
+                    y1 = 18.42
+                    if cbar < 12.25
+                        y0 = 9.212
+                    if cbar < 11.5
+                        y0 = 8.751
+                    if cbar < 11.0
+                        y0 = 8.291
+                    if cbar < 10.5
+                        y0 = 7.830
+                    if cbar < 10.0
+                        y0 = 7.370
+            else
+                if t.iadj >= 100.0
+                    y1 = 13.82
+                    y0 = if cbar >= 5.215 then 1.502*cbar-6.909 else 0.9212
+                else
+                    y1 = 9.212
+                    y0 = if cbar >= 3.681 then 1.502*cbar-4.606 else 0.9212
+            if y < y0
+                return 0.0
+            else
+                if y > y1
+                    return y - cbar
+                else
+                    dy3 = (y1 - y0) * (y1 - y0) * (y1 - y0)
+                    a = (cbar - y0)/dy3
+                    return (y - cbar + a*(y1 - y) * (y1 - y) * (y1 - y))
+        #
+        # Complex log of complex Gamma function
+        #
+        lngamma: (z) ->
+            coeff = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5]
+            if z.re > 0
+                x = z.re - 1.0
+                y = z.im
+            else
+                x = -z.re
+                y = -z.im
+            r = math.sqrt((x+5.5)*(x+5.5)+y*y)
+            aterm1 = y*math.log(r)
+            aterm2 = (x+0.5)*math.atan2(y,(x+5.5))-y
+            lterm1 = (x+0.5)*math.log(r)
+            lterm2 = -y*math.atan2(y,(x+5.5)) - (x+5.5) + 0.5*math.log(2.0*math.pi)
+            num=0.0
+            denom=1.000000000190015
+            for c, i in coeff
+                cterm = c/((x+i+1)*(x+i+1) + y*y)
+                num += cterm
+                denom += (x + i + 1)*cterm
+            num *= -y
+            aterm3 = math.atan2(num,denom)
+            lterm3 = 0.5*math.log(num*num + denom*denom)
+            result = math.complex(lterm1+lterm2+lterm3, aterm1+aterm2+aterm3)
+            if z.re < 0
+                lpi = math.complex(math.log(math.pi), 0)
+                result = math.subtract(lpi, math.add(result, math.log(math.sin(math.multiply(math.pi, z)))))
+            result
+        #
+        # Lindhard-Sørensen correction.
+        #
+        lindhard: (zz, aa, bb) ->
+            compton = 3.05573356675e-3  # 1.18 fm / Compton wavelength
+            a3 = math.exp(math.log(aa)/3.0)
+            eta = zz * @ALPHA / bb
+            gg = 1.0/math.sqrt(1.0 - bb*bb)
+            rho = a3*compton
+            prh = bb*gg*rho
+            if gg < 10.0/rho or not @switches.NuclearSize
+                dk = [0.0, 0.0, 0.0]
+                dmk = 0
+                dkm1 = 0
+                n = 1
+                term1 = 0
+                term2 = 0
+                term3 = 1
+                sumterm = 0.0
+                while n < 100
+                    max = if n == 1 then 2 else 1
+                    for i in [0..max]
+                        if i == 0
+                            k = n
+                        if i == 1
+                            k = -n-1.0
+                        if i == 2
+                            k = -n
+                        signk = k/math.abs(k)
+                        sk = math.sqrt(k*k - @ALPHA*@ALPHA*zz*zz)
+                        l = if k > 0 then k else -k - 1.0
+                        Cske = math.complex(sk+1.0, eta)
+                        Cketag = math.complex(k, -eta/gg)
+                        Cskmeta = math.complex(sk, -eta)
+                        Cexir = math.sqrt(math.divide(Cketag, Cskmeta))
+                        Clg = @lngamma(Cske)
+                        Cpiske = math.complex(0.0, (math.pi/2.0)*(l-sk) - Clg.im)
+                        Cedr = math.multiply(Cexir, math.exp(Cpiske))
+                        H = 0.0
+                        Ceds = math.complex(0.0, 0.0)
+                        # if @switches.NuclearSize
+                        dk[i] = math.arg(math.add(Cedr, math.multiply(Ceds, H)))
+                    if n > 1
+                        dk[2] = dmk
+                    sdm2 = math.sin(dk[2] - dk[1])
+                    term1 = n*(n+1.0)*sdm2*sdm2/(eta*eta*(2.0*n + 1.0))
+                    if n > 1
+                        sd2 = math.sin(dk[0] - dkm1)
+                        term1 += n*(n-1.0)*sd2*sd2/(eta*eta*(2.0*n - 1.0))
+                    sdd = math.sin(dk[0] - dk[2])
+                    term2 = n*sdd*sdd/(eta*eta*(4.0*n*n - 1.0))
+                    term3 = term1 - 1.0/k
+                    sumterm += term2 + term3
+                    n += 1
+                    dkm1 = dk[0]
+                    dmk = dk[1]
+            else
+                sumterm = -math.log(prh) - 0.2  # Asymptotic value of the LS correction.
+            sumterm + 0.5*bb*bb
+        #
+        # dE/dx
         #
         dedx: (e1, z0, a1, target) ->
             t = @absorber target
             g = 1.0 + e1/@ATOMICMASSUNIT
-            delt = @delta(g, t)
+            delt = if @switches.NewDelta then @delta(g, t) else @olddelta(g, t)
             b2 = 1.0 - 1.0/(g*g)
             b = math.sqrt(b2)
             z1 = @effective_charge(z0, e1, t.z2)
             f1 = 0.3070722*z1*z1*t.z2/(b2*a1*t.a2)
             f2 = math.log(2.0*@ELECTRONMASS*b2/t.iadj)
+            if @switches.Shell
+                etam2 = 1.0/(b*b*g*g)
+                cadj = 1.0e-6*(t.iadj)*(t.iadj)*etam2*(0.422377+etam2*(0.0304043-etam2*0.00038106))+1.0e-9*(t.iadj)*(t.iadj)*(t.iadj)*etam2*(3.858019+etam2*(-0.1667989 + etam2*0.00157955))
+                f2 -= cadj/t.z2
+                if @switches.Leung
+                    f2 -= (5.0/3.0)*math.log(2.0*@ELECTRONMASS*b2/t.iadj)*(1.0e+03*t.bind/(t.z2*@ELECTRONMASS))-(t.iadj*t.iadj/(4.0*@ELECTRONMASS*@ELECTRONMASS*b2))
+            # Placeholder for Lindhard
+            f3 = @lindhard(z1, a1, b)
+            # Placeholder for Barkas
+            f4 = 1.0
             f6 = 2.0*math.log(g) - b2
-            f1*(f2 + f6 + (delt/2.0))
+            # Placeholder for kinematic correction
+            f8 = 0.0
+            # Placeholder for Radiative correction
+            f9 = 0.0
+            # Placeholder for Bremsstrahlung
+            Sbr = 0.0
+            # Placeholder for pair production
+            Spa = 0.0
+            f1*(f2*f4 + f3 + f6 + (delt/2.0) + f8 + f9) + Sbr + Spa
     #
     # Validate numerical values
     #
@@ -143,7 +325,7 @@ $ () ->
         rr.appendTo r
         true
     #
-    #
+    # Convert results to CSV.
     #
     csv = (eventObject) ->
         rows = []
