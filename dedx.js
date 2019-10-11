@@ -6,6 +6,7 @@ $(function() {
     ATOMICMASSUNIT: 931.4943,
     PROTONMASS: 938.2723,
     ELECTRONMASS: 0.511003e+6,
+    fva: [0.33, 0.078, 0.03, 0.014, 0.0084, 0.0053, 0.0035, 0.0025, 0.0019, 0.0014],
     targets: [],
     switches: {
       Barkas: false,
@@ -185,8 +186,23 @@ $(function() {
       }
       return result;
     },
+    hyperg: function(a, b, z) {
+      var Cm, dm, previousterm, sumterm, term;
+      dm = 0.0;
+      term = math.complex(1.0, 0.0);
+      sumterm = math.complex(1.0, 0.0);
+      previousterm = term;
+      while (math.abs(term) > 1.0e-6 && math.abs(previousterm) > 1.0e-6) {
+        previousterm = term;
+        dm += 1.0;
+        Cm = math.complex(dm - 1.0, 0.0);
+        term = math.multiply(previousterm, math.multiply(math.divide(math.add(a, Cm), math.add(b, Cm)), math.divide(z, dm)));
+        sumterm = math.add(term, sumterm);
+      }
+      return sumterm;
+    },
     lindhard: function(zz, aa, bb) {
-      var Cedr, Ceds, Cexir, Cketag, Clg, Cpiske, Cske, Cskmeta, H, a3, compton, dk, dkm1, dmk, eta, gg, i, j, k, l, max, n, prh, ref, rho, sd2, sdd, sdm2, signk, sk, sumterm, term1, term2, term3;
+      var Cbbr, Cbbs, Cedr, Ceds, Cexir, Cexis, Cgrgs, Cketag, Clamr, Clams, Clg, Cmprh, Cmske, Cmskmeta, Cpimske, Cpiske, Cske, Cskmeta, Czzr, H, a0, a1, a3, an, anm1, anp1, asum, b0, bn, bnm1, bsum, compton, dk, dkm1, dmk, eta, figi, frgr, fsgs, gg, grgs, gz, i, j, k, l, max, n, nn, prh, ref, rho, sd2, sdd, sdm2, signk, sk, sumterm, term1, term2, term3, z1;
       compton = 3.05573356675e-3;
       a3 = math.exp(math.log(aa) / 3.0);
       eta = zz * this.ALPHA / bb;
@@ -226,6 +242,54 @@ $(function() {
             Cedr = math.multiply(Cexir, math.exp(Cpiske));
             H = 0.0;
             Ceds = math.complex(0.0, 0.0);
+            if (this.switches.NuclearSize) {
+              Cmske = math.complex(-sk + 1.0, eta);
+              Cmskmeta = math.complex(-sk, -eta);
+              Cexis = math.sqrt(math.divide(Cketag, Cmskmeta));
+              Cpimske = math.complex(0.0, (math.pi / 2.0) * (l + sk) - (this.lngamma(Cmske)).im);
+              Ceds = math.multiply(Cexis, math.exp(Cpimske));
+              Cbbr = math.complex(2.0 * sk + 1.0, 0.0);
+              Cbbs = math.complex(-2.0 * sk + 1.0, 0.0);
+              Czzr = math.complex(0.0, 2.0 * prh);
+              Cmprh = math.complex(0.0, -prh);
+              Clamr = math.multiply(Cexir, math.multiply(math.exp(Cmprh), this.hyperg(Cske, Cbbr, Czzr)));
+              Clams = math.multiply(Cexis, math.multiply(math.exp(Cmprh), this.hyperg(Cmske, Cbbs, Czzr)));
+              grgs = Clamr.im / Clams.im;
+              Cgrgs = this.lngamma(Cbbs);
+              grgs *= math.exp((this.lngamma(Cske)).re - (this.lngamma(Cmske)).re - (this.lngamma(Cbbr)).re + Cgrgs.re + 2.0 * sk * math.log(2.0 * prh));
+              if (math.cos(Cgrgs.im) < 1.0) {
+                grgs *= -1.0;
+              }
+              if (math.abs(grgs) > 1.0e-9) {
+                frgr = math.sqrt((gg - 1.0) / (gg + 1.0)) * Clamr.re / Clamr.im;
+                fsgs = math.sqrt((gg - 1.0) / (gg + 1.0)) * Clams.re / Clams.im;
+                gz = -1.0 * signk * (rho * gg + 1.5 * this.ALPHA * zz);
+                z1 = -1.0 * signk * zz;
+                b0 = 1.0;
+                a0 = (1.0 + 2.0 * math.abs(k)) * b0 / (rho - gz);
+                a1 = 0.5 * (gz + rho) * b0;
+                an = a1;
+                anm1 = a0;
+                bnm1 = b0;
+                asum = a0;
+                bsum = b0;
+                nn = 1.0;
+                while (math.abs(anm1 / asum) > 1.0e-6 && math.abs(bnm1 / bsum) > 1.0e-6) {
+                  bn = ((rho - gz) * an + this.ALPHA * z1 * anm1 / 2.0) / (2.0 * nn + 2.0 * math.abs(k) + 1.0);
+                  anp1 = ((gz + rho) * bn - this.ALPHA * z1 * bnm1 / 2.0) / (2.0 * nn + 2.0);
+                  asum += an;
+                  bsum += bn;
+                  nn += 1.0;
+                  anm1 = an;
+                  an = anp1;
+                  bnm1 = bn;
+                }
+                figi = k > 0 ? asum / bsum : bsum / asum;
+                H = ((frgr - figi) / (figi - fsgs)) * grgs;
+              } else {
+                H = 0.0;
+              }
+            }
             dk[i] = math.arg(math.add(Cedr, math.multiply(Ceds, H)));
           }
           if (n > 1) {
@@ -251,7 +315,7 @@ $(function() {
       return sumterm + 0.5 * bb * bb;
     },
     dedx: function(e1, z0, a1, target) {
-      var Sbr, Spa, b, b2, cadj, delt, etam2, f1, f2, f3, f4, f6, f8, f9, g, t, z1;
+      var Sbr, Spa, b, b2, cadj, delt, etam2, f1, f2, f3, f4, f6, f8, f9, fv, g, t, v, z1;
       t = this.absorber(target);
       g = 1.0 + e1 / this.ATOMICMASSUNIT;
       delt = this.switches.NewDelta ? this.delta(g, t) : this.olddelta(g, t);
@@ -268,11 +332,16 @@ $(function() {
           f2 -= (5.0 / 3.0) * math.log(2.0 * this.ELECTRONMASS * b2 / t.iadj) * (1.0e+03 * t.bind / (t.z2 * this.ELECTRONMASS)) - (t.iadj * t.iadj / (4.0 * this.ELECTRONMASS * this.ELECTRONMASS * b2));
         }
       }
+      f6 = 2.0 * math.log(g) - b2;
       f3 = this.lindhard(z1, a1, b);
       f4 = 1.0;
-      f6 = 2.0 * math.log(g) - b2;
-      f8 = 0.0;
-      f9 = 0.0;
+      if (this.switches.Barkas) {
+        v = b * g / (this.ALPHA * math.sqrt(z2));
+        fv = this.fva[9] * math.exp(-2.0 * math.log(v / 10.0));
+        f4 = 1.0 + 2.0 * z1 * fv / (math.sqrt(z2));
+      }
+      f8 = this.switches.Kinematic ? 0.5 * (-math.log(1.0 + 2.0 * (5.4858e-04 * g / a1)) - (5.4858e-04 * g / a1) * b2 / (g * g)) : 0.0;
+      f9 = this.switches.Radiative ? (this.ALPHA / math.pi) * b2 * (6.0822 + math.log(2.0 * g) * (math.log(2.0 * g) * (2.4167 + 0.3333 * math.log(2.0 * g)) - 8.0314)) : 0.0;
       Sbr = 0.0;
       Spa = 0.0;
       return f1 * (f2 * f4 + f3 + f6 + (delt / 2.0) + f8 + f9) + Sbr + Spa;

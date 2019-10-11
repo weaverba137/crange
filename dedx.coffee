@@ -5,6 +5,7 @@ $ () ->
         ATOMICMASSUNIT: 931.4943
         PROTONMASS: 938.2723
         ELECTRONMASS: 0.511003e+6
+        fva: [0.33, 0.078, 0.03, 0.014, 0.0084, 0.0053, 0.0035, 0.0025, 0.0019, 0.0014]
         targets: []
         switches:
             Barkas: false
@@ -152,6 +153,21 @@ $ () ->
                 result = math.subtract(lpi, math.add(result, math.log(math.sin(math.multiply(math.pi, z)))))
             result
         #
+        # Confluent hypergeometric function
+        #
+        hyperg: (a, b, z) ->
+            dm = 0.0
+            term = math.complex(1.0, 0.0)
+            sumterm = math.complex(1.0, 0.0)
+            previousterm = term
+            while (math.abs(term) > 1.0e-6 and math.abs(previousterm) > 1.0e-6)
+                previousterm = term
+                dm += 1.0
+                Cm = math.complex(dm - 1.0, 0.0)
+                term = math.multiply(previousterm, math.multiply(math.divide(math.add(a, Cm), math.add(b, Cm)), math.divide(z, dm)))
+                sumterm = math.add(term, sumterm)
+            sumterm
+        #
         # Lindhard-Sørensen correction.
         #
         lindhard: (zz, aa, bb) ->
@@ -191,7 +207,54 @@ $ () ->
                         Cedr = math.multiply(Cexir, math.exp(Cpiske))
                         H = 0.0
                         Ceds = math.complex(0.0, 0.0)
-                        # if @switches.NuclearSize
+                        if @switches.NuclearSize
+                            Cmske = math.complex(-sk+1.0, eta)
+                            Cmskmeta = math.complex(-sk, -eta)
+                            Cexis = math.sqrt(math.divide(Cketag, Cmskmeta))
+                            Cpimske = math.complex(0.0, (math.pi/2.0)*(l+sk) - (@lngamma(Cmske)).im)
+                            Ceds = math.multiply(Cexis, math.exp(Cpimske))
+                            # Caar = Cske
+                            # Caas = Cmske
+                            Cbbr = math.complex(2.0*sk + 1.0, 0.0)
+                            Cbbs = math.complex(-2.0*sk + 1.0, 0.0)
+                            Czzr = math.complex(0.0, 2.0*prh)
+                            Cmprh = math.complex(0.0, -prh)
+                            Clamr = math.multiply(Cexir, math.multiply(math.exp(Cmprh), @hyperg(Cske, Cbbr, Czzr)))
+                            Clams = math.multiply(Cexis, math.multiply(math.exp(Cmprh), @hyperg(Cmske, Cbbs, Czzr)))
+                            grgs = Clamr.im / Clams.im
+                            Cgrgs = @lngamma(Cbbs)
+                            grgs *= math.exp( (@lngamma(Cske)).re - (@lngamma(Cmske)).re - (@lngamma(Cbbr)).re + Cgrgs.re + 2.0*sk*math.log(2.0*prh) )
+                            grgs *= -1.0 if math.cos(Cgrgs.im) < 1.0
+                            if math.abs(grgs) > 1.0e-9
+                                frgr = math.sqrt((gg - 1.0) / (gg + 1.0))*Clamr.re/Clamr.im
+                                fsgs = math.sqrt((gg - 1.0) / (gg + 1.0))*Clams.re/Clams.im
+                                gz = -1.0 * signk * (rho*gg + 1.5*@ALPHA*zz)
+                                z1 = -1.0 * signk * zz
+                                b0 = 1.0
+                                a0 = (1.0 + 2.0*math.abs(k))*b0/(rho - gz)
+                                a1 = 0.5 * (gz + rho) * b0
+                                an = a1
+                                anm1 = a0
+                                bnm1 = b0
+                                asum = a0
+                                bsum = b0
+                                nn = 1.0
+                                while (math.abs(anm1/asum) > 1.0e-6 and math.abs(bnm1/bsum) > 1.0e-6)
+                                    bn = ((rho - gz)*an + @ALPHA*z1*anm1/2.0)/(2.0*nn + 2.0*math.abs(k) + 1.0)
+                                    anp1 = ((gz + rho)*bn - @ALPHA*z1*bnm1/2.0)/(2.0*nn + 2.0)
+                                    asum += an
+                                    bsum += bn
+                                    nn += 1.0
+                                    anm1 = an
+                                    an = anp1
+                                    bnm1 = bn
+                                figi = if  k > 0 then asum/bsum else bsum/asum
+                                H = ((frgr - figi)/(figi - fsgs))*grgs;
+                            else
+                                H = 0.0
+                        #
+                        # End NuclearSize
+                        #
                         dk[i] = math.arg(math.add(Cedr, math.multiply(Ceds, H)))
                     if n > 1
                         dk[2] = dmk
@@ -228,15 +291,26 @@ $ () ->
                 f2 -= cadj/t.z2
                 if @switches.Leung
                     f2 -= (5.0/3.0)*math.log(2.0*@ELECTRONMASS*b2/t.iadj)*(1.0e+03*t.bind/(t.z2*@ELECTRONMASS))-(t.iadj*t.iadj/(4.0*@ELECTRONMASS*@ELECTRONMASS*b2))
-            # Placeholder for Lindhard
-            f3 = @lindhard(z1, a1, b)
-            # Placeholder for Barkas
-            f4 = 1.0
             f6 = 2.0*math.log(g) - b2
-            # Placeholder for kinematic correction
-            f8 = 0.0
-            # Placeholder for Radiative correction
-            f9 = 0.0
+            #
+            # Lindhard
+            #
+            f3 = @lindhard(z1, a1, b)
+            #
+            # Barkas
+            #
+            f4 = 1.0
+            if @switches.Barkas
+                v = b*g/(@ALPHA*math.sqrt(z2))
+                fv = @fva[9]*math.exp(-2.0*math.log(v/10.0))
+                f4 = 1.0 + 2.0*z1*fv/(math.sqrt(z2))
+            # Kinematic correction
+            #
+            f8 = if @switches.Kinematic then 0.5*(-math.log(1.0+2.0*((5.4858e-04)*g/a1)) - ((5.4858e-04)*g/a1)*b2/(g*g)) else 0.0
+            #
+            # Radiative correction
+            #
+            f9 = if @switches.Radiative then (@ALPHA/math.pi)*b2*(6.0822 + math.log(2.0*g)*(math.log(2.0*g)*(2.4167 + 0.3333*math.log(2.0*g))-8.0314)) else 0.0
             # Placeholder for Bremsstrahlung
             Sbr = 0.0
             # Placeholder for pair production
