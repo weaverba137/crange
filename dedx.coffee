@@ -301,9 +301,9 @@ $ () ->
             #
             f4 = 1.0
             if @switches.Barkas
-                v = b*g/(@ALPHA*math.sqrt(z2))
+                v = b*g/(@ALPHA*math.sqrt(t.z2))
                 fv = @fva[9]*math.exp(-2.0*math.log(v/10.0))
-                f4 = 1.0 + 2.0*z1*fv/(math.sqrt(z2))
+                f4 = 1.0 + 2.0*z1*fv/(math.sqrt(t.z2))
             # Kinematic correction
             #
             f8 = if @switches.Kinematic then 0.5*(-math.log(1.0+2.0*((5.4858e-04)*g/a1)) - ((5.4858e-04)*g/a1)*b2/(g*g)) else 0.0
@@ -372,6 +372,13 @@ $ () ->
         z0 = Number $('#Z').val()
         a1 = Number $('#A').val()
         target = $('#select_target').val()
+        bitmask = 0
+        for own n, v of DeDx.switches
+            vv = $("##{n}").is(':checked')
+            bitmask += if vv then Number $("##{n}").val() else 0
+            # console.log("#{n} -> #{vv} (was #{v})")
+            DeDx.switches[n] = vv
+        $('#bitmask').html(bitmask)
         switch task
             when 'r'
                 type = 'Range'
@@ -394,6 +401,7 @@ $ () ->
         $('<td/>').html(z0).appendTo rr
         $('<td/>').html(a1).appendTo rr
         $('<td/>').html(target).appendTo rr
+        $('<td/>').html(bitmask).appendTo rr
         $('<td/>').html(result).appendTo rr
         $('<td/>').html(unit).appendTo rr
         rr.appendTo r
@@ -403,7 +411,7 @@ $ () ->
     #
     csv = (eventObject) ->
         rows = []
-        header = ['ID', 'Task', 'E/R', 'Z', 'A', 'Target', 'Result', 'Units']
+        header = ['ID', 'Task', 'E/R', 'Z', 'A', 'Target', 'Effects', 'Result', 'Units']
         rows.push(header.join(','))
         foo = $('#result').children()
         if foo.length == 0
@@ -427,6 +435,11 @@ $ () ->
         document.getElementById('recalc').reset()
         $('#result').empty()
         DeDx.nCalc = 0
+        for own n, v of DeDx.switches
+            DeDx.switches[n] = false
+        DeDx.switches.NewDelta = true
+        DeDx.switches.FiniteNuclearSize = true
+        $('#bitmask').html(40)
         true
     #
     # Load the target data.

@@ -74,9 +74,9 @@ target material is currently supported.</p>
             <fieldset><legend>Calculate</legend>
                 <div class="radio" id="div_task">
                     <p><strong>Task</strong></p>
-                    <label class="radio-inline"><input type="radio" name="task" value="r" />Range</label>
-                    <label class="radio-inline"><input type="radio" name="task" value="e" />Energy</label>
-                    <label class="radio-inline"><input type="radio" name="task" value="d" />dE/dx</label>
+                    <label class="radio-inline"><input type="radio" name="task" value="r" disabled="disabled" />Range</label>
+                    <label class="radio-inline"><input type="radio" name="task" value="e" disabled="disabled" />Energy</label>
+                    <label class="radio-inline"><input type="radio" name="task" value="d" checked="checked" />dE/dx</label>
                 </div>
                 <div class="form-group" id="div_re">
                     <label class="control-label" for="RE">Energy / Range</label>
@@ -98,6 +98,29 @@ target material is currently supported.</p>
                     <select class="form-control" name="target" id="select_target">
                     </select>
                 </div>
+                <div class="form-group" id="div_switch">
+                    <p><strong>Optional Effects</strong> (Code <span id="bitmask">40</span>)</p>
+                    <div class="checkbox">
+                        <label class="checkbox-inline"><input type="checkbox" name="FiniteNuclearSize" id="FiniteNuclearSize" value="32" checked="checked" />Finite Nuclear Size</label>
+                        <label class="checkbox-inline"><input type="checkbox" name="NewDelta" id="NewDelta" value="8" checked="checked" />Modern Density Effect</label>
+                    </div>
+                    <div class="checkbox">
+                        <label class="checkbox-inline"><input type="checkbox" name="Barkas" id="Barkas" value="1" />Barkas Effect</label>
+                        <label class="checkbox-inline"><input type="checkbox" name="Shell" id="Shell" value="2" />Shell Effect</label>
+                        <label class="checkbox-inline"><input type="checkbox" name="Leung" id="Leung" value="4" />Leung Effect</label>
+                    </div>
+                    <div class="checkbox">
+                        <label class="checkbox-inline"><input type="checkbox" name="NewElectronCapture" id="NewElectronCapture" value="16" />Modern Electron Capture Effect</label>
+                    </div>
+                    <div class="checkbox">
+                        <label class="checkbox-inline"><input type="checkbox" name="Kinematic" id="Kinematic" value="64" />Kinematic Correction</label>
+                        <label class="checkbox-inline"><input type="checkbox" name="Radiative" id="Radiative" value="128" />Radiative Correction</label>
+                    </div>
+                    <div class="checkbox">
+                        <label class="checkbox-inline"><input type="checkbox" name="Pair" id="Pair" value="256" disabled="disabled" />Pair Production</label>
+                        <label class="checkbox-inline"><input type="checkbox" name="Bremsstrahlung" id="Bremsstrahlung" value="512" disabled="disabled" />Bremsstrahlung</label>
+                    </div>
+                </div>
                 <!-- Set value to "true" for output debugging -->
                 <input type="hidden" name="debug" value="true" />
                 <input type="hidden" name="previous_target" id="previous_target" value="Unknown" />
@@ -117,6 +140,7 @@ target material is currently supported.</p>
                     <th title="Projectile Charge">Z</th>
                     <th title="Projectile Mass">A</th>
                     <th title="Target Material">Target</th>
+                    <th title="Selected Optional Effects">Effects</th>
                     <th title="Result">Result</th>
                     <th title="Units">Units</th>
                 </tr>

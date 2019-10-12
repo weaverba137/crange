@@ -1,3 +1,5 @@
+var hasProp = {}.hasOwnProperty;
+
 $(function() {
   var DeDx, absorberTable, calculate, csv, div, j, len, ref, resetForm, validateNumber;
   DeDx = {
@@ -336,9 +338,9 @@ $(function() {
       f3 = this.lindhard(z1, a1, b);
       f4 = 1.0;
       if (this.switches.Barkas) {
-        v = b * g / (this.ALPHA * math.sqrt(z2));
+        v = b * g / (this.ALPHA * math.sqrt(t.z2));
         fv = this.fva[9] * math.exp(-2.0 * math.log(v / 10.0));
-        f4 = 1.0 + 2.0 * z1 * fv / (math.sqrt(z2));
+        f4 = 1.0 + 2.0 * z1 * fv / (math.sqrt(t.z2));
       }
       f8 = this.switches.Kinematic ? 0.5 * (-math.log(1.0 + 2.0 * (5.4858e-04 * g / a1)) - (5.4858e-04 * g / a1) * b2 / (g * g)) : 0.0;
       f9 = this.switches.Radiative ? (this.ALPHA / math.pi) * b2 * (6.0822 + math.log(2.0 * g) * (math.log(2.0 * g) * (2.4167 + 0.3333 * math.log(2.0 * g)) - 8.0314)) : 0.0;
@@ -416,12 +418,22 @@ $(function() {
     return k;
   };
   calculate = function(eventObject) {
-    var a1, r, re, result, rr, target, task, type, unit, z0;
+    var a1, bitmask, n, r, re, ref, result, rr, target, task, type, unit, v, vv, z0;
     task = $('input[name=task]:checked').val();
     re = Number($('#RE').val());
     z0 = Number($('#Z').val());
     a1 = Number($('#A').val());
     target = $('#select_target').val();
+    bitmask = 0;
+    ref = DeDx.switches;
+    for (n in ref) {
+      if (!hasProp.call(ref, n)) continue;
+      v = ref[n];
+      vv = $("#" + n).is(':checked');
+      bitmask += vv ? Number($("#" + n).val()) : 0;
+      DeDx.switches[n] = vv;
+    }
+    $('#bitmask').html(bitmask);
     switch (task) {
       case 'r':
         type = 'Range';
@@ -447,6 +459,7 @@ $(function() {
     $('<td/>').html(z0).appendTo(rr);
     $('<td/>').html(a1).appendTo(rr);
     $('<td/>').html(target).appendTo(rr);
+    $('<td/>').html(bitmask).appendTo(rr);
     $('<td/>').html(result).appendTo(rr);
     $('<td/>').html(unit).appendTo(rr);
     rr.appendTo(r);
@@ -455,7 +468,7 @@ $(function() {
   csv = function(eventObject) {
     var c, col, download, foo, header, j, len, len1, m, r, ref, row, rows;
     rows = [];
-    header = ['ID', 'Task', 'E/R', 'Z', 'A', 'Target', 'Result', 'Units'];
+    header = ['ID', 'Task', 'E/R', 'Z', 'A', 'Target', 'Effects', 'Result', 'Units'];
     rows.push(header.join(','));
     foo = $('#result').children();
     if (foo.length === 0) {
@@ -483,9 +496,19 @@ $(function() {
     return true;
   };
   resetForm = function(eventObject) {
+    var n, ref, v;
     document.getElementById('recalc').reset();
     $('#result').empty();
     DeDx.nCalc = 0;
+    ref = DeDx.switches;
+    for (n in ref) {
+      if (!hasProp.call(ref, n)) continue;
+      v = ref[n];
+      DeDx.switches[n] = false;
+    }
+    DeDx.switches.NewDelta = true;
+    DeDx.switches.FiniteNuclearSize = true;
+    $('#bitmask').html(40);
     return true;
   };
   if (DeDx.targets.length === 0) {
