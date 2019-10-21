@@ -1,7 +1,7 @@
 var hasProp = {}.hasOwnProperty;
 
 $(function() {
-  var DeDx, absorberTable, calculate, csv, div, j, len, ref, resetForm, validateNumber;
+  var DeDx, absorberTable, calculate, calculate_bitmask, csv, div, j, len, ref, resetForm, validateNumber;
   DeDx = {
     nCalc: 0,
     ALPHA: 7.29735301383e-3,
@@ -418,22 +418,13 @@ $(function() {
     return k;
   };
   calculate = function(eventObject) {
-    var a1, bitmask, n, r, re, ref, result, rr, target, task, type, unit, v, vv, z0;
+    var a1, bitmask, r, re, result, rr, target, task, type, unit, z0;
     task = $('input[name=task]:checked').val();
     re = Number($('#RE').val());
     z0 = Number($('#Z').val());
     a1 = Number($('#A').val());
     target = $('#select_target').val();
-    bitmask = 0;
-    ref = DeDx.switches;
-    for (n in ref) {
-      if (!hasProp.call(ref, n)) continue;
-      v = ref[n];
-      vv = $("#" + n).is(':checked');
-      bitmask += vv ? Number($("#" + n).val()) : 0;
-      DeDx.switches[n] = vv;
-    }
-    $('#bitmask').html(bitmask);
+    bitmask = calculate_bitmask(eventObject);
     switch (task) {
       case 'r':
         type = 'Range';
@@ -464,6 +455,20 @@ $(function() {
     $('<td/>').html(unit).appendTo(rr);
     rr.appendTo(r);
     return true;
+  };
+  calculate_bitmask = function(eventObject) {
+    var bitmask, n, ref, v, vv;
+    bitmask = 0;
+    ref = DeDx.switches;
+    for (n in ref) {
+      if (!hasProp.call(ref, n)) continue;
+      v = ref[n];
+      vv = $("#" + n).is(':checked');
+      bitmask += vv ? Number($("#" + n).val()) : 0;
+      DeDx.switches[n] = vv;
+    }
+    $('#bitmask').html(bitmask);
+    return bitmask;
   };
   csv = function(eventObject) {
     var c, col, download, foo, header, j, len, len1, m, r, ref, row, rows;
@@ -525,6 +530,7 @@ $(function() {
       $("#" + div.name).change(div, validateNumber).change();
     }
   }
+  $('#div_switch input[type=checkbox]').click(calculate_bitmask);
   $('#calculate').click(calculate);
   $('#resetForm').click(resetForm);
   $('#CSV').click(csv);

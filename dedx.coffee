@@ -372,13 +372,7 @@ $ () ->
         z0 = Number $('#Z').val()
         a1 = Number $('#A').val()
         target = $('#select_target').val()
-        bitmask = 0
-        for own n, v of DeDx.switches
-            vv = $("##{n}").is(':checked')
-            bitmask += if vv then Number $("##{n}").val() else 0
-            # console.log("#{n} -> #{vv} (was #{v})")
-            DeDx.switches[n] = vv
-        $('#bitmask').html(bitmask)
+        bitmask = calculate_bitmask(eventObject)
         switch task
             when 'r'
                 type = 'Range'
@@ -406,6 +400,18 @@ $ () ->
         $('<td/>').html(unit).appendTo rr
         rr.appendTo r
         true
+    #
+    # Update bitmask
+    #
+    calculate_bitmask = (eventObject) ->
+        bitmask = 0
+        for own n, v of DeDx.switches
+            vv = $("##{n}").is(':checked')
+            bitmask += if vv then Number $("##{n}").val() else 0
+            # console.log("#{n} -> #{vv} (was #{v})")
+            DeDx.switches[n] = vv
+        $('#bitmask').html(bitmask)
+        bitmask
     #
     # Convert results to CSV.
     #
@@ -454,6 +460,7 @@ $ () ->
     for div in DeDx.validateDivs
         if $("##{div.name}").length > 0
             $("##{div.name}").change(div, validateNumber).change()
+    $('#div_switch input[type=checkbox]').click(calculate_bitmask)
     $('#calculate').click(calculate)
     $('#resetForm').click(resetForm)
     $('#CSV').click(csv)
