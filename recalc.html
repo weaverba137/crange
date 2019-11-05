@@ -59,106 +59,105 @@
         <div class="col-md-12">
             <h1>dE/dx Calculator &mdash; Ionization Energy Loss &mdash; B. A. Weaver</h1>
         </div><!-- end class="col-md-12" -->
-    </div><!-- end class="row" --><div class="row">
-<div class="col-md-12">
-<p class="lead">Welcome to the Stopping Power Calculator.  A
-<a href="http://www.example.com">description</a> of the Calculator is available. You
-may wish to use the <a href="absorb.html">target list</a> to find out if the
-target material is currently supported.</p>
-<p class="lead text-danger">This page under development.  Do not expect valid results!</p>
-</div>
-</div>
-<div class="row">
-    <div class="col-md-6">
-        <form action="recalc.html" method="post" class="well" id="recalc">
-            <fieldset><legend>Calculate</legend>
-                <div class="radio" id="div_task">
-                    <p><strong>Task</strong></p>
-                    <label class="radio-inline"><input type="radio" name="task" value="r" disabled="disabled" />Range</label>
-                    <label class="radio-inline"><input type="radio" name="task" value="e" disabled="disabled" />Energy</label>
-                    <label class="radio-inline"><input type="radio" name="task" value="d" checked="checked" />dE/dx</label>
-                </div>
-                <div class="form-group" id="div_re">
-                    <label class="control-label" for="RE">Energy / Range</label>
-                    <input type="text" class="form-control" aria-describedby="div_re_helpblock" name="RE" id="RE" value="" />
-                    <span id="div_re_helpblock" class="help-block">Units are A&nbsp;MeV or g&nbsp;cm<sup>-2</sup>.</span>
-                </div>
-                <div class="form-group" id="div_z">
-                    <label class="control-label" for="Z">Projectile Charge</label>
-                    <input type="text" class="form-control" aria-describedby="div_z_helpblock" name="Z" id="Z" value="" placeholder="79" />
-                    <span id="div_z_helpblock" class="help-block"></span>
-                </div>
-                <div class="form-group" id="div_a">
-                    <label class="control-label" for="Z">Projectile Mass</label>
-                    <input type="text" class="form-control" aria-describedby="div_a_helpblock" name="A" id="A" value="" placeholder="197" />
-                    <span id="div_a_helpblock" class="help-block"></span>
-                </div>
-                <div class="form-group" id="div_target">
-                    <label class="control-label" for="select_target">Target Material</label>
-                    <select class="form-control" name="target" id="select_target">
-                    </select>
-                </div>
-                <div class="form-group" id="div_switch">
-                    <p><strong>Optional Effects</strong> (Code <span id="bitmask">40</span>)</p>
-                    <div class="checkbox">
-                        <label class="checkbox-inline"><input type="checkbox" name="FiniteNuclearSize" id="FiniteNuclearSize" value="32" checked="checked" />Finite Nuclear Size</label>
-                        <label class="checkbox-inline"><input type="checkbox" name="NewDelta" id="NewDelta" value="8" checked="checked" />Modern Density Effect</label>
+    </div><!-- end class="row" -->
+    <div class="row">
+        <div class="col-md-12">
+            <p class="lead">Welcome to the Stopping Power Calculator.  A
+            <a href="http://www.example.com">description</a> of the Calculator is available. You
+            may wish to use the <a href="absorb.html">target list</a> to find out if the
+            target material is currently supported.</p>
+            <p class="lead text-danger">This page under development.  Do not expect valid results!</p>
+        </div><!-- end class="col-md-12" -->
+    </div><!-- end class="row" -->
+    <div class="row">
+        <div class="col-md-6">
+            <form action="recalc.html" method="post" class="well" id="recalc">
+                <fieldset><legend>Calculate</legend>
+                    <div class="radio" id="div_task">
+                        <p><strong>Task</strong></p>
+                        <label class="radio-inline"><input type="radio" name="task" value="r" disabled="disabled" />Range</label>
+                        <label class="radio-inline"><input type="radio" name="task" value="e" disabled="disabled" />Energy</label>
+                        <label class="radio-inline"><input type="radio" name="task" value="d" checked="checked" />dE/dx</label>
                     </div>
-                    <div class="checkbox">
-                        <label class="checkbox-inline"><input type="checkbox" name="Barkas" id="Barkas" value="1" />Barkas Effect</label>
-                        <label class="checkbox-inline"><input type="checkbox" name="Shell" id="Shell" value="2" />Shell Effect</label>
-                        <label class="checkbox-inline"><input type="checkbox" name="Leung" id="Leung" value="4" />Leung Effect</label>
+                    <div class="form-group" id="div_re">
+                        <label class="control-label" for="RE">Energy / Range</label>
+                        <input type="text" class="form-control" aria-describedby="div_re_helpblock" name="RE" id="RE" value="" />
+                        <span id="div_re_helpblock" class="help-block">Units are A&nbsp;MeV or g&nbsp;cm<sup>-2</sup>.</span>
                     </div>
-                    <div class="checkbox">
-                        <label class="checkbox-inline"><input type="checkbox" name="NewElectronCapture" id="NewElectronCapture" value="16" />Modern Electron Capture Effect</label>
+                    <div class="form-group" id="div_z">
+                        <label class="control-label" for="Z">Projectile Charge</label>
+                        <input type="text" class="form-control" aria-describedby="div_z_helpblock" name="Z" id="Z" value="" placeholder="79" />
+                        <span id="div_z_helpblock" class="help-block"></span>
                     </div>
-                    <div class="checkbox">
-                        <label class="checkbox-inline"><input type="checkbox" name="Kinematic" id="Kinematic" value="64" />Kinematic Correction</label>
-                        <label class="checkbox-inline"><input type="checkbox" name="Radiative" id="Radiative" value="128" />Radiative Correction</label>
+                    <div class="form-group" id="div_a">
+                        <label class="control-label" for="Z">Projectile Mass</label>
+                        <input type="text" class="form-control" aria-describedby="div_a_helpblock" name="A" id="A" value="" placeholder="197" />
+                        <span id="div_a_helpblock" class="help-block"></span>
                     </div>
-                    <div class="checkbox">
-                        <label class="checkbox-inline"><input type="checkbox" name="Pair" id="Pair" value="256" disabled="disabled" />Pair Production</label>
-                        <label class="checkbox-inline"><input type="checkbox" name="Bremsstrahlung" id="Bremsstrahlung" value="512" disabled="disabled" />Bremsstrahlung</label>
+                    <div class="form-group" id="div_target">
+                        <label class="control-label" for="select_target">Target Material</label>
+                        <select class="form-control" name="target" id="select_target">
+                        </select>
                     </div>
-                </div>
-                <!-- Set value to "true" for output debugging -->
-                <input type="hidden" name="debug" value="true" />
-                <input type="hidden" name="previous_target" id="previous_target" value="Unknown" />
-                <button type="button" class="btn btn-primary" id="calculate">Calculate</button>
-                <button type="button" class="btn btn-default" id="resetForm" title="Reset form inputs and results.">Reset</button>
-            </fieldset>
-        </form>
-    </div>
-    <div class="col-md-6">
-        <table class="table table-bordered table-condensed">
-            <caption>Results</caption>
-            <thead>
-                <tr>
-                    <th title="Calculation Number">ID</th>
-                    <th title="Task">Task</th>
-                    <th title="Energy / Range">E/R</th>
-                    <th title="Projectile Charge">Z</th>
-                    <th title="Projectile Mass">A</th>
-                    <th title="Target Material">Target</th>
-                    <th title="Selected Optional Effects">Effects</th>
-                    <th title="Result">Result</th>
-                    <th title="Units">Units</th>
-                </tr>
-            </thead>
-            <tbody id="result">
-            </tbody>
-        </table>
-        <p><button type="button" class="btn btn-primary" id="CSV" title="Convert table to CSV.">CSV</button></p>
-        <p id="downloadCSV"></p>
-    </div>
-</div>
-
+                    <div class="form-group" id="div_switch">
+                        <p><strong>Optional Effects</strong> (Code <span id="bitmask">40</span>)</p>
+                        <div class="checkbox">
+                            <label class="checkbox-inline"><input type="checkbox" name="FiniteNuclearSize" id="FiniteNuclearSize" value="32" checked="checked" />Finite Nuclear Size</label>
+                            <label class="checkbox-inline"><input type="checkbox" name="NewDelta" id="NewDelta" value="8" checked="checked" />Modern Density Effect</label>
+                        </div>
+                        <div class="checkbox">
+                            <label class="checkbox-inline"><input type="checkbox" name="Barkas" id="Barkas" value="1" />Barkas Effect</label>
+                            <label class="checkbox-inline"><input type="checkbox" name="Shell" id="Shell" value="2" />Shell Effect</label>
+                            <label class="checkbox-inline"><input type="checkbox" name="Leung" id="Leung" value="4" />Leung Effect</label>
+                        </div>
+                        <div class="checkbox">
+                            <label class="checkbox-inline"><input type="checkbox" name="NewElectronCapture" id="NewElectronCapture" value="16" />Modern Electron Capture Effect</label>
+                        </div>
+                        <div class="checkbox">
+                            <label class="checkbox-inline"><input type="checkbox" name="Kinematic" id="Kinematic" value="64" />Kinematic Correction</label>
+                            <label class="checkbox-inline"><input type="checkbox" name="Radiative" id="Radiative" value="128" />Radiative Correction</label>
+                        </div>
+                        <div class="checkbox">
+                            <label class="checkbox-inline"><input type="checkbox" name="Pair" id="Pair" value="256" disabled="disabled" />Pair Production</label>
+                            <label class="checkbox-inline"><input type="checkbox" name="Bremsstrahlung" id="Bremsstrahlung" value="512" disabled="disabled" />Bremsstrahlung</label>
+                        </div>
+                    </div>
+                    <!-- Set value to "true" for output debugging -->
+                    <input type="hidden" name="debug" value="true" />
+                    <input type="hidden" name="previous_target" id="previous_target" value="Unknown" />
+                    <button type="button" class="btn btn-primary" id="calculate">Calculate</button>
+                    <button type="button" class="btn btn-default" id="resetForm" title="Reset form inputs and results.">Reset</button>
+                </fieldset>
+            </form>
+        </div><!-- end class="col-md-6" -->
+        <div class="col-md-6">
+            <table class="table table-bordered table-condensed">
+                <caption>Results</caption>
+                <thead>
+                    <tr>
+                        <th title="Calculation Number">ID</th>
+                        <th title="Task">Task</th>
+                        <th title="Energy / Range">E/R</th>
+                        <th title="Projectile Charge">Z</th>
+                        <th title="Projectile Mass">A</th>
+                        <th title="Target Material">Target</th>
+                        <th title="Selected Optional Effects">Effects</th>
+                        <th title="Result">Result</th>
+                        <th title="Units">Units</th>
+                    </tr>
+                </thead>
+                <tbody id="result">
+                </tbody>
+            </table>
+            <p><button type="button" class="btn btn-primary" id="CSV" title="Convert table to CSV.">CSV</button></p>
+            <p id="downloadCSV"></p>
+        </div><!-- end class="col-md-6" -->
+    </div><!-- end class="row" -->
 <footer class="footer hidden-sm hidden-xs">
 <p class="text-muted">
-<img src="../colorsep.gif" alt="Separator" style="width:100%;height:2px;" /><br />
-B. A. Weaver: <span class="back">ude.oaon@revaew</span><br />
+<img src="../colorsep.gif" alt="Separator" class="separator" /><br />
 Created: 2001-02-07 11:51:46 -0800 (Wed, 07 Feb 2001)<br />
-Last modified: 2019-10-11 17:00:47 -0700 (Fri, 11 Oct 2019)</p>
+Last modified: 2019-11-05 10:01:08 -0700 (Tue, 05 Nov 2019)</p>
 </footer>
 </div><!-- end class="container" -->
 </body>
