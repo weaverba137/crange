@@ -57,8 +57,8 @@ all : dedx.js
 #
 last_modified.txt : $(HTML)
 	@ for f in $?; do \
-		echo $(SED) "s|^Last modified: .*</p>|Last modified: $(LAST_MODIFIED)</p>|" $$f; \
-		$(SED) "s|^Last modified: .*</p>|Last modified: $(LAST_MODIFIED)</p>|" $$f > $$f.new; \
+		echo $(SED) "s|^([^>]+)(>Last modified: ).*</li>|\1\2$(LAST_MODIFIED)</li>|" $$f; \
+		$(SED) "s|^([^>]+)(>Last modified: ).*</li>|\1\2$(LAST_MODIFIED)</li>|" $$f > $$f.new; \
 		echo /bin/mv -f $$f.new $$f; \
 		/bin/mv -f $$f.new $$f; \
 		done

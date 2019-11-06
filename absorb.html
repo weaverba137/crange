@@ -1,112 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Absorber Library &mdash; Ionization Energy Loss &mdash; B. A. Weaver</title>
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
-    <link rel="stylesheet" type="text/css" media="screen" href="../public_html.css" />
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="absorb.js"></script>
-</head>
-<body>
-<nav class="navbar navbar-default navbar-static-top">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="https://github.com/weaverba137/">GitHub</a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li><a href="../index.html">&#127968; Home</a></li>
-                <li><a href="../pubs.html">&#128214; Publications</a></li>
-                <!-- <li><a href="../job.html">&#128301; Work</a></li> -->
-                <!-- <li><a href="../nz.html">&#128747; Travel</a></li> -->
-                <li><a href="../links.html">&#128279; Links</a></li>
-                <li><a href="../tests.html">&#9889; Tests</a></li>
-                <li class="dropdown active">
-                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" href="../crange/">&#128293; dE/dx<span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="../crange/index.html">Introduction</a></li>
-                        <li><a href="../crange/absorb.html">Absorber Library</a></li>
-                        <li><a href="../crange/recalc.html">Calculator</a></li>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Absorber Library &mdash; Ionization Energy Loss &mdash; B. A. Weaver</title>
+        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+        <link rel="icon" type="image/x-icon" href="favicon.ico" />
+        <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
+        <link rel="stylesheet" type="text/css" media="screen" href="../public_html.css" />
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="absorb.js"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-static-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="https://github.com/weaverba137/">GitHub</a>
+                </div><!-- end class="navbar-header" -->
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a href="../index.html">&#127968; Home</a></li>
+                        <li><a href="../pubs.html">&#128214; Publications</a></li>
+                        <!-- <li><a href="../job.html">&#128301; Work</a></li> -->
+                        <!-- <li><a href="../nz.html">&#128747; Travel</a></li> -->
+                        <li><a href="../links.html">&#128279; Links</a></li>
+                        <li><a href="../tests.html">&#9889; Tests</a></li>
+                        <li class="dropdown active">
+                            <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" href="../crange/">&#128293; dE/dx<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="../crange/index.html">Introduction</a></li>
+                                <li><a href="../crange/absorb.html">Absorber Library</a></li>
+                                <li><a href="../crange/recalc.html">Calculator</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" href="../fun/">&#127864; Amusements<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="../hhh.html">HHH</a></li>
+                                <li><a href="../qso.html">QSO</a></li>
+                                <li><a href="../uqm.html">UQM</a></li>
+                            </ul>
+                        </li>
                     </ul>
-                </li>
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" href="../fun/">&#127864; Amusements<span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="../hhh.html">HHH</a></li>
-                        <li><a href="../qso.html">QSO</a></li>
-                        <li><a href="../uqm.html">UQM</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div><!-- end class="navbar-collapse" -->
-    </div><!-- end class="container" -->
-</nav><!-- end class="navbar" -->
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <h1>Absorber Library &mdash; Ionization Energy Loss &mdash; B. A. Weaver</h1>
-        </div><!-- end class="col-md-12" -->
-    </div><!-- end class="row" -->
-    <div class="row">
-        <div class="col-md-12">
-            <h2>Introduction</h2>
-            <p>These data are taken from <a href="#r1">Sternheimer, Berger &amp; Seltzer (1984)</a>.</p>
-            <p>In the table below, the first column is the name of the absorber.  Names may
-            be up to eight characters long.  This exact name is used in the code.
-            You can move your pointer over the other column headers to see their definitions.</p>
-        </div><!-- end class="col-md-12" -->
-    </div><!-- end class="row" -->
-    <div class="row">
-        <div class="col-md-12">
-            <table class="table table-bordered table-condensed">
-                <caption>Absorber Table</caption>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th title="Mean Nuclear Charge">Z<sub>2</sub></th>
-                        <th title="Mean Nuclear Mass">A<sub>2</sub></th>
-                        <th title="Logarithmic Mean Ionization potential">I<sub>adj</sub> [eV]</th>
-                        <th title="Density">&rho; [g cm<sup>-3</sup>]</th>
-                        <th title="Plasma Frequency">&omega;<sub>p</sub> [eV]</th>
-                        <th title="Ratio of density to density at STP (gasses only)">&eta;</th>
-                        <th title="Total electronic binding energy">B [keV]</th>
-                        <th title="Density Effect turn-on value">X<sub>0</sub></th>
-                        <th title="Density effect asymptotic bound">X<sub>1</sub></th>
-                        <th title="Density effect interpolation parameter">a</th>
-                        <th title="Density effect interpolation parameter">m</th>
-                        <th title="Low energy density effect value (zero for everything but conductors)">&delta;<sub>0</sub></th>
-                    </tr>
-                </thead>
-                <tbody id="atbody">
-                </tbody>
-            </table>
-        </div><!-- end class="col-md-12" -->
-    </div><!-- end class="row" -->
-    <div class="row">
-        <div class="col-md-12">
-            <h2>References</h2>
-            <p id="r1">R. M. Sternheimer, M. J. Berger &amp; S. M. Seltzer,
-            <em>Atom. Data and Nucl. Data Tab.</em> <strong>30</strong> (1984) 261.</p>
-        </div><!-- end class="col-md-12" -->
-    </div><!-- end class="row" -->
-<footer class="footer hidden-sm hidden-xs">
-<p class="text-muted">
-<img src="../colorsep.gif" alt="Separator" class="separator" /><br />
-Created: 2001-02-07 11:51:46 -0800 (Wed, 07 Feb 2001)<br />
-Last modified: 2019-11-05 10:01:08 -0700 (Tue, 05 Nov 2019)</p>
-</footer>
-</div><!-- end class="container" -->
-</body>
+                </div><!-- end class="navbar-collapse" -->
+            </div><!-- end class="container" -->
+        </nav><!-- end class="navbar" -->
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1>Absorber Library &mdash; Ionization Energy Loss &mdash; B. A. Weaver</h1>
+                </div><!-- end class="col-md-12" -->
+            </div><!-- end class="row" -->
+            <div class="row">
+                <div class="col-md-12">
+                    <h2>Introduction</h2>
+                    <p>These data are taken from <a href="#r1">Sternheimer, Berger &amp; Seltzer (1984)</a>.</p>
+                    <p>In the table below, the first column is the name of the absorber.  Names may
+                    be up to eight characters long.  This exact name is used in the code.
+                    You can move your pointer over the other column headers to see their definitions.</p>
+                </div><!-- end class="col-md-12" -->
+            </div><!-- end class="row" -->
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-bordered table-condensed">
+                        <caption>Absorber Table</caption>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th title="Mean Nuclear Charge">Z<sub>2</sub></th>
+                                <th title="Mean Nuclear Mass">A<sub>2</sub></th>
+                                <th title="Logarithmic Mean Ionization potential">I<sub>adj</sub> [eV]</th>
+                                <th title="Density">&rho; [g cm<sup>-3</sup>]</th>
+                                <th title="Plasma Frequency">&omega;<sub>p</sub> [eV]</th>
+                                <th title="Ratio of density to density at STP (gasses only)">&eta;</th>
+                                <th title="Total electronic binding energy">B [keV]</th>
+                                <th title="Density Effect turn-on value">X<sub>0</sub></th>
+                                <th title="Density effect asymptotic bound">X<sub>1</sub></th>
+                                <th title="Density effect interpolation parameter">a</th>
+                                <th title="Density effect interpolation parameter">m</th>
+                                <th title="Low energy density effect value (zero for everything but conductors)">&delta;<sub>0</sub></th>
+                            </tr>
+                        </thead>
+                        <tbody id="atbody">
+                        </tbody>
+                    </table>
+                </div><!-- end class="col-md-12" -->
+            </div><!-- end class="row" -->
+            <div class="row">
+                <div class="col-md-12">
+                    <h2>References</h2>
+                    <p id="r1">R. M. Sternheimer, M. J. Berger &amp; S. M. Seltzer,
+                    <em>Atom. Data and Nucl. Data Tab.</em> <strong>30</strong> (1984) 261.</p>
+                </div><!-- end class="col-md-12" -->
+            </div><!-- end class="row" -->
+            <footer class="footer hidden-sm hidden-xs">
+                <p><img src="../colorsep.gif" alt="Separator" class="separator" /></p>
+                <ul class="list-unstyled">
+                    <li class="text-muted">Created: 2001-02-07 11:51:46 -0800 (Wed, 07 Feb 2001)</li>
+                    <li class="text-muted">Last modified: 2019-11-06 10:13:20 -0700 (Wed, 06 Nov 2019)</li>
+                </ul>
+            </footer>
+        </div><!-- end class="container" -->
+    </body>
 </html>

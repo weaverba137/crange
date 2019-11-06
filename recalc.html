@@ -1,164 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>dE/dx Calculator &mdash; Ionization Energy Loss &mdash; B. A. Weaver</title>
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
-    <link rel="stylesheet" type="text/css" media="screen" href="../public_html.css" />
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.10.3/math.min.js"></script>
-    <script type="text/javascript" src="dedx.js"></script>
-</head>
-<body>
-<nav class="navbar navbar-default navbar-static-top">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="https://github.com/weaverba137/">GitHub</a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li><a href="../index.html">&#127968; Home</a></li>
-                <li><a href="../pubs.html">&#128214; Publications</a></li>
-                <!-- <li><a href="../job.html">&#128301; Work</a></li> -->
-                <!-- <li><a href="../nz.html">&#128747; Travel</a></li> -->
-                <li><a href="../links.html">&#128279; Links</a></li>
-                <li><a href="../tests.html">&#9889; Tests</a></li>
-                <li class="dropdown active">
-                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" href="../crange/">&#128293; dE/dx<span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="../crange/index.html">Introduction</a></li>
-                        <li><a href="../crange/absorb.html">Absorber Library</a></li>
-                        <li><a href="../crange/recalc.html">Calculator</a></li>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>dE/dx Calculator &mdash; Ionization Energy Loss &mdash; B. A. Weaver</title>
+        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+        <link rel="icon" type="image/x-icon" href="favicon.ico" />
+        <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
+        <link rel="stylesheet" type="text/css" media="screen" href="../public_html.css" />
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.10.3/math.min.js"></script>
+        <script type="text/javascript" src="dedx.js"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-static-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="https://github.com/weaverba137/">GitHub</a>
+                </div><!-- end class="navbar-header" -->
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a href="../index.html">&#127968; Home</a></li>
+                        <li><a href="../pubs.html">&#128214; Publications</a></li>
+                        <!-- <li><a href="../job.html">&#128301; Work</a></li> -->
+                        <!-- <li><a href="../nz.html">&#128747; Travel</a></li> -->
+                        <li><a href="../links.html">&#128279; Links</a></li>
+                        <li><a href="../tests.html">&#9889; Tests</a></li>
+                        <li class="dropdown active">
+                            <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" href="../crange/">&#128293; dE/dx<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="../crange/index.html">Introduction</a></li>
+                                <li><a href="../crange/absorb.html">Absorber Library</a></li>
+                                <li><a href="../crange/recalc.html">Calculator</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" href="../fun/">&#127864; Amusements<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="../hhh.html">HHH</a></li>
+                                <li><a href="../qso.html">QSO</a></li>
+                                <li><a href="../uqm.html">UQM</a></li>
+                            </ul>
+                        </li>
                     </ul>
-                </li>
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" href="../fun/">&#127864; Amusements<span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="../hhh.html">HHH</a></li>
-                        <li><a href="../qso.html">QSO</a></li>
-                        <li><a href="../uqm.html">UQM</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div><!-- end class="navbar-collapse" -->
-    </div><!-- end class="container" -->
-</nav><!-- end class="navbar" -->
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <h1>dE/dx Calculator &mdash; Ionization Energy Loss &mdash; B. A. Weaver</h1>
-        </div><!-- end class="col-md-12" -->
-    </div><!-- end class="row" -->
-    <div class="row">
-        <div class="col-md-12">
-            <p class="lead">Welcome to the Stopping Power Calculator.  A
-            <a href="http://www.example.com">description</a> of the Calculator is available. You
-            may wish to use the <a href="absorb.html">target list</a> to find out if the
-            target material is currently supported.</p>
-            <p class="lead text-danger">This page under development.  Do not expect valid results!</p>
-        </div><!-- end class="col-md-12" -->
-    </div><!-- end class="row" -->
-    <div class="row">
-        <div class="col-md-6">
-            <form action="recalc.html" method="post" class="well" id="recalc">
-                <fieldset><legend>Calculate</legend>
-                    <div class="radio" id="div_task">
-                        <p><strong>Task</strong></p>
-                        <label class="radio-inline"><input type="radio" name="task" value="r" disabled="disabled" />Range</label>
-                        <label class="radio-inline"><input type="radio" name="task" value="e" disabled="disabled" />Energy</label>
-                        <label class="radio-inline"><input type="radio" name="task" value="d" checked="checked" />dE/dx</label>
-                    </div>
-                    <div class="form-group" id="div_re">
-                        <label class="control-label" for="RE">Energy / Range</label>
-                        <input type="text" class="form-control" aria-describedby="div_re_helpblock" name="RE" id="RE" value="" />
-                        <span id="div_re_helpblock" class="help-block">Units are A&nbsp;MeV or g&nbsp;cm<sup>-2</sup>.</span>
-                    </div>
-                    <div class="form-group" id="div_z">
-                        <label class="control-label" for="Z">Projectile Charge</label>
-                        <input type="text" class="form-control" aria-describedby="div_z_helpblock" name="Z" id="Z" value="" placeholder="79" />
-                        <span id="div_z_helpblock" class="help-block"></span>
-                    </div>
-                    <div class="form-group" id="div_a">
-                        <label class="control-label" for="Z">Projectile Mass</label>
-                        <input type="text" class="form-control" aria-describedby="div_a_helpblock" name="A" id="A" value="" placeholder="197" />
-                        <span id="div_a_helpblock" class="help-block"></span>
-                    </div>
-                    <div class="form-group" id="div_target">
-                        <label class="control-label" for="select_target">Target Material</label>
-                        <select class="form-control" name="target" id="select_target">
-                        </select>
-                    </div>
-                    <div class="form-group" id="div_switch">
-                        <p><strong>Optional Effects</strong> (Code <span id="bitmask">40</span>)</p>
-                        <div class="checkbox">
-                            <label class="checkbox-inline"><input type="checkbox" name="FiniteNuclearSize" id="FiniteNuclearSize" value="32" checked="checked" />Finite Nuclear Size</label>
-                            <label class="checkbox-inline"><input type="checkbox" name="NewDelta" id="NewDelta" value="8" checked="checked" />Modern Density Effect</label>
-                        </div>
-                        <div class="checkbox">
-                            <label class="checkbox-inline"><input type="checkbox" name="Barkas" id="Barkas" value="1" />Barkas Effect</label>
-                            <label class="checkbox-inline"><input type="checkbox" name="Shell" id="Shell" value="2" />Shell Effect</label>
-                            <label class="checkbox-inline"><input type="checkbox" name="Leung" id="Leung" value="4" />Leung Effect</label>
-                        </div>
-                        <div class="checkbox">
-                            <label class="checkbox-inline"><input type="checkbox" name="NewElectronCapture" id="NewElectronCapture" value="16" />Modern Electron Capture Effect</label>
-                        </div>
-                        <div class="checkbox">
-                            <label class="checkbox-inline"><input type="checkbox" name="Kinematic" id="Kinematic" value="64" />Kinematic Correction</label>
-                            <label class="checkbox-inline"><input type="checkbox" name="Radiative" id="Radiative" value="128" />Radiative Correction</label>
-                        </div>
-                        <div class="checkbox">
-                            <label class="checkbox-inline"><input type="checkbox" name="Pair" id="Pair" value="256" disabled="disabled" />Pair Production</label>
-                            <label class="checkbox-inline"><input type="checkbox" name="Bremsstrahlung" id="Bremsstrahlung" value="512" disabled="disabled" />Bremsstrahlung</label>
-                        </div>
-                    </div>
-                    <!-- Set value to "true" for output debugging -->
-                    <input type="hidden" name="debug" value="true" />
-                    <input type="hidden" name="previous_target" id="previous_target" value="Unknown" />
-                    <button type="button" class="btn btn-primary" id="calculate">Calculate</button>
-                    <button type="button" class="btn btn-default" id="resetForm" title="Reset form inputs and results.">Reset</button>
-                </fieldset>
-            </form>
-        </div><!-- end class="col-md-6" -->
-        <div class="col-md-6">
-            <table class="table table-bordered table-condensed">
-                <caption>Results</caption>
-                <thead>
-                    <tr>
-                        <th title="Calculation Number">ID</th>
-                        <th title="Task">Task</th>
-                        <th title="Energy / Range">E/R</th>
-                        <th title="Projectile Charge">Z</th>
-                        <th title="Projectile Mass">A</th>
-                        <th title="Target Material">Target</th>
-                        <th title="Selected Optional Effects">Effects</th>
-                        <th title="Result">Result</th>
-                        <th title="Units">Units</th>
-                    </tr>
-                </thead>
-                <tbody id="result">
-                </tbody>
-            </table>
-            <p><button type="button" class="btn btn-primary" id="CSV" title="Convert table to CSV.">CSV</button></p>
-            <p id="downloadCSV"></p>
-        </div><!-- end class="col-md-6" -->
-    </div><!-- end class="row" -->
-<footer class="footer hidden-sm hidden-xs">
-<p class="text-muted">
-<img src="../colorsep.gif" alt="Separator" class="separator" /><br />
-Created: 2001-02-07 11:51:46 -0800 (Wed, 07 Feb 2001)<br />
-Last modified: 2019-11-05 10:01:08 -0700 (Tue, 05 Nov 2019)</p>
-</footer>
-</div><!-- end class="container" -->
-</body>
+                </div><!-- end class="navbar-collapse" -->
+            </div><!-- end class="container" -->
+        </nav><!-- end class="navbar" -->
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1>dE/dx Calculator &mdash; Ionization Energy Loss &mdash; B. A. Weaver</h1>
+                </div><!-- end class="col-md-12" -->
+            </div><!-- end class="row" -->
+            <div class="row">
+                <div class="col-md-12">
+                    <p class="lead">Welcome to the Stopping Power Calculator.  A
+                    <a href="http://www.example.com">description</a> of the Calculator is available. You
+                    may wish to use the <a href="absorb.html">target list</a> to find out if the
+                    target material is currently supported.</p>
+                    <p class="lead text-danger">This page under development.  Do not expect valid results!</p>
+                </div><!-- end class="col-md-12" -->
+            </div><!-- end class="row" -->
+            <div class="row">
+                <div class="col-md-6">
+                    <form action="recalc.html" method="post" class="well" id="recalc">
+                        <fieldset><legend>Calculate</legend>
+                            <div class="radio" id="div_task">
+                                <p><strong>Task</strong></p>
+                                <label class="radio-inline"><input type="radio" name="task" value="r" disabled="disabled" />Range</label>
+                                <label class="radio-inline"><input type="radio" name="task" value="e" disabled="disabled" />Energy</label>
+                                <label class="radio-inline"><input type="radio" name="task" value="d" checked="checked" />dE/dx</label>
+                            </div>
+                            <div class="form-group" id="div_re">
+                                <label class="control-label" for="RE">Energy / Range</label>
+                                <input type="text" class="form-control" aria-describedby="div_re_helpblock" name="RE" id="RE" value="" />
+                                <span id="div_re_helpblock" class="help-block">Units are A&nbsp;MeV or g&nbsp;cm<sup>-2</sup>.</span>
+                            </div>
+                            <div class="form-group" id="div_z">
+                                <label class="control-label" for="Z">Projectile Charge</label>
+                                <input type="text" class="form-control" aria-describedby="div_z_helpblock" name="Z" id="Z" value="" placeholder="79" />
+                                <span id="div_z_helpblock" class="help-block"></span>
+                            </div>
+                            <div class="form-group" id="div_a">
+                                <label class="control-label" for="Z">Projectile Mass</label>
+                                <input type="text" class="form-control" aria-describedby="div_a_helpblock" name="A" id="A" value="" placeholder="197" />
+                                <span id="div_a_helpblock" class="help-block"></span>
+                            </div>
+                            <div class="form-group" id="div_target">
+                                <label class="control-label" for="select_target">Target Material</label>
+                                <select class="form-control" name="target" id="select_target">
+                                </select>
+                            </div>
+                            <div class="form-group" id="div_switch">
+                                <p><strong>Optional Effects</strong> (Code <span id="bitmask">40</span>)</p>
+                                <div class="checkbox">
+                                    <label class="checkbox-inline"><input type="checkbox" name="FiniteNuclearSize" id="FiniteNuclearSize" value="32" checked="checked" />Finite Nuclear Size</label>
+                                    <label class="checkbox-inline"><input type="checkbox" name="NewDelta" id="NewDelta" value="8" checked="checked" />Modern Density Effect</label>
+                                </div>
+                                <div class="checkbox">
+                                    <label class="checkbox-inline"><input type="checkbox" name="Barkas" id="Barkas" value="1" />Barkas Effect</label>
+                                    <label class="checkbox-inline"><input type="checkbox" name="Shell" id="Shell" value="2" />Shell Effect</label>
+                                    <label class="checkbox-inline"><input type="checkbox" name="Leung" id="Leung" value="4" />Leung Effect</label>
+                                </div>
+                                <div class="checkbox">
+                                    <label class="checkbox-inline"><input type="checkbox" name="NewElectronCapture" id="NewElectronCapture" value="16" />Modern Electron Capture Effect</label>
+                                </div>
+                                <div class="checkbox">
+                                    <label class="checkbox-inline"><input type="checkbox" name="Kinematic" id="Kinematic" value="64" />Kinematic Correction</label>
+                                    <label class="checkbox-inline"><input type="checkbox" name="Radiative" id="Radiative" value="128" />Radiative Correction</label>
+                                </div>
+                                <div class="checkbox">
+                                    <label class="checkbox-inline"><input type="checkbox" name="Pair" id="Pair" value="256" disabled="disabled" />Pair Production</label>
+                                    <label class="checkbox-inline"><input type="checkbox" name="Bremsstrahlung" id="Bremsstrahlung" value="512" disabled="disabled" />Bremsstrahlung</label>
+                                </div>
+                            </div>
+                            <!-- Set value to "true" for output debugging -->
+                            <input type="hidden" name="debug" value="true" />
+                            <input type="hidden" name="previous_target" id="previous_target" value="Unknown" />
+                            <button type="button" class="btn btn-primary" id="calculate">Calculate</button>
+                            <button type="button" class="btn btn-default" id="resetForm" title="Reset form inputs and results.">Reset</button>
+                        </fieldset>
+                    </form>
+                </div><!-- end class="col-md-6" -->
+                <div class="col-md-6">
+                    <table class="table table-bordered table-condensed">
+                        <caption>Results</caption>
+                        <thead>
+                            <tr>
+                                <th title="Calculation Number">ID</th>
+                                <th title="Task">Task</th>
+                                <th title="Energy / Range">E/R</th>
+                                <th title="Projectile Charge">Z</th>
+                                <th title="Projectile Mass">A</th>
+                                <th title="Target Material">Target</th>
+                                <th title="Selected Optional Effects">Effects</th>
+                                <th title="Result">Result</th>
+                                <th title="Units">Units</th>
+                            </tr>
+                        </thead>
+                        <tbody id="result">
+                        </tbody>
+                    </table>
+                    <p><button type="button" class="btn btn-primary" id="CSV" title="Convert table to CSV.">CSV</button></p>
+                    <p id="downloadCSV"></p>
+                </div><!-- end class="col-md-6" -->
+            </div><!-- end class="row" -->
+            <footer class="footer hidden-sm hidden-xs">
+                <p><img src="../colorsep.gif" alt="Separator" class="separator" /></p>
+                <ul class="list-unstyled">
+                    <li class="text-muted">Created: 2001-02-07 11:51:46 -0800 (Wed, 07 Feb 2001)</li>
+                    <li class="text-muted">Last modified: 2019-11-06 10:13:20 -0700 (Wed, 06 Nov 2019)</li>
+                </ul>
+            </footer>
+        </div><!-- end class="container" -->
+    </body>
 </html>
