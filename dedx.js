@@ -359,23 +359,16 @@ $(function() {
     if (eventObject.data.type === 'radio') {
       name = div.split('_')[1];
       eventObject.data.valid = $("input[name=" + name + "]:checked").length === 1;
-      if (!eventObject.data.first) {
-        if (eventObject.data.valid) {
-          $('#' + div).removeClass('has-error');
-        } else {
-          $('#' + div).addClass('has-error');
-        }
-      }
     } else {
       input = $('#' + div.split('_')[1].toUpperCase());
       patt = eventObject.data.type === 'int' ? new RegExp(/^[0-9]+$/i) : new RegExp(/^[0-9]+(\.[0-9]*|)(e[+-]?[0-9]+|)$/i);
       eventObject.data.valid = patt.test(input.val());
       if (!eventObject.data.first) {
         if (eventObject.data.valid) {
-          $('#' + div).removeClass('has-error').addClass('has-success');
+          input.removeClass('is-invalid').addClass('is-valid');
           $('#' + div + '_helpblock').html(eventObject.data.help);
         } else {
-          $('#' + div).removeClass('has-success').addClass('has-error');
+          input.removeClass('is-valid').addClass('is-invalid');
           $('#' + div + '_helpblock').html(eventObject.data.help + " " + (eventObject.data.type === 'int' ? 'Integer' : 'Float') + " value required!");
         }
       }
@@ -501,14 +494,23 @@ $(function() {
     return true;
   };
   resetForm = function(eventObject) {
-    var n, ref, v;
+    var div, j, len, n, name, ref, ref1, v;
     document.getElementById('recalc').reset();
     $('#result').empty();
     DeDx.nCalc = 0;
-    ref = DeDx.switches;
-    for (n in ref) {
-      if (!hasProp.call(ref, n)) continue;
-      v = ref[n];
+    ref = DeDx.validateDivs;
+    for (j = 0, len = ref.length; j < len; j++) {
+      div = ref[j];
+      if (div.type !== "radio") {
+        name = div.name.split('_')[1].toUpperCase();
+        $("#" + name).removeClass('is-invalid').removeClass('is-valid');
+        $("#" + div.name + "_helpblock").html(div.help);
+      }
+    }
+    ref1 = DeDx.switches;
+    for (n in ref1) {
+      if (!hasProp.call(ref1, n)) continue;
+      v = ref1[n];
       DeDx.switches[n] = false;
     }
     DeDx.switches.NewDelta = true;
@@ -530,7 +532,7 @@ $(function() {
       $("#" + div.name).change(div, validateNumber).change();
     }
   }
-  $('#div_switch input[type=checkbox]').click(calculate_bitmask);
+  $('input[type=checkbox]').click(calculate_bitmask);
   $('#calculate').click(calculate);
   $('#resetForm').click(resetForm);
   $('#CSV').click(csv);

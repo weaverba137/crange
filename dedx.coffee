@@ -326,11 +326,11 @@ $ () ->
         if eventObject.data.type == 'radio'
             name = div.split('_')[1]
             eventObject.data.valid = $("input[name=#{name}]:checked").length == 1
-            if not eventObject.data.first
-                if eventObject.data.valid
-                    $('#'+div).removeClass('has-error')
-                else
-                    $('#'+div).addClass('has-error')
+            # if not eventObject.data.first
+                # if eventObject.data.valid
+                #     $('#'+div).removeClass('has-error')
+                # else
+                #     $('#'+div).addClass('has-error')
 
         else
             input = $('#' + div.split('_')[1].toUpperCase())
@@ -338,10 +338,10 @@ $ () ->
             eventObject.data.valid = patt.test input.val()
             if not eventObject.data.first
                 if eventObject.data.valid
-                    $('#'+div).removeClass('has-error').addClass('has-success')
+                    input.removeClass('is-invalid').addClass('is-valid')
                     $('#'+div+'_helpblock').html(eventObject.data.help)
                 else
-                    $('#'+div).removeClass('has-success').addClass('has-error')
+                    input.removeClass('is-valid').addClass('is-invalid')
                     $('#'+div+'_helpblock').html("#{eventObject.data.help} #{if eventObject.data.type == 'int' then 'Integer' else 'Float'} value required!")
         eventObject.data.first = false
         validity = (d.valid for d in DeDx.validateDivs)
@@ -441,6 +441,11 @@ $ () ->
         document.getElementById('recalc').reset()
         $('#result').empty()
         DeDx.nCalc = 0
+        for div in DeDx.validateDivs
+            if div.type != "radio"
+                name = div.name.split('_')[1].toUpperCase()
+                $("##{name}").removeClass('is-invalid').removeClass('is-valid')
+                $("##{div.name}_helpblock").html(div.help)
         for own n, v of DeDx.switches
             DeDx.switches[n] = false
         DeDx.switches.NewDelta = true
@@ -460,7 +465,8 @@ $ () ->
     for div in DeDx.validateDivs
         if $("##{div.name}").length > 0
             $("##{div.name}").change(div, validateNumber).change()
-    $('#div_switch input[type=checkbox]').click(calculate_bitmask)
+    # $('#div_switch input[type=checkbox]').click(calculate_bitmask)
+    $('input[type=checkbox]').click(calculate_bitmask)
     $('#calculate').click(calculate)
     $('#resetForm').click(resetForm)
     $('#CSV').click(csv)
