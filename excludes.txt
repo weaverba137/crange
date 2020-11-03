@@ -9,3 +9,5 @@ excludes.txt
 last_modified.txt
 Makefile
 *.coffee
+*.ts
+tsconfig.json
