@@ -19,21 +19,18 @@ $(
     function(): void {
         let targets: Target[] = [];
         let absorberTable = function(): void {
-            const ref: string[] = ['name', 'z2', 'a2', 'iadj', 'rho', 'pla', 'etad', 'bind', 'X1', 'X1', 'a', 'm', 'd0'];
-            let body: JQuery<HTMLElement> = $('#atbody');
+            const col: string[] = ['name', 'z2', 'a2', 'iadj', 'rho', 'pla', 'etad', 'bind', 'X1', 'X1', 'a', 'm', 'd0'];
             for (let i: number = 0; i < targets.length; i++) {
                 if (targets[i].name !== 'Unknown') {
-                    let rowid: string = 't' + i;
-                    $("<tr id=\"" + rowid + "\"/>").appendTo(body);
-                    let rowref: JQuery<HTMLElement> = $('#' + rowid);
-                    for (let j: number = 0; j < ref.length; j++) {
-                        $('<td/>').html(targets[ref[j]]).appendTo(rowref);
+                    $("<tr id=\"t" + i + "\"/>").appendTo($('#atbody'));
+                    for (let j: number = 0; j < col.length; j++) {
+                        $('<td/>').html(targets[col[j]]).appendTo($('#t' + i));
                     }
                 }
             }
         };
         if (targets.length === 0) {
-            $.getJSON("target.json", {}, function(data): void {
+            $.getJSON("target.json", {}, function(data: Target[]): void {
                 targets = data;
             }).fail(function(): void {
                 alert("JSON error!");
