@@ -24,7 +24,7 @@ $(
                 if (targets[i].name !== 'Unknown') {
                     $("<tr id=\"t" + i + "\"/>").appendTo($('#atbody'));
                     for (let j: number = 0; j < col.length; j++) {
-                        $('<td/>').html(targets[col[j]]).appendTo($('#t' + i));
+                        $('<td/>').html(targets[i][col[j]]).appendTo($('#t' + i));
                     }
                 }
             }
