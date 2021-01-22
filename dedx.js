@@ -206,7 +206,6 @@ $(function () {
             const rho = a3 * compton;
             const prh = bb * gg * rho;
             let sumterm = 0.0;
-            let k;
             if (gg < 10.0 / rho || !this.switches.NuclearSize) {
                 let dk = [0.0, 0.0, 0.0];
                 let dmk = 0;
@@ -218,6 +217,7 @@ $(function () {
                 while (n < 100) {
                     let max = n === 1 ? 3 : 2;
                     for (let i = 0; i < max; i++) {
+                        let k;
                         if (i === 0)
                             k = n;
                         if (i === 1)
@@ -296,7 +296,7 @@ $(function () {
                     }
                     let sdd = math.sin(dk[0] - dk[2]);
                     term2 = n * sdd * sdd / (eta * eta * (4.0 * n * n - 1.0));
-                    term3 = term1 - 1.0 / k;
+                    term3 = term1 - 1.0 / n;
                     sumterm += term2 + term3;
                     n += 1;
                     dkm1 = dk[0];
@@ -442,7 +442,8 @@ $(function () {
         return bitmask;
     };
     let resetForm = function (_eventObject) {
-        document.getElementById('recalc').reset();
+        let recalc = document.getElementById('recalc');
+        recalc.reset();
         $('#result').empty();
         DeDx.nCalc = 0;
         for (let j = 0; j < DeDx.validateDivs.length; j++) {
