@@ -122,7 +122,7 @@ $(
                         }
                     }
                 } else {
-                    let z23: number = math.exp((2.0 / 3.0) * math.log(z2));
+                    let z23: number = math.exp((2.0 / 3.0) * math.log(z0));
                     let capA: number = 1.16 - z2 * (1.91e-03 - 1.26e-05 * z2);
                     let capB: number = (1.18 - z2 * (7.5e-03 - 4.53e-05 * z2)) / this.ALPHA;
                     f1 = capA * math.exp(-capB * b / z23);
@@ -152,7 +152,7 @@ $(
                 if (g < 1.8) return 0.0;
                 const cbar: number = 2.0 * math.log(t.iadj / t.pla) + 1.0;
                 const b: number = math.sqrt(1.0 - 1.0 / (g * g));
-                let y: number = 2.0 * math.log10(b * g);
+                let y: number = 2.0 * math.log(b * g);
                 let y0: number;
                 let y1: number;
                 if (t.etad > 0) {
@@ -243,15 +243,15 @@ $(
                 const gg: number = 1.0 / math.sqrt(1.0 - bb * bb);
                 const rho: number = a3 * compton;
                 const prh: number = bb * gg * rho;
+                let n: number = 1;
                 let sumterm: number = 0.0;
-                if (gg < 10.0 / rho || !this.switches.NuclearSize) {
+                let term1: number = 0;
+                let term3: number = 1;
+                let term2: number = 0;
+                if (gg < 10.0 / rho || !this.switches.FiniteNuclearSize) {
                     let dk: number[] = [0.0, 0.0, 0.0];
                     let dmk: number = 0;
                     let dkm1: number = 0;
-                    let n: number = 1;
-                    let term1: number = 0;
-                    let term2: number = 0;
-                    let term3: number = 1;
                     while (n < 100) {
                         let max: number = n === 1 ? 3 : 2;
                         for (let i: number = 0; i < max; i++) {
@@ -271,7 +271,7 @@ $(
                             let Cedr: math.Complex = math.multiply(Cexir, math.exp(Cpiske)) as math.Complex;
                             let H: number = 0.0;
                             let Ceds: math.Complex = math.complex(0.0, 0.0);
-                            if (this.switches.NuclearSize) {
+                            if (this.switches.FiniteNuclearSize) {
                                 let Cmske: math.Complex = math.complex(-sk + 1.0, eta);
                                 let Cmskmeta: math.Complex = math.complex(-sk, -eta);
                                 let Cexis: math.Complex = math.sqrt(math.divide(Cketag, Cmskmeta)) as math.Complex;
@@ -313,6 +313,7 @@ $(
                                     }
                                     let figi: number = k > 0 ? asum / bsum : bsum / asum;
                                     H = ((frgr - figi) / (figi - fsgs)) * grgs;
+                                    // console.log("H = " + H.toString())
                                 } else {
                                     H = 0.0;
                                 }
@@ -341,8 +342,10 @@ $(
             },
             stop: function(e1: number, z0: number, a1: number, target: string): number {
                 let t: Target = this.absorber(target);
+                // console.log("t.name = " + t.name);
                 const g: number = 1.0 + e1 / this.ATOMICMASSUNIT;
                 const delt: number = this.switches.NewDelta ? this.delta(g, t) : this.olddelta(g, t);
+                // console.log("delt = " + delt.toString());
                 const b2: number = 1.0 - 1.0 / (g * g);
                 const b: number = math.sqrt(b2);
                 const z1: number = this.effective_charge(z0, e1, t.z2);
@@ -357,7 +360,9 @@ $(
                     }
                 }
                 let f6: number = 2.0 * math.log(g) - b2;
+                // let f3: number = 0.0;
                 let f3: number = this.lindhard(z1, a1, b);
+                // console.log("f3 = " + f3.toString())
                 let f4: number  = 1.0;
                 if (this.switches.Barkas) {
                     let v: number = b * g / (this.ALPHA * math.sqrt(t.z2));
@@ -368,7 +373,7 @@ $(
                 let f9: number = this.switches.Radiative ? (this.ALPHA / math.pi) * b2 * (6.0822 + math.log(2.0 * g) * (math.log(2.0 * g) * (2.4167 + 0.3333 * math.log(2.0 * g)) - 8.0314)) : 0.0;
                 let Sbr: number = 0.0;
                 let Spa: number = 0.0;
-                return f1 * (f2 * f4 + f3 + f6 + (delt / 2.0) + f8 + f9) + Sbr + Spa;
+                return f1 * (f2 * f4 + f3 + f6 - (delt / 2.0) + f8 + f9) + Sbr + Spa;
             }
         };
         let validateNumber = function(eventObject: JQuery.Event): boolean {

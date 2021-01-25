@@ -1,7 +1,7 @@
 $(function () {
     let targets = [];
     let absorberTable = function () {
-        const col = ['name', 'z2', 'a2', 'iadj', 'rho', 'pla', 'etad', 'bind', 'X1', 'X1', 'a', 'm', 'd0'];
+        const col = ['name', 'z2', 'a2', 'iadj', 'rho', 'pla', 'etad', 'bind', 'X0', 'X1', 'a', 'm', 'd0'];
         for (let i = 0; i < targets.length; i++) {
             if (targets[i].name !== 'Unknown') {
                 $("<tr id=\"t" + i + "\"/>").appendTo($('#atbody'));

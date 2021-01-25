@@ -72,7 +72,7 @@ $(function () {
                 }
             }
             else {
-                let z23 = math.exp((2.0 / 3.0) * math.log(z2));
+                let z23 = math.exp((2.0 / 3.0) * math.log(z0));
                 let capA = 1.16 - z2 * (1.91e-03 - 1.26e-05 * z2);
                 let capB = (1.18 - z2 * (7.5e-03 - 4.53e-05 * z2)) / this.ALPHA;
                 f1 = capA * math.exp(-capB * b / z23);
@@ -103,7 +103,7 @@ $(function () {
                 return 0.0;
             const cbar = 2.0 * math.log(t.iadj / t.pla) + 1.0;
             const b = math.sqrt(1.0 - 1.0 / (g * g));
-            let y = 2.0 * math.log10(b * g);
+            let y = 2.0 * math.log(b * g);
             let y0;
             let y1;
             if (t.etad > 0) {
@@ -205,15 +205,15 @@ $(function () {
             const gg = 1.0 / math.sqrt(1.0 - bb * bb);
             const rho = a3 * compton;
             const prh = bb * gg * rho;
+            let n = 1;
             let sumterm = 0.0;
-            if (gg < 10.0 / rho || !this.switches.NuclearSize) {
+            let term1 = 0;
+            let term3 = 1;
+            let term2 = 0;
+            if (gg < 10.0 / rho || !this.switches.FiniteNuclearSize) {
                 let dk = [0.0, 0.0, 0.0];
                 let dmk = 0;
                 let dkm1 = 0;
-                let n = 1;
-                let term1 = 0;
-                let term2 = 0;
-                let term3 = 1;
                 while (n < 100) {
                     let max = n === 1 ? 3 : 2;
                     for (let i = 0; i < max; i++) {
@@ -236,7 +236,7 @@ $(function () {
                         let Cedr = math.multiply(Cexir, math.exp(Cpiske));
                         let H = 0.0;
                         let Ceds = math.complex(0.0, 0.0);
-                        if (this.switches.NuclearSize) {
+                        if (this.switches.FiniteNuclearSize) {
                             let Cmske = math.complex(-sk + 1.0, eta);
                             let Cmskmeta = math.complex(-sk, -eta);
                             let Cexis = math.sqrt(math.divide(Cketag, Cmskmeta));
@@ -337,7 +337,7 @@ $(function () {
             let f9 = this.switches.Radiative ? (this.ALPHA / math.pi) * b2 * (6.0822 + math.log(2.0 * g) * (math.log(2.0 * g) * (2.4167 + 0.3333 * math.log(2.0 * g)) - 8.0314)) : 0.0;
             let Sbr = 0.0;
             let Spa = 0.0;
-            return f1 * (f2 * f4 + f3 + f6 + (delt / 2.0) + f8 + f9) + Sbr + Spa;
+            return f1 * (f2 * f4 + f3 + f6 - (delt / 2.0) + f8 + f9) + Sbr + Spa;
         }
     };
     let validateNumber = function (eventObject) {
