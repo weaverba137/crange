@@ -123,7 +123,9 @@ $(
                     }
                 } else {
                     let z23: number = math.exp((2.0 / 3.0) * math.log(z0));
+                    // const capA: number = 1.0;
                     let capA: number = 1.16 - z2 * (1.91e-03 - 1.26e-05 * z2);
+                    // const capB: number = 130.0;
                     let capB: number = (1.18 - z2 * (7.5e-03 - 4.53e-05 * z2)) / this.ALPHA;
                     f1 = capA * math.exp(-capB * b / z23);
                 }
