@@ -335,8 +335,22 @@ $(function () {
             }
             let f8 = this.switches.Kinematic ? 0.5 * (-math.log(1.0 + 2.0 * (5.4858e-04 * g / a1)) - (5.4858e-04 * g / a1) * b2 / (g * g)) : 0.0;
             let f9 = this.switches.Radiative ? (this.ALPHA / math.pi) * b2 * (6.0822 + math.log(2.0 * g) * (math.log(2.0 * g) * (2.4167 + 0.3333 * math.log(2.0 * g)) - 8.0314)) : 0.0;
-            let Sbr = 0.0;
             let Spa = 0.0;
+            if (this.switches.Pair) {
+                let dpa = 1.0 / math.sqrt(g);
+                let ldpa = math.log(dpa);
+                let l0 = math.log(2.0 * g);
+                let Lpa0s = (19.0 / 9.0) * math.log(183.0 * math.exp(-1.0 / 3.0 * math.log(t.z2)) / (1.0 + 4.0 * 6.25470095193633 * 183.0 * math.exp(-1.0 / 3.0 * math.log(t.z2)) / g));
+                let Lpa1 = dpa * (4178.0 / (81 * math.pi * math.pi) - 21.0 / 27.0 - 248.0 * l0 / (27.0 * math.pi * math.pi)
+                    + (28.0 * l0 / 9.0 - 446.0 / 27.0) * 2.0 * ldpa / (math.pi * math.pi) + 14.0 * 4.0 * ldpa * ldpa / (9.0 * math.pi * math.pi));
+                let Lpa = Lpa0s + Lpa1;
+                Spa = 4.08803936906434e-06 * (z1 * z1 / a1) * (t.z2 * t.z2 / t.a2) * (1.0 + 1.0 / t.z2) * g * Lpa;
+            }
+            let Sbr = 0.0;
+            if (this.switches.Bremsstrahlung) {
+                let Bbr = math.log(1.0 + 2.0 * g * 0.179524783764566 / (math.exp((1.0 / 3.0) * math.log(a1)) + math.exp((1.0 / 3.0) * math.log(t.a2))) / a1);
+                Sbr = 5.21721169334564e-07 * (z1 * z1 / a1) * (z1 * z1 / a1) * (t.z2 * t.z2 / t.a2) * g * Bbr;
+            }
             return f1 * (f2 * f4 + f3 + f6 - (delt / 2.0) + f8 + f9) + Sbr + Spa;
         }
     };
