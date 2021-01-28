@@ -64,7 +64,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <form id="recalc">
-                        <fieldset><legend>Calculate</legend>
+                        <fieldset><legend>Input Data</legend>
                             <p>Task</p>
                             <div id="div_task">
                                 <div class="form-check form-check-inline">
@@ -101,46 +101,54 @@
                                 </select>
                             </div>
                             <p>Optional Effects (Code <span id="bitmask">40</span>)</p>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" name="FiniteNuclearSize" id="FiniteNuclearSize" value="32" checked="checked" />
-                                <label class="form-check-label" for="FiniteNuclearSize">Finite Nuclear Size</label>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" name="FiniteNuclearSize" id="FiniteNuclearSize" value="32" checked="checked" />
+                                        <label class="form-check-label" for="FiniteNuclearSize">Finite Nuclear Size</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" name="NewDelta" id="NewDelta" value="8" checked="checked" />
+                                        <label class="form-check-label" for="NewDelta">Modern Density Effect</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" name="Barkas" id="Barkas" value="1" />
+                                        <label class="form-check-label" for="Barkas">Barkas Effect</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" name="Shell" id="Shell" value="2" />
+                                        <label class="form-check-label" for="Shell">Shell Effect</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" name="Leung" id="Leung" value="4" />
+                                        <label class="form-check-label" for="Leung">Leung Effect</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" name="NewElectronCapture" id="NewElectronCapture" value="16" />
+                                        <label class="form-check-label" for="NewElectronCapture">Modern Electron Capture Effect</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" name="Kinematic" id="Kinematic" value="64" />
+                                        <label class="form-check-label" for="Kinematic">Kinematic Correction</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" name="Radiative" id="Radiative" value="128" />
+                                        <label class="form-check-label" for="Radiative">Radiative Correction</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" name="Pair" id="Pair" value="256" />
+                                        <label class="form-check-label" for="Pair">Pair Production</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" name="Bremsstrahlung" id="Bremsstrahlung" value="512" />
+                                        <label class="form-check-label" for="Bremsstrahlung">Bremsstrahlung</label>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" name="NewDelta" id="NewDelta" value="8" checked="checked" />
-                                <label class="form-check-label" for="NewDelta">Modern Density Effect</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" name="Barkas" id="Barkas" value="1" />
-                                <label class="form-check-label" for="Barkas">Barkas Effect</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" name="Shell" id="Shell" value="2" />
-                                <label class="form-check-label" for="Shell">Shell Effect</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" name="Leung" id="Leung" value="4" />
-                                <label class="form-check-label" for="Leung">Leung Effect</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" name="NewElectronCapture" id="NewElectronCapture" value="16" />
-                                <label class="form-check-label" for="NewElectronCapture">Modern Electron Capture Effect</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" name="Kinematic" id="Kinematic" value="64" />
-                                <label class="form-check-label" for="Kinematic">Kinematic Correction</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" name="Radiative" id="Radiative" value="128" />
-                                <label class="form-check-label" for="Radiative">Radiative Correction</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" name="Pair" id="Pair" value="256" />
-                                <label class="form-check-label" for="Pair">Pair Production</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" name="Bremsstrahlung" id="Bremsstrahlung" value="512" />
-                                <label class="form-check-label" for="Bremsstrahlung">Bremsstrahlung</label>
-                            </div>
+                        </fieldset>
+                        <fieldset><legend>Commands</legend>
                             <!-- Set value to "true" for output debugging -->
                             <input type="hidden" name="debug" value="true" />
                             <input type="hidden" name="previous_target" id="previous_target" value="Unknown" />
@@ -177,7 +185,7 @@
             <p><img src="../colorsep.gif" alt="Separator" class="separator" /></p>
             <ul class="list-unstyled">
                 <li class="text-muted">Created: 2001-02-07 11:51:46 -0800 (Wed, 07 Feb 2001)</li>
-                <li class="text-muted">Last modified: 2020-07-15 12:03:09 -0600 (Wed, 15 Jul 2020)</li>
+                <li class="text-muted">Last modified: 2021-01-28 10:51:17 -0700 (Thu, 28 Jan 2021)</li>
             </ul>
         </footer><!-- end class="container" -->
     </body>
