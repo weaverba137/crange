@@ -23,6 +23,16 @@ interface Validation {
     help: string;
 }
 
+interface RangeTable {
+    z1: number;
+    a1: number;
+    bitmask: number;
+    target: string;
+    range: number[];
+    interpolateRange(energy: number): number;
+    interpolateEnergy(energy: number, r0: number): number;
+}
+
 interface DEDX {
     nCalc: number;
     ALPHA: number;
@@ -33,6 +43,7 @@ interface DEDX {
     targets: Target[];
     switches: Switch;
     validateDivs: Validation[];
+    rangeTables: RangeTable[];
     absorber(target: string): Target;
     effective_charge(z0: number, e1: number, z2: number): number;
     delta(g: number, t: Target): number;
@@ -41,6 +52,10 @@ interface DEDX {
     hyperg(a: math.Complex, b: math.Complex, z: math.Complex): math.Complex;
     lindhard(zz: number, aa: number, bb: number): number;
     stop(e1: number, z0: number, a1: number, target: string): number;
+    range(e: number, z1: number, a1: number, bitmask: number, target: string): number;
+    benton(e: number, z1: number, a1: number, target: string): number;
+    integrate(i: number, z1: number, a1: number, target: string): number;
+    renergy(e: number, r0: number, z1: number, a1: number, bitmask: number, target: string): number;
 }
 
 declare namespace JQuery {
@@ -51,6 +66,10 @@ declare namespace JQuery {
 
 $(
     function(): void {
+        const MAXE: number = 200;
+        const LOGTENEMIN: number = 0;
+        const LOGTENEMAX: number = 6;
+        const M_LN10: number = 2.30258509299404568402;
         let DeDx: DEDX = {
             nCalc: 0,
             ALPHA: 7.29735301383e-3,
@@ -96,6 +115,7 @@ $(
                 first: true,
                 help: ''
             }],
+            rangeTables: [],
             absorber: function(target: string): Target {
                 let t: Target;
                 for (let j: number = 0; j < this.targets.length; j++) {
@@ -391,7 +411,185 @@ $(
                     Sbr = 5.21721169334564e-07*(z1*z1/a1)*(z1*z1/a1)*(t.z2*t.z2/t.a2)*g*Bbr;
                 }
                 return f1 * (f2 * f4 + f3 + f6 - (delt / 2.0) + f8 + f9) + Sbr + Spa;
+            },
+            range: function(e: number, z1: number, a1: number, bitmask: number, target: string): number {
+                // const t: Target = this.absorber(target);
+                let rt: RangeTable;
+                for (let i: number = 0; i < this.rangeTables.length; i++) {
+                    rt = this.rangeTables[i];
+                    if ((z1 == rt.z1) && (a1 == rt.a1) && (bitmask == rt.bitmask) && (target == rt.target)) {
+                        return rt.interpolateRange(e);
+                    }
+                }
+                rt = CreateRangeTable(z1, a1, bitmask, target);
+                this.rangeTables.push(rt);
+                return rt.interpolateRange(e);
+            },
+            benton: function(e: number, z1: number, a1: number, target: string): number {
+                const t: Target = this.absorber(target);
+                const amn: number[][][] = [[[-8.72500,  1.88000,  0.741900,  0.752000],
+                                            [ 0.83090,  0.11140, -0.528800, -0.555890],
+                                            [-0.13396, -0.06481,  0.126423,  0.128431],
+                                            [ 0.01262,  0.00540, -0.009341, -0.009306]],
+                                           [[-7.6604e-01,  2.5398e+00, -2.4598e-01,  0.0000e+00],
+                                            [ 7.3736e-02, -3.1200e-01,  1.1548e-01,  0.0000e+00],
+                                            [ 4.0556e-02,  1.8664e-02, -9.9661e-03,  0.0000e+00],
+                                            [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  0.0000e+00]],
+                                           [[-8.0155e+00,  1.8371e+00,  4.5233e-02, -5.9898e-03],
+                                            [ 3.6916e-01, -1.4520e-02, -9.5873e-04, -5.2315e-04],
+                                            [-1.4307e-02, -3.0142e-02,  7.1303e-03, -3.3802e-04],
+                                            [ 3.4718e-03,  2.3603e-03, -6.8538e-04,  3.9405e-05]]];
+                const czmn: number[][] = [[-6.000e-05,  5.252e-02,  1.285e-01,  0.000e+00],
+                                          [-1.850e-03,  7.355e-02,  7.171e-02, -2.723e-02],
+                                          [-7.930e-02,  3.323e-01, -1.234e-01,  1.530e-02],
+                                          [ 2.200e-01,  0.000e+00,  0.000e+00,  0.000e+00]];
+                const cjoin: number[][] = [[ 0.94,  20.19, -84.08,  132.98, -30.77, -102.29, 64.03],
+                                           [12.62, -51.96, 199.14, -367.09, 327.06, -108.57,  0.00]];
+                const cr: number = this.PROTONMASS/this.ATOMICMASSUNIT;
+                //
+                // Compute join[4].
+                //
+                let join: number[] = [0, 0, 0, 0];
+                for (let l: number = 0; l < 2; l++) {
+                    let m: number = 6;
+                    join[l] = cjoin[l][m];
+                    while (m > 0) join[l] = 0.001*t.iadj*join[l] + cjoin[l][--m];
+                }
+                //
+                // Compute prnglo[3].
+                //
+                const logt: number = math.log( e * cr );
+                const logi: number = math.log( t.iadj );
+                let prnglo: number[] = [0, 0, 0];
+                for (let l: number = 0; l < 3; l++) {
+                    let loglambda: number = 0.0;
+                    for (let m: number = 3; m >= 0; m--) {
+                        let n: number = 3;
+                        let term: number = amn[l][m][n];
+                        while (n > 0) term = term*logt + amn[l][m][--n];
+                        loglambda += term;
+                        loglambda *= logi;
+                    }
+                    loglambda /= logi;
+                    loglambda += math.log(t.a2/t.z2);
+                    prnglo[l] = math.exp(loglambda);
+                    if (l == 1) prnglo[l] *= 1.0e-03;
+                }
+                //
+                // Compute cz[4].
+                //
+                const g: number = 1.0 + e/this.ATOMICMASSUNIT;
+                const b: number = math.sqrt(1.0 -1.0/(g*g));
+                const x: number = 137.0*b/z1;
+                let cz: number[] = [0, 0, 0, 0];
+                for (let m: number = 0; m < 4; m++) {
+                    cz[m]=0.0;
+                    for (let n: number = 3; n >= 0; n--) {
+                        cz[m] += czmn[m][n];
+                        cz[m] *= x;
+                    }
+                    cz[m] /= x;
+                }
+                let l: number = 1;
+                if (e < join[0]) l = 0;
+                if (e > join[1]) l = 2;
+                let n: number;
+                if (x <= 0.2) {
+                    n = 0;
+                } else if ( x > 0.2 && x <= 2.0 ) {
+                    n = 1;
+                } else if ( x > 2.0 && x <= 3.0 ) {
+                    n = 2;
+                } else { // if ( x > 3.0 ) {
+                    n = 3;
+                }
+                let bzz: number = (31.8 + 3.86*math.exp((5.0/8.0)*logi)) * (t.a2/t.z2)*1.0e-06*math.exp((8.0/3.0)*math.log(z1));
+                return (( (a1/cr)/(z1*z1) )*(prnglo[l] + bzz*cz[n]));
+            },
+            integrate: function(i: number, z1: number, a1: number, target: string): number {
+                // const t: Target = this.absorber(target);
+                // const rel: number = 0.0;
+                const e0: number = energyTable(i-1);
+                const de2: number = (energyTable(i) - e0)/2.0;
+                const e1: number = e0 + 1.33998104*de2;
+                const dedx1: number = this.stop(e1, z1, a1, target);
+                const e2: number = e0 + 1.86113631*de2;
+                const dedx2: number = this.stop(e2, z1, a1, target);
+                const e3: number = e0 + 0.13886369*de2;
+                const dedx3: number = this.stop(e3, z1, a1, target);
+                const e4: number = e0 + 0.66001869*de2;
+                const dedx4: number = this.stop(e4, z1, a1, target);
+                return de2 * (0.65214515/dedx1 +
+                              0.34785485/dedx2 +
+                              0.34785485/dedx3 +
+                              0.65214515/dedx4);
+            },
+            renergy: function(e: number, r0: number, z1: number, a1: number, bitmask: number, target: string): number {
+                let rt: RangeTable;
+                for (let i: number = 0; i < this.rangeTables.length; i++) {
+                    rt = this.rangeTables[i];
+                    if ((z1 == rt.z1) && (a1 == rt.a1) && (bitmask == rt.bitmask) && (target == rt.target)) {
+                        return rt.interpolateEnergy(e, r0);
+                    }
+                }
+                rt = CreateRangeTable(z1, a1, bitmask, target);
+                this.rangeTables.push(rt);
+                return rt.interpolateEnergy(e, r0);
             }
+        };
+        let CreateRangeTable = function(z1: number, a1: number, bitmask: number, target: string): RangeTable {
+            let i: number = 0;
+            let range: number[] = [];
+            while (energyTable(i) < 8.0) {
+                range.push(DeDx.benton(energyTable(i), z1, a1, target));
+                i++;
+            }
+            while (i < MAXE) {
+                range.push(range[i-1] + DeDx.integrate(i, z1, a1, target));
+                i++;
+            }
+            let rt: RangeTable = {
+                z1: z1,
+                a1: a1,
+                bitmask: bitmask,
+                target: target,
+                range: range,
+                interpolateRange: function(energy: number): number {
+                    if (energy > energyTable(0)) {
+                        let i: number = 1;
+                        while (energy > energyTable(i)) i++;
+                        return (this.range[i-1] + (energy - energyTable(i-1)) *
+                                (this.range[i]-this.range[i-1])/(energyTable(i)-energyTable(i-1)));
+                    } else {
+                        return energy*this.range[0]/energyTable(0);
+                    }
+                },
+                interpolateEnergy: function(energy: number, r0: number): number {
+                    let r: number;
+                    // Not sure why energy would ever be negative.
+                    if ( energy > 0.0 ){
+                        //
+                        // Compute the expected total range at this energy.
+                        //
+                        let rr: number = this.interpolateRange(energy);
+                        r = rr - r0;
+                        if (r < 0.0) return(0.0);
+                    } else {
+                        r = r0;
+                    }
+                    if (r > range[0]) {
+                        let i: number = 1;
+                        while (r > this.range[i]) i++;
+                        return (energyTable(i-1) + (r - this.range[i-1]) * (energyTable(i)-energyTable(i-1)) / (this.range[i]-this.range[i-1]));
+                    } else {
+                        return energyTable(0) * r / this.range[0];
+                    }
+                }
+            };
+            return rt;
+        };
+        let energyTable = function(i: number): number {
+            return math.exp(M_LN10*(LOGTENEMIN + (i)*(LOGTENEMAX-LOGTENEMIN)/(MAXE - 1.0)));
         };
         let validateNumber = function(eventObject: JQuery.Event): boolean {
             if ($('#previous_target').val() !== 'Unknown') eventObject.data.first = false;
@@ -452,12 +650,12 @@ $(
             switch (task) {
                 case 'r':
                     type = 'Range';
-                    result = 1.23;
+                    result = DeDx.range(re, z0, a1, bitmask, target);
                     unit = 'g&nbsp;cm<sup>-2</sup>';
                     break;
                 case 'e':
                     type = 'Energy';
-                    result = 950.333;
+                    result = DeDx.renergy(re, 0, z0, a1, bitmask, target);
                     unit = 'A&nbsp;MeV';
                     break;
                 case 'd':
