@@ -24,29 +24,35 @@ $(function () {
             Bremsstrahlung: false
         },
         validateDivs: [{
-                name: 'div_task',
-                type: 'radio',
+                name: "div_task",
+                type: "radio",
                 valid: false,
                 first: true,
-                help: ''
+                help: ""
             }, {
-                name: 'div_re',
-                type: 'float',
+                name: "div_re",
+                type: "float",
                 valid: false,
                 first: true,
-                help: 'Units are A&nbsp;MeV or g&nbsp;cm<sup>-2</sup>.'
+                help: "Units are A&nbsp;MeV."
             }, {
-                name: 'div_z',
-                type: 'int',
+                name: "div_dx",
+                type: "float",
                 valid: false,
                 first: true,
-                help: ''
+                help: "Distance traversed in target material. Units are g&nbsp;cm<sup>-2</sup>."
             }, {
-                name: 'div_a',
-                type: 'int',
+                name: "div_z",
+                type: "int",
                 valid: false,
                 first: true,
-                help: ''
+                help: "Number of protons; atomic number."
+            }, {
+                name: "div_a",
+                type: "int",
+                valid: false,
+                first: true,
+                help: "Number of nucleons; atomic mass."
             }],
         rangeTables: [],
         absorber: function (target) {
@@ -536,25 +542,25 @@ $(function () {
         return math.exp(M_LN10 * (LOGTENEMIN + (i) * (LOGTENEMAX - LOGTENEMIN) / (MAXE - 1.0)));
     };
     let validateNumber = function (eventObject) {
-        if ($('#previous_target').val() !== 'Unknown')
+        if ($("#previous_target").val() !== "Unknown")
             eventObject.data.first = false;
         let div = eventObject.data.name;
-        if (eventObject.data.type === 'radio') {
-            let name = div.split('_')[1];
+        if (eventObject.data.type === "radio") {
+            let name = div.split("_")[1];
             eventObject.data.valid = $("input[name=" + name + "]:checked").length === 1;
         }
         else {
-            let input = $('#' + div.split('_')[1].toUpperCase());
-            let patt = eventObject.data.type === 'int' ? new RegExp(/^[0-9]+$/i) : new RegExp(/^[0-9]+(\.[0-9]*|)(e[+-]?[0-9]+|)$/i);
+            let input = $("#" + div.split("_")[1].toUpperCase());
+            let patt = eventObject.data.type === "int" ? new RegExp(/^[0-9]+$/i) : new RegExp(/^[0-9]+(\.[0-9]*|)(e[+-]?[0-9]+|)$/i);
             eventObject.data.valid = patt.test(input.val().toString());
             if (!eventObject.data.first) {
                 if (eventObject.data.valid) {
-                    input.removeClass('is-invalid').addClass('is-valid');
-                    $('#' + div + '_helpblock').html(eventObject.data.help);
+                    input.removeClass("is-invalid").addClass("is-valid");
+                    $("#" + div + "_helpblock").html(eventObject.data.help);
                 }
                 else {
-                    input.removeClass('is-valid').addClass('is-invalid');
-                    $('#' + div + '_helpblock').html(eventObject.data.help + " " + (eventObject.data.type === 'int' ? 'Integer' : 'Float') + " value required!");
+                    input.removeClass("is-valid").addClass("is-invalid");
+                    $("#" + div + "_helpblock").html(eventObject.data.help + " " + (eventObject.data.type === "int" ? "Integer" : "Float") + " value required!");
                 }
             }
         }
@@ -564,64 +570,87 @@ $(function () {
             validity.push(DeDx.validateDivs[j].valid);
         }
         let formvalid = validity.every(function (currentValue) { return currentValue; });
-        $('#calculate').prop('disabled', !formvalid);
+        if (formvalid) {
+            $("#calculate").removeAttr("disabled");
+        }
+        else {
+            $("#calculate").attr("disabled", "disabled");
+        }
         return eventObject.data.valid;
     };
     let absorberTable = function () {
-        let select = $('#select_target');
-        let previous_target = $('#previous_target');
-        let selected_target = previous_target.length === 1 ? previous_target.val().toString() : 'Unknown';
+        let select = $("#select_target");
+        let previous_target = $("#previous_target");
+        let selected_target = previous_target.length === 1 ? previous_target.val().toString() : "Unknown";
         let k = 0;
         for (let j = 0; j < DeDx.targets.length; j++) {
-            if (DeDx.targets[j].name !== 'Unknown') {
-                let rowid = 't' + k;
+            if (DeDx.targets[j].name !== "Unknown") {
+                let rowid = "t" + k;
                 k += 1;
                 $("<option id=\"" + rowid + "\"/>").html(DeDx.targets[j].name).appendTo(select);
                 if (DeDx.targets[j].name === selected_target) {
-                    $("#" + rowid).prop('selected', true);
+                    $("#" + rowid).attr("selected", "selected");
                 }
             }
         }
     };
+    let task_help = function (_eventObject) {
+        let task = $("input[name=task]:checked").val().toString();
+        if (task == "e") {
+            $("#div_dx").removeClass("d-none").addClass("d-block");
+            $("#DX").val("");
+        }
+        else {
+            $("#div_dx").removeClass("d-block").addClass("d-none");
+            $("#DX").val("0");
+        }
+    };
     let calculate = function (eventObject) {
-        let task = $('input[name=task]:checked').val().toString();
-        let re = Number($('#RE').val());
-        let z0 = Number($('#Z').val());
-        let a1 = Number($('#A').val());
-        let target = $('#select_target').val().toString();
+        $("#calculate").attr("disabled", "disabled");
+        let task = $("input[name=task]:checked").val().toString();
+        let re = Number($("#RE").val());
+        let dx = Number($("#DX").val());
+        let z0 = Number($("#Z").val());
+        let a1 = Number($("#A").val());
+        let target = $("#select_target").val().toString();
         let bitmask = calculate_bitmask(eventObject);
         let type;
         let result;
         let unit;
         switch (task) {
-            case 'r':
-                type = 'Range';
+            case "r":
+                type = "Range";
+                console.log("DeDx.range(" + re + ", " + z0 + ", " + a1 + ", " + bitmask + ", '" + target + "');");
                 result = DeDx.range(re, z0, a1, bitmask, target);
-                unit = 'g&nbsp;cm<sup>-2</sup>';
+                unit = "g&nbsp;cm<sup>-2</sup>";
                 break;
-            case 'e':
-                type = 'Energy';
-                result = DeDx.renergy(re, 0, z0, a1, bitmask, target);
-                unit = 'A&nbsp;MeV';
+            case "e":
+                type = "Energy";
+                console.log("DeDx.renergy(" + re + ", " + dx + ", " + z0 + ", " + a1 + ", " + bitmask + ", '" + target + "');");
+                result = DeDx.renergy(re, dx, z0, a1, bitmask, target);
+                unit = "A&nbsp;MeV";
                 break;
-            case 'd':
-                type = 'd<var>E</var>/d<var>x</var>';
+            case "d":
+                type = "d<var>E</var>/d<var>x</var>";
+                console.log("DeDx.stop(" + re + ", " + z0 + ", " + a1 + ", '" + target + "');");
                 result = DeDx.stop(re, z0, a1, target);
-                unit = 'A&nbsp;MeV&nbsp;g<sup>-1</sup>&nbsp;cm<sup>2</sup>';
+                unit = "A&nbsp;MeV&nbsp;g<sup>-1</sup>&nbsp;cm<sup>2</sup>";
         }
         DeDx.nCalc += 1;
-        let r = $('#result');
+        let r = $("#result");
         let rr = $("<tr id=\"rtr" + DeDx.nCalc + "\"/>");
-        $('<td/>').html(DeDx.nCalc.toString()).appendTo(rr);
-        $('<td/>').html(type).appendTo(rr);
-        $('<td/>').html(re.toString()).appendTo(rr);
-        $('<td/>').html(z0.toString()).appendTo(rr);
-        $('<td/>').html(a1.toString()).appendTo(rr);
-        $('<td/>').html(target).appendTo(rr);
-        $('<td/>').html(bitmask.toString()).appendTo(rr);
-        $('<td/>').html(result.toString()).appendTo(rr);
-        $('<td/>').html(unit).appendTo(rr);
+        $("<td/>").html(DeDx.nCalc.toString()).appendTo(rr);
+        $("<td/>").html(type).appendTo(rr);
+        $("<td/>").html(re.toString()).appendTo(rr);
+        $("<td/>").html(dx.toString()).appendTo(rr);
+        $("<td/>").html(z0.toString()).appendTo(rr);
+        $("<td/>").html(a1.toString()).appendTo(rr);
+        $("<td/>").html(target).appendTo(rr);
+        $("<td/>").html(bitmask.toString()).appendTo(rr);
+        $("<td/>").html(result.toString()).appendTo(rr);
+        $("<td/>").html(unit).appendTo(rr);
         rr.appendTo(r);
+        $("#calculate").removeAttr("disabled").html("Calculate");
     };
     let calculate_bitmask = function (_eventObject) {
         let bitmask = 0;
@@ -629,22 +658,22 @@ $(function () {
         for (n in DeDx.switches) {
             if (!DeDx.switches.hasOwnProperty(n))
                 continue;
-            let vv = $("#" + n).is(':checked');
+            let vv = $("#" + n).is(":checked");
             bitmask += vv ? Number($("#" + n).val()) : 0;
             DeDx.switches[n] = vv;
         }
-        $('#bitmask').html(bitmask.toString());
+        $("#bitmask").html(bitmask.toString());
         return bitmask;
     };
     let resetForm = function (_eventObject) {
-        let recalc = document.getElementById('recalc');
+        let recalc = document.getElementById("recalc");
         recalc.reset();
-        $('#result').empty();
+        $("#result").empty();
         DeDx.nCalc = 0;
         for (let j = 0; j < DeDx.validateDivs.length; j++) {
             if (DeDx.validateDivs[j].type !== "radio") {
-                let name = DeDx.validateDivs[j].name.split('_')[1].toUpperCase();
-                $("#" + name).removeClass('is-invalid').removeClass('is-valid');
+                let name = DeDx.validateDivs[j].name.split("_")[1].toUpperCase();
+                $("#" + name).removeClass("is-invalid").removeClass("is-valid");
                 $("#" + DeDx.validateDivs[j].name + "_helpblock").html(DeDx.validateDivs[j].help);
             }
         }
@@ -656,27 +685,27 @@ $(function () {
         }
         DeDx.switches.NewDelta = true;
         DeDx.switches.FiniteNuclearSize = true;
-        $('#bitmask').html("40");
+        $("#bitmask").html("40");
     };
     let csv = function (_eventObject) {
         let rows = [];
-        const header = ['ID', 'Task', 'E/R', 'Z', 'A', 'Target', 'Effects', 'Result', 'Units'];
-        rows.push(header.join(','));
-        let foo = $('#result').children();
+        const header = ["ID", "Task", "E", "dx", "Z", "A", "Target", "Effects", "Result", "Units"];
+        rows.push(header.join(","));
+        let foo = $("#result").children();
         if (foo.length === 0) {
-            alert('No rows!');
+            alert("No rows!");
             return;
         }
         for (let j = 0; j < foo.length; j++) {
             let r = [];
             for (let m = 0; m < foo[j].children.length; m++) {
-                r.push(foo[j].children[m].innerHTML.replace(/&nbsp;/g, ' '));
+                r.push(foo[j].children[m].innerHTML.replace(/&nbsp;/g, " "));
             }
-            rows.push(r.join(','));
+            rows.push(r.join(","));
         }
-        let c = rows.join('\r\n') + '\r\n';
+        let c = rows.join("\r\n") + "\r\n";
         let download = $("<a/>", {
-            href: 'data:text/csv;charset=utf-8,' + encodeURIComponent(c),
+            href: "data:text/csv;charset=utf-8," + encodeURIComponent(c),
             download: "crange.csv"
         });
         download.appendTo($("#downloadCSV"));
@@ -696,8 +725,12 @@ $(function () {
             $("#" + div.name).change(div, validateNumber).change();
         }
     }
-    $('input[type=checkbox]').click(calculate_bitmask);
-    $('#calculate').click(calculate);
-    $('#resetForm').click(resetForm);
-    $('#CSV').click(csv);
+    $("input[type=radio]").on("click", task_help);
+    $("input[type=checkbox]").on("click", calculate_bitmask);
+    $("#calculate").on("mousedown", function () {
+        let spin = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Calculating...';
+        $("#calculate").html(spin);
+    }).on("mouseup", calculate);
+    $("#resetForm").on("click", resetForm);
+    $("#CSV").on("click", csv);
 });

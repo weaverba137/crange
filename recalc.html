@@ -59,7 +59,14 @@
                 <div class="col">
                     <p class="lead">Welcome to the Stopping Power Calculator.  This calculator replicates <em>some</em> of the functionality of the <a href="./#code">CRange package</a>. Numerical results should be the same as the C++ code, for identical inputs.  To report numerical discrepancies or other errors, please visit <a href="https://github.com/weaverba137/crange/issues">CRange Issues</a>.</p>
                     <p class="lead">You may wish to use the <a href="absorb.html">target list</a> to find out if the target material is currently supported.</p>
-                    <p class="lead text-danger">This page is under development.  The "Energy" task below is deliberately disabled.</p>
+                    <ul>
+                        <li>Task "Range" computes the distance an ion will travel for a given energy in a given material.</li>
+                        <li>Task "Energy" computes the final energy of an ion after a passage through a given distance in a given material with a given initial energy.</li>
+                        <li>Task "dE/dx" computes the <em>rate</em> of energy loss (per unit distance) of an ion in a given material at a given initial energy.</li>
+                        <li>All energy units are A&nbsp;MeV (MeV/nucleon).</li>
+                        <li>All distance units are g&nbsp;cm<sup>-2</sup> (density times physical distance).</li>
+                        <li>The "Range" and "Energy" tasks require computation of a look-up table internally, so the first time these tasks are executed, computation can take several minutes.  Subsequent computations with similar inputs (ion and target material) should be very fast.</li>
+                    </ul>
                 </div><!-- end class="col" -->
             </div><!-- end class="row" -->
             <div class="row">
@@ -73,7 +80,7 @@
                                     <label class="form-check-label" for="task_r">Range</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="task" id="task_e" value="e" disabled="disabled" />
+                                    <input type="radio" class="form-check-input" name="task" id="task_e" value="e" />
                                     <label class="form-check-label" for="task_e">Energy</label>
                                 </div>
                                 <div class="form-check form-check-inline">
@@ -82,19 +89,24 @@
                                 </div>
                             </div>
                             <div class="form-group" id="div_re">
-                                <label for="RE">Energy / Range</label>
-                                <input type="text" class="form-control" aria-describedby="div_re_helpblock" name="RE" id="RE" value="" />
-                                <span id="div_re_helpblock" class="form-text text-muted">Units are A&nbsp;MeV or g&nbsp;cm<sup>-2</sup>.</span>
+                                <label for="RE" id="label_re_helpblock">Energy</label>
+                                <input type="text" class="form-control" aria-describedby="div_re_helpblock" name="RE" id="RE" value="" placeholder="1000"/>
+                                <span id="div_re_helpblock" class="form-text text-muted">Units are A&nbsp;MeV.</span>
+                            </div>
+                            <div class="form-group d-none" id="div_dx">
+                                <label for="dx" id="label_dx_helpblock">Path</label>
+                                <input type="text" class="form-control" aria-describedby="div_dx_helpblock" name="DX" id="DX" value="0" placeholder="1"/>
+                                <span id="div_dx_helpblock" class="form-text text-muted">Distance traversed in target material. Units are g&nbsp;cm<sup>-2</sup>.</span>
                             </div>
                             <div class="form-group" id="div_z">
                                 <label for="Z">Projectile Charge</label>
                                 <input type="text" class="form-control" aria-describedby="div_z_helpblock" name="Z" id="Z" value="" placeholder="79" />
-                                <span id="div_z_helpblock" class="form-text text-muted"></span>
+                                <span id="div_z_helpblock" class="form-text text-muted">Number of protons; atomic number.</span>
                             </div>
                             <div class="form-group" id="div_a">
                                 <label for="Z">Projectile Mass</label>
                                 <input type="text" class="form-control" aria-describedby="div_a_helpblock" name="A" id="A" value="" placeholder="197" />
-                                <span id="div_a_helpblock" class="form-text text-muted"></span>
+                                <span id="div_a_helpblock" class="form-text text-muted">Number of nucleons; atomic mass.</span>
                             </div>
                             <div class="form-group" id="div_target">
                                 <label for="select_target">Target Material</label>
@@ -165,7 +177,8 @@
                             <tr>
                                 <th title="Calculation Number">ID</th>
                                 <th title="Task">Task</th>
-                                <th title="Energy / Range">E/R</th>
+                                <th title="Energy">E</th>
+                                <th title="Path Traversed">dx</th>
                                 <th title="Projectile Charge">Z</th>
                                 <th title="Projectile Mass">A</th>
                                 <th title="Target Material">Target</th>
@@ -186,7 +199,7 @@
             <p><img src="../colorsep.gif" alt="Separator" class="separator" /></p>
             <ul class="list-unstyled">
                 <li class="text-muted">Created: 2001-02-07 11:51:46 -0800 (Wed, 07 Feb 2001)</li>
-                <li class="text-muted">Last modified: 2021-01-28 16:04:47 -0700 (Thu, 28 Jan 2021)</li>
+                <li class="text-muted">Last modified: 2021-02-02 12:27:21 -0700 (Tue, 02 Feb 2021)</li>
             </ul>
         </footer><!-- end class="container" -->
     </body>
