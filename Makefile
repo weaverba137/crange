@@ -40,7 +40,7 @@ endif
 #
 # This should compile all code prior to it being installed
 #
-all : dedx.js
+all : last_modified.txt
 	@ for f in $(SUBDIRS); do $(MAKE) -C $$f all ; done
 #
 # This line helps prevent make from getting confused in the case where you
@@ -57,8 +57,8 @@ all : dedx.js
 #
 last_modified.txt : $(HTML)
 	@ for f in $?; do \
-		echo $(SED) "s|^([^>]+)(>Last modified: ).*</li>|\1\2$(LAST_MODIFIED)</li>|" $$f; \
-		$(SED) "s|^([^>]+)(>Last modified: ).*</li>|\1\2$(LAST_MODIFIED)</li>|" $$f > $$f.new; \
+		echo $(SED) "s|^([^>]+)(<li.*>)(<small>)(Last modified: ).*</small>|\1\2\3\4$(LAST_MODIFIED)</small>|" $$f; \
+		$(SED) "s|^([^>]+)(<li.*>)(<small>)(Last modified: ).*</small>|\1\2\3\4$(LAST_MODIFIED)</small>|" $$f > $$f.new; \
 		echo /bin/mv -f $$f.new $$f; \
 		/bin/mv -f $$f.new $$f; \
 		done
